@@ -1,5 +1,16 @@
-cmake_minimum_required(VERSION 3.17.2)
+cmake_minimum_required(VERSION 3.22)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Android")
+	set(ANDROID 1)
+	set(VCPKG_TARGET_ANDROID 1)
+	# this file must be included before everything else
+	include("cmake/vcpkg_android.cmake")
+endif()
+
 project(Vita3K)
+
+set(USE_UNICORN FALSE)
+set(USE_DYNARMIC TRUE)
 
 # Detects the amount of processors of the host machine and forwards the result to CPU_COUNT
 include(ProcessorCount)
@@ -10,9 +21,27 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 12.0)
 
-option(USE_DISCORD_RICH_PRESENCE "Build Vita3K with Discord Rich Presence" ON)
-option(USE_VITA3K_UPDATE "Build Vita3K with updater." ON)
-option(BUILD_APPIMAGE "Build an AppImage." OFF)
+if(ANDROID)
+    set(CMAKE_SYSROOT "")
+    set(CMAKE_OSX_SYSROOT "")
+    set_property(GLOBAL
+    PROPERTY
+    NO_SYSTEM_FROM_IMPORTED ON
+    )
+
+	string(APPEND CMAKE_CXX_FLAGS " -Wl,-Bsymbolic -Wno-unused-command-line-argument")
+	string(APPEND CMAKE_C_FLAGS " -Wl,-Bsymbolic -Wno-unused-command-line-argument")
+
+	if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(CMAKE_C_VISIBILITY_PRESET hidden)
+        set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+        set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+	endif()
+else()
+	option(USE_DISCORD_RICH_PRESENCE "Build Vita3K with Discord Rich Presence" ON)
+	option(USE_VITA3K_UPDATE "Build Vita3K with updater." ON)
+	option(BUILD_APPIMAGE "Build an AppImage." OFF)
+endif()
 
 if("${CMAKE_CXX_COMPILER_LAUNCHER}" STREQUAL "")
     find_program(CCACHE_PROGRAM ccache)
@@ -42,7 +71,14 @@ set_property(CACHE USE_LTO PROPERTY STRINGS ${lto_usage_mode})
 
 if (NOT (USE_LTO STREQUAL "NEVER"))
     include(CheckIPOSupported)
-    check_ipo_supported(RESULT ipo_supported OUTPUT ipo_supported_error)
+	if(ANDROID)
+		# https://gitlab.kitware.com/cmake/cmake/-/issues/21772
+		STRING(REPLACE "-fuse-ld=gold" "" CMAKE_CXX_LINK_OPTIONS_IPO "${CMAKE_CXX_LINK_OPTIONS_IPO}")
+		STRING(REPLACE "-fuse-ld=gold" "" CMAKE_C_LINK_OPTIONS_IPO "${CMAKE_C_LINK_OPTIONS_IPO}")
+		set(ipo_supported TRUE)
+	else()
+    	check_ipo_supported(RESULT ipo_supported OUTPUT ipo_supported_error)
+	endif()
 
     if( ipo_supported )
         if (USE_LTO STREQUAL "ALWAYS") 

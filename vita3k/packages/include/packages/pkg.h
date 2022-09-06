@@ -24,6 +24,7 @@
 
 #include <emuenv/state.h>
 #include <string>
+#include <util/fs.h>
 
 // Credits to mmozeiko https://github.com/mmozeiko/pkg2zip
 

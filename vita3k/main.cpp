@@ -46,12 +46,70 @@
 #include <process.h>
 #endif
 
+#ifdef TRACY_ENABLE
+#include <tracy/Tracy.hpp>
+#endif
+
+#ifdef ANDROID
+#include <jni.h>
+#include <thread>
+#include <unistd.h>
+#include <xxh3.h>
+#endif
+
 #include <SDL.h>
 #include <chrono>
 #include <cstdlib>
 #include <thread>
-#include <tracy/Tracy.hpp>
 
+#ifdef ANDROID
+
+static void set_current_game_id(const std::string_view game_id) {
+    // retrieve the JNI environment.
+    JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+
+    // retrieve the Java instance of the SDLActivity
+    jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+
+    // find the Java class of the activity. It should be SDLActivity or a subclass of it.
+    jclass clazz(env->GetObjectClass(activity));
+
+    // find the identifier of the method to call
+    jmethodID method_id = env->GetMethodID(clazz, "setCurrentGameId", "(Ljava/lang/String;)V");
+    jstring j_game_id = env->NewStringUTF(game_id.data());
+    env->CallVoidMethod(activity, method_id, j_game_id);
+
+    // clean up the local references.
+    env->DeleteLocalRef(j_game_id);
+    env->DeleteLocalRef(activity);
+    env->DeleteLocalRef(clazz);
+}
+
+static void run_execv(char *argv[], EmuEnvState &emuenv) {
+    // retrieve the JNI environment.
+    JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+
+    // retrieve the Java instance of the SDLActivity
+    jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+
+    // find the Java class of the activity. It should be SDLActivity or a subclass of it.
+    jclass clazz(env->GetObjectClass(activity));
+
+    // find the identifier of the method to call
+    jmethodID method_id = env->GetMethodID(clazz, "restartApp", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
+
+    // create the java string for the different parameters
+    jstring app_path = env->NewStringUTF(emuenv.load_app_path.c_str());
+    jstring exec_path = env->NewStringUTF(emuenv.load_exec_path.c_str());
+    jstring exec_args = env->NewStringUTF(emuenv.load_exec_argv.c_str());
+
+    env->CallVoidMethod(activity, method_id, app_path, exec_path, exec_args);
+
+    // The function call above will exit with some delay
+    // Exit now to match the behavior on PC
+    exit(0);
+};
+#else
 static void run_execv(char *argv[], EmuEnvState &emuenv) {
     char *args[10];
     args[0] = argv[0];
@@ -82,15 +140,39 @@ static void run_execv(char *argv[], EmuEnvState &emuenv) {
     execv(argv[0], args);
 #endif
 };
+#endif
 
 int main(int argc, char *argv[]) {
+#ifdef TRACY_ENABLE
     ZoneScoped; // Tracy - Track main function scope
+#endif
+
     Root root_paths;
 
     app::init_paths(root_paths);
 
     if (logging::init(root_paths, true) != Success)
         return InitConfigFailed;
+
+#ifdef ANDROID
+    setvbuf(stdout, 0, _IOLBF, 0);
+    setvbuf(stderr, 0, _IONBF, 0);
+    int pfd[2];
+    pipe(pfd);
+    dup2(pfd[1], 1);
+    dup2(pfd[1], 2);
+    std::thread cout_thread([&pfd]() {
+        ssize_t rdsz;
+        char buf[512];
+        while ((rdsz = read(pfd[0], buf, sizeof buf - 1)) > 0) {
+            if (buf[rdsz - 1] == '\n')
+                --rdsz;
+            buf[rdsz] = 0; /* add null-terminator */
+            LOG_DEBUG("{}", buf);
+        }
+    });
+    cout_thread.detach();
+#endif
 
     // Check admin privs before init starts to avoid creating of file as other user by accident
     bool adminPriv = false;
@@ -122,9 +204,11 @@ int main(int argc, char *argv[]) {
         LOG_CRITICAL("PLEASE. DO NOT RUN VITA3K AS ADMIN OR WITH ADMIN PRIVILEGES.");
     }
 
-    Config cfg{};
-    EmuEnvState emuenv;
+    EmuEnvState emuenv{};
+    Config &cfg = emuenv.cfg;
     const auto config_err = config::init_config(cfg, argc, argv, root_paths);
+    // to make sure config.current_config is properly initialized...
+    gui::set_config(emuenv, "", false);
 
     fs::create_directories(cfg.get_pref_path());
 
@@ -179,7 +263,12 @@ int main(int argc, char *argv[]) {
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_SWITCH, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_JOY_CONS, "1");
 
-        if (SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+#ifdef ANDROID
+        // The AAudio driver (used by default) is really really bad
+        SDL_SetHint(SDL_HINT_AUDIODRIVER, "openslES");
+#endif
+
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER | SDL_INIT_SENSOR) < 0) {
             app::error_dialog("SDL initialisation failed.");
             return SDLInitFailed;
         }
@@ -191,10 +280,13 @@ int main(int argc, char *argv[]) {
     LOG_INFO("Available ram memory: {} MiB", SDL_GetSystemRAM());
 
     app::AppRunType run_type = app::AppRunType::Unknown;
-    if (cfg.run_app_path)
+    if (cfg.run_app_path) {
         run_type = app::AppRunType::Extracted;
+        emuenv.config_path = root_paths.get_config_path();
+        gui::set_config(emuenv, *cfg.run_app_path);
+    }
 
-    if (!app::init(emuenv, cfg, root_paths)) {
+    if (!app::init(emuenv, root_paths)) {
         app::error_dialog("Emulated environment initialization failed.", emuenv.window.get());
         return 1;
     }
@@ -265,32 +357,40 @@ int main(int argc, char *argv[]) {
             emuenv.cfg.content_path.reset();
     }
 
+    std::chrono::system_clock::time_point present = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point later = std::chrono::system_clock::now();
+    constexpr double frame_time = 1000.0 / 60.0;
+
+    auto wait_for_frame_done = [&]() {
+        // get the current time & get the time we worked for
+        present = std::chrono::system_clock::now();
+        std::chrono::duration<double, std::milli> work_time = present - later;
+        // check if we are running faster than ~60fps (16.67ms)
+        if (work_time.count() < frame_time) {
+            // sleep for delta time.
+            std::chrono::duration<double, std::milli> delta_ms(frame_time - work_time.count());
+            auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
+            std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
+        }
+        // save the later time
+        later = std::chrono::system_clock::now();
+    };
+
     if (!cfg.console) {
 #if USE_DISCORD
         auto discord_rich_presence_old = emuenv.cfg.discord_rich_presence;
 #endif
 
-        std::chrono::system_clock::time_point present = std::chrono::system_clock::now();
-        std::chrono::system_clock::time_point later = std::chrono::system_clock::now();
-        const double frame_time = 1000.0 / 60.0;
         // Application not provided via argument, show app selector
         while (run_type == app::AppRunType::Unknown) {
-            // get the current time & get the time we worked for
-            present = std::chrono::system_clock::now();
-            std::chrono::duration<double, std::milli> work_time = present - later;
-            // check if we are running faster than ~60fps (16.67ms)
-            if (work_time.count() < frame_time) {
-                // sleep for delta time.
-                std::chrono::duration<double, std::milli> delta_ms(frame_time - work_time.count());
-                auto delta_ms_duration = std::chrono::duration_cast<std::chrono::milliseconds>(delta_ms);
-                std::this_thread::sleep_for(std::chrono::milliseconds(delta_ms_duration.count()));
-            }
-            // save the later time
-            later = std::chrono::system_clock::now();
+            wait_for_frame_done();
 
             if (handle_events(emuenv, gui)) {
-                ZoneScopedN("UI rendering"); // Tracy - Track UI rendering loop scope
                 gui::draw_begin(gui, emuenv);
+
+#ifdef TRACY_ENABLE
+                ZoneScopedN("UI rendering"); // Tracy - Track UI rendering loop scope
+#endif
 
 #if USE_DISCORD
                 discordrpc::update_init_status(emuenv.cfg.discord_rich_presence, &discord_rich_presence_old);
@@ -300,7 +400,9 @@ int main(int argc, char *argv[]) {
 
                 gui::draw_end(gui, emuenv.window.get());
                 emuenv.renderer->swap_window(emuenv.window.get());
+#ifdef TRACY_ENABLE
                 FrameMark; // Tracy - Frame end mark for UI rendering loop
+#endif
             } else {
                 return QuitRequested;
             }
@@ -313,14 +415,15 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // When backend render is changed before boot app, reboot emu in new backend render and run app
-    if (emuenv.renderer->current_backend != emuenv.backend_renderer) {
+    gui::set_config(emuenv, emuenv.io.app_path);
+
+    // When backend render / driver is changed before boot app, reboot emu in new backend render and run app
+    if (emuenv.renderer->current_backend != emuenv.backend_renderer
+        || emuenv.renderer->current_custom_driver != emuenv.cfg.current_config.custom_driver_name) {
         emuenv.load_app_path = emuenv.io.app_path;
         run_execv(argv, emuenv);
         return Success;
     }
-
-    gui::set_config(gui, emuenv, emuenv.io.app_path);
 
     const auto APP_INDEX = gui::get_app_index(gui, emuenv.io.app_path);
     emuenv.app_info.app_version = APP_INDEX->app_ver;
@@ -331,6 +434,10 @@ int main(int argc, char *argv[]) {
     emuenv.current_app_title = APP_INDEX->title;
     emuenv.app_info.app_short_title = APP_INDEX->stitle;
     emuenv.io.title_id = APP_INDEX->title_id;
+
+#ifdef ANDROID
+    set_current_game_id(emuenv.io.title_id);
+#endif
 
     // Check license for PS App Only
     if (emuenv.io.title_id.starts_with("PCS"))
@@ -398,8 +505,15 @@ int main(int argc, char *argv[]) {
     }
     SDL_SetWindowTitle(emuenv.window.get(), fmt::format("{} | {} ({}) | Please wait, loading...", window_title, emuenv.current_app_title, emuenv.io.title_id).c_str());
 
+    if (emuenv.cfg.enable_gamepad_overlay)
+        gui::set_controller_overlay_state(gui::get_overlay_display_mask(emuenv.cfg));
+
     while (handle_events(emuenv, gui) && (emuenv.frame_count == 0) && !emuenv.load_exec) {
+#ifdef TRACY_ENABLE
         ZoneScopedN("Game loading"); // Tracy - Track game loading loop scope
+#endif
+        wait_for_frame_done();
+
         // Driver acto!
         renderer::process_batches(*emuenv.renderer.get(), emuenv.renderer->features, emuenv.mem, emuenv.cfg);
 
@@ -413,11 +527,19 @@ int main(int argc, char *argv[]) {
 
         gui::draw_end(gui, emuenv.window.get());
         emuenv.renderer->swap_window(emuenv.window.get());
+
+#ifdef TRACY_ENABLE
         FrameMark; // Tracy - Frame end mark for game loading loop
+#endif
     }
 
     while (handle_events(emuenv, gui) && !emuenv.load_exec) {
+#ifdef TRACY_ENABLE
         ZoneScopedN("Game rendering"); // Tracy - Track game rendering loop scope
+#endif
+        if (emuenv.kernel.is_threads_paused())
+            wait_for_frame_done();
+
         // Driver acto!
         renderer::process_batches(*emuenv.renderer.get(), emuenv.renderer->features, emuenv.mem, emuenv.cfg);
 
@@ -431,11 +553,12 @@ int main(int argc, char *argv[]) {
         gui::set_shaders_compiled_display(gui, emuenv);
 
         gui::draw_begin(gui, emuenv);
-        if (!emuenv.kernel.is_threads_paused())
+        const bool ingame = !(gui.vita_area.live_area_screen || gui.vita_area.home_screen);
+        if (ingame)
             gui::draw_common_dialog(gui, emuenv);
         gui::draw_vita_area(gui, emuenv);
 
-        if (emuenv.cfg.performance_overlay && !emuenv.kernel.is_threads_paused() && (emuenv.common_dialog.status != SCE_COMMON_DIALOG_STATUS_RUNNING))
+        if (emuenv.cfg.performance_overlay && ingame && (emuenv.common_dialog.status != SCE_COMMON_DIALOG_STATUS_RUNNING))
             gui::draw_perf_overlay(gui, emuenv);
 
         if (emuenv.cfg.current_config.show_touchpad_cursor && !emuenv.kernel.is_threads_paused())
@@ -447,7 +570,9 @@ int main(int argc, char *argv[]) {
 
         gui::draw_end(gui, emuenv.window.get());
         emuenv.renderer->swap_window(emuenv.window.get());
+#ifdef TRACY_ENABLE
         FrameMark; // Tracy - Frame end mark for game rendering loop
+#endif
     }
 
 #ifdef WIN32

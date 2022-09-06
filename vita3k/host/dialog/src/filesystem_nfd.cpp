@@ -31,7 +31,7 @@
  * for a comma-separated list of file extensions to filter (ex. `"txt,md"`).
  */
 
-#include <host/dialog/filesystem.hpp>
+#include <host/dialog/filesystem.h>
 
 #include <nfd.hpp>
 
@@ -67,7 +67,7 @@ std::string format_file_filter_extension_list(std::vector<std::string> &file_ext
 namespace host {
 namespace dialog {
 namespace filesystem {
-Result open_file(std::filesystem::path &resulting_path, std::vector<FileFilter> file_filters, std::filesystem::path default_path) {
+Result open_file(fs::path &resulting_path, std::vector<FileFilter> file_filters, fs::path default_path) {
     // Initialize NFD
     NFD::Guard nfd_guard;
 
@@ -126,7 +126,7 @@ Result open_file(std::filesystem::path &resulting_path, std::vector<FileFilter> 
     }
 
     // If the default path isn't empty, specify the pointer to the default path string
-    const std::u8string default_path_u8 = default_path.u8string();
+    const std::u8string default_path_u8 = reinterpret_cast<const char8_t *>(default_path.string().c_str());
     if (default_path != "") {
         arguments.defaultPath = reinterpret_cast<const nfdu8char_t *>(default_path_u8.c_str());
     }
@@ -145,7 +145,7 @@ Result open_file(std::filesystem::path &resulting_path, std::vector<FileFilter> 
     case NFD_OKAY:
         // Resolve differences between `char *` (nativefiledialog-extended) and `std::string &` (Vita3K)
         // by turning the C char array into a C++ string
-        resulting_path.assign(reinterpret_cast<const char8_t *>(arguments.outPath.get()));
+        resulting_path.assign(reinterpret_cast<const char *>(arguments.outPath.get()));
 
         return Result::SUCCESS;
     case NFD_CANCEL:
@@ -155,7 +155,7 @@ Result open_file(std::filesystem::path &resulting_path, std::vector<FileFilter> 
     }
 };
 
-Result pick_folder(std::filesystem::path &resulting_path, std::filesystem::path default_path) {
+Result pick_folder(fs::path &resulting_path, fs::path default_path) {
     // Initialize NFD
     NFD::Guard nfd_guard;
 
@@ -173,7 +173,7 @@ Result pick_folder(std::filesystem::path &resulting_path, std::filesystem::path 
     } arguments;
 
     // If the default path isn't empty, specify the pointer to the default path string
-    const std::u8string default_path_u8 = default_path.u8string();
+    const std::string default_path_u8 = default_path.string().c_str();
     if (default_path != "") {
         arguments.defaultPath = reinterpret_cast<const nfdu8char_t *>(default_path_u8.c_str());
     }
@@ -188,7 +188,7 @@ Result pick_folder(std::filesystem::path &resulting_path, std::filesystem::path 
     case NFD_OKAY:
         // Resolve differences between `char *` (nativefiledialog) and `std::string &` (Vita3K)
         // by turning the C char array into a C++ string
-        resulting_path.assign(reinterpret_cast<const char8_t *>(arguments.outPath.get()));
+        resulting_path.assign(reinterpret_cast<const char *>(arguments.outPath.get()));
 
         return Result::SUCCESS;
     case NFD_CANCEL:
@@ -206,6 +206,24 @@ std::string get_error() {
 
     return error;
 };
+
+FILE *resolve_host_handle(const fs::path &path) {
+    FILE *result;
+#ifdef WIN32
+    _wfopen_s(&result, path.c_str(), L"rb");
+#else
+    result = fopen(path.c_str(), "rb");
+#endif
+    return result;
+}
+
+std::string resolve_path_string(const fs::path &path){
+    return path.string();
+}
+
+std::string resolve_filename(const fs::path &path){
+    return path.filename().string();
+}
 
 } // namespace filesystem
 } // namespace dialog

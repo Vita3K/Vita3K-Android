@@ -18,7 +18,7 @@
 #include "private.h"
 
 #include <gui/functions.h>
-#include <host/dialog/filesystem.hpp>
+#include <host/dialog/filesystem.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include <packages/functions.h>
 #include <packages/pkg.h>
@@ -31,8 +31,8 @@
 
 namespace gui {
 
-static std::filesystem::path pkg_path = "";
-static std::filesystem::path license_path = "";
+static fs::path pkg_path = "";
+static fs::path license_path = "";
 static std::string state, title, zRIF;
 static bool draw_file_dialog = true;
 static bool delete_pkg_file, delete_license_file;
@@ -128,7 +128,7 @@ void draw_pkg_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 state = "install";
         } else if (state == "install") {
             std::thread installation([&emuenv]() {
-                if (install_pkg(pkg_path.native(), emuenv, zRIF, progress_callback)) {
+                if (install_pkg(pkg_path, emuenv, zRIF, progress_callback)) {
                     std::lock_guard<std::mutex> lock(install_mutex);
                     state = "success";
                 } else {
@@ -145,19 +145,24 @@ void draw_pkg_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 ImGui::TextColored(GUI_COLOR_TEXT, "%s %s", lang["update_app"].c_str(), emuenv.app_info.app_version.c_str());
             ImGui::Spacing();
             ImGui::Separator();
+#ifdef ANDROID
+            delete_pkg_file = false;
+            delete_license_file = false;
+#else
             ImGui::Spacing();
             ImGui::Checkbox(lang["delete_pkg"].c_str(), &delete_pkg_file);
             if (license_path != "")
                 ImGui::Checkbox(lang["delete_bin_rif"].c_str(), &delete_license_file);
+#endif
             ImGui::Spacing();
             ImGui::SetCursorPos(ImVec2(POS_BUTTON, ImGui::GetWindowSize().y - BUTTON_SIZE.y - (20.f * SCALE.y)));
             if (ImGui::Button(common["ok"].c_str(), BUTTON_SIZE)) {
                 if (delete_pkg_file) {
-                    fs::remove(fs::path(pkg_path.native()));
+                    fs::remove(pkg_path);
                     delete_pkg_file = false;
                 }
                 if (delete_license_file) {
-                    fs::remove(fs::path(license_path.native()));
+                    fs::remove(license_path);
                     delete_license_file = false;
                 }
                 if ((emuenv.app_info.app_category.find("gd") != std::string::npos) || (emuenv.app_info.app_category.find("gp") != std::string::npos)) {

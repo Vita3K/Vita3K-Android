@@ -17,10 +17,13 @@
 
 #pragma once
 
+#ifdef ANDROID
+#define VK_USE_PLATFORM_ANDROID_KHR
+#endif
+
 #define VK_NO_PROTOTYPES
 #define VULKAN_HPP_NO_CONSTRUCTORS
 #define VULKAN_HPP_NO_SPACESHIP_OPERATOR
-#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
 #define VMA_DYNAMIC_VULKAN_FUNCTIONS 1
@@ -89,6 +92,7 @@ static constexpr vma::AllocationCreateInfo vma_auto_alloc = {
 static constexpr vma::AllocationCreateInfo vma_mapped_alloc = {
     .flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite | vma::AllocationCreateFlagBits::eMapped,
     .usage = vma::MemoryUsage::eAuto,
+    .preferredFlags = vk::MemoryPropertyFlagBits::eHostCoherent
 };
 
 static constexpr vma::AllocationCreateInfo vma_host_visible = {

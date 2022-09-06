@@ -45,7 +45,9 @@ typedef void *ExclusiveMonitorPtr;
 struct CPUProtocolBase {
     virtual void call_svc(CPUState &cpu, uint32_t svc, Address pc, ThreadState &thread) = 0;
     virtual Address get_watch_memory_addr(Address addr) = 0;
+#ifdef USE_DYNARMIC
     virtual ExclusiveMonitorPtr get_exlusive_monitor() = 0;
+#endif
     virtual ~CPUProtocolBase() = default;
 };
 

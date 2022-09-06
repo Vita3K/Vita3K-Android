@@ -41,10 +41,8 @@ Address alloc_aligned(MemState &state, uint32_t size, const char *name, unsigned
 void protect_inner(MemState &state, Address addr, uint32_t size, const MemPerm perm);
 void unprotect_inner(MemState &state, Address addr, uint32_t size);
 bool add_protect(MemState &state, Address addr, const uint32_t size, const MemPerm perm, ProtectCallback callback);
-void open_access_parent_protect_segment(MemState &mem, Address addr);
-void close_access_parent_protect_segment(MemState &mem, Address addr);
 void add_external_mapping(MemState &mem, Address addr, uint32_t size, uint8_t *addr_ptr);
-void remove_external_mapping(MemState &mem, uint8_t *addr_ptr);
+void remove_external_mapping(MemState &mem, uint8_t *addr_ptr, uint32_t size);
 bool is_protecting(MemState &state, Address addr, MemPerm *perm = nullptr);
 bool is_valid_addr(const MemState &state, Address addr);
 bool is_valid_addr_range(const MemState &state, Address start, Address end);

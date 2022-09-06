@@ -32,6 +32,14 @@ struct DisplayState;
 struct GxmState;
 struct Config;
 
+enum struct MappingMethod : int {
+    Disabled,
+    DoubleBuffer,
+    ExernalHost,
+    PageTable,
+    NativeBuffer
+};
+
 namespace renderer {
 
 class TextureCache;
@@ -53,6 +61,7 @@ struct State {
     fs::path shaders_log_path;
 
     Backend current_backend;
+    std::string current_custom_driver;
     FeatureState features;
     float res_multiplier;
     bool disable_surface_sync;
@@ -79,7 +88,13 @@ struct State {
 
     bool should_display;
 
-    bool need_page_table = false;
+    // only support disabled by default
+    int supported_mapping_methods_mask = 1;
+    MappingMethod mapping_method = MappingMethod::Disabled;
+
+    // used for driver bug workaround
+    bool is_adreno_stock = false;
+    bool is_adreno_turnip = false;
 
     virtual bool init() = 0;
     virtual void late_init(const Config &cfg, const std::string_view game_id, MemState &mem) = 0;
@@ -114,6 +129,13 @@ struct State {
     virtual void unmap_memory(MemState &mem, Ptr<void> address) {}
     virtual std::vector<std::string> get_gpu_list() {
         return { "Automatic" };
+    }
+    virtual bool support_custom_drivers() {
+        return false;
+    }
+    virtual void set_turbo_mode(bool set) {}
+    virtual uint32_t get_gpu_version() {
+        return 0;
     }
 
     virtual void precompile_shader(const ShadersHash &hash) = 0;

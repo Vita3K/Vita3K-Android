@@ -22,8 +22,7 @@
 #include <mem/ptr.h>
 #include <util/log.h>
 
-namespace renderer {
-namespace texture {
+namespace renderer::texture {
 
 void palette_texture_to_rgba_4(uint32_t *dst, const uint8_t *src, uint32_t width, uint32_t height, const uint32_t *palette) {
     for (uint32_t y = 0; y < height; ++y) {
@@ -50,5 +49,4 @@ const uint32_t *get_texture_palette(const SceGxmTexture &texture, const MemState
     return palette_ptr.get(mem);
 }
 
-} // namespace texture
-} // namespace renderer
+} // namespace renderer::texture

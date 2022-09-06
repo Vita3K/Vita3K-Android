@@ -600,6 +600,10 @@ Hapus centang untuk menonaktifkan fitur ini.</shader_cache_description>
 			<spirv_shader_description>Berikan shader Spir-V yang dihasilkan langsung ke pengemudi.
 Perhatikan bahwa beberapa ekstensi bermanfaat akan dinonaktifkan,
 dan tidak semua GPU kompatibel dengan ini.</spirv_shader_description>
+      <mapping_method>Pemetaan memory</mapping_method>
+      <mapping_method_description>Pemetaan memory itu bisa naikkan performanya. 
+kurangi pemakaian memory dan kebanyakan fix di bug grafis nya 
+selain itu banyak perangkat gak sama stabilnya di bahkan sesama cpu.</mapping_method_description>
 			<clean_shaders>Bersihkan Shader Cache dan Log</clean_shaders>
 		</gpu>
 		<audio name="Audio">

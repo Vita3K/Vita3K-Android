@@ -38,6 +38,7 @@
 #include <util/string_utils.h>
 
 #include <SDL_video.h>
+#include <imgui_internal.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -154,8 +155,11 @@ static void init_style(EmuEnvState &emuenv) {
 static void init_font(GuiState &gui, EmuEnvState &emuenv) {
     ImGuiIO &io = ImGui::GetIO();
 
+    // make this value as big as we can, while the atlas dimensions stays under 4096x4096
+    constexpr float atlas_font_scale = 2.0f;
+
     ImFontConfig mono_font_config{};
-    mono_font_config.SizePixels = 13.f;
+    mono_font_config.SizePixels = 13.f * atlas_font_scale;
 
 #ifdef _WIN32
     const auto monospaced_font_path = "C:\\Windows\\Fonts\\consola.ttf";
@@ -191,7 +195,7 @@ static void init_font(GuiState &gui, EmuEnvState &emuenv) {
         0x2200, 0x22FF, // Math operators
         0x2460, 0x24FF, // Enclosed Alphanumerics
         0x25A0, 0x26FF, // Miscellaneous symbols
-        0x4E00, 0x9FFF, // Unified ideograms CJK
+        // 0x4E00, 0x9FFF, // Unified ideograms CJK
         0,
     };
 
@@ -223,7 +227,7 @@ static void init_font(GuiState &gui, EmuEnvState &emuenv) {
         // Add fw font to imgui
 
         gui.fw_font = true;
-        font_config.SizePixels = 19.2f;
+        font_config.SizePixels = 19.2f * atlas_font_scale;
 
         gui.vita_font = io.Fonts->AddFontFromFileTTF(fs_utils::path_to_utf8(latin_fw_font_path).c_str(), font_config.SizePixels, &font_config, latin_range);
         font_config.MergeMode = true;
@@ -237,39 +241,58 @@ static void init_font(GuiState &gui, EmuEnvState &emuenv) {
             io.Fonts->AddFontFromFileTTF(fs_utils::path_to_utf8(fw_font_path / "cn0.pvf").c_str(), font_config.SizePixels, &font_config, chinese_range);
         font_config.MergeMode = false;
 
-        large_font_config.SizePixels = 116.f;
+        large_font_config.SizePixels = 116.f * atlas_font_scale;
         gui.large_font = io.Fonts->AddFontFromFileTTF(fs_utils::path_to_utf8(latin_fw_font_path).c_str(), large_font_config.SizePixels, &large_font_config, large_font_chars);
     } else {
         LOG_WARN("Could not find firmware font file at \"{}\", install firmware fonts package to fix this.", latin_fw_font_path);
-        font_config.SizePixels = 22.f;
+        font_config.SizePixels = 22.f * atlas_font_scale;
 
         // Set up default font path
         fs::path default_font_path = emuenv.static_assets_path / "data/fonts";
+        const std::vector<uint8_t> font_mplus = fs_utils::read_asset_raw(default_font_path / "mplus-1mn-bold.ttf");
 
         // Check existence of default font file
-        if (fs::exists(default_font_path)) {
-            gui.vita_font = io.Fonts->AddFontFromFileTTF(fs_utils::path_to_utf8(default_font_path / "mplus-1mn-bold.ttf").c_str(), font_config.SizePixels, &font_config, latin_range);
+        if (!font_mplus.empty()) {
+            // when calling AddFontFromMemoryTTF, we tranfer ownership to imgui and it is up to it to free the data
+            void* font_data = malloc(font_mplus.size());
+            memcpy(font_data, font_mplus.data(), font_mplus.size());
+            gui.vita_font = io.Fonts->AddFontFromMemoryTTF(font_data, font_mplus.size(), font_config.SizePixels, &font_config, latin_range);
+
             font_config.MergeMode = true;
-            io.Fonts->AddFontFromFileTTF(fs_utils::path_to_utf8(default_font_path / "mplus-1mn-bold.ttf").c_str(), font_config.SizePixels, &font_config, japanese_and_extra_ranges.Data);
+            font_data = malloc(font_mplus.size());
+            memcpy(font_data, font_mplus.data(), font_mplus.size());
+            io.Fonts->AddFontFromMemoryTTF(font_data, font_mplus.size(), font_config.SizePixels, &font_config, japanese_and_extra_ranges.Data);
+            
 
             const auto sys_lang = static_cast<SceSystemParamLang>(emuenv.cfg.sys_lang);
-            if (sys_lang == SCE_SYSTEM_PARAM_LANG_CHINESE_S)
-                io.Fonts->AddFontFromFileTTF((default_font_path / "SourceHanSansSC-Bold-Min.ttf").string().c_str(), font_config.SizePixels, &font_config, japanese_and_extra_ranges.Data);
+            if (sys_lang == SCE_SYSTEM_PARAM_LANG_CHINESE_S) {
+                const std::vector<uint8_t> font_source = fs_utils::read_asset_raw(default_font_path / "SourceHanSansSC-Bold-Min.ttf");
+
+                if (!font_source.empty()) {
+                    font_data = malloc(font_source.size());
+                    memcpy(font_data, font_source.data(), font_source.size());
+                    io.Fonts->AddFontFromMemoryTTF(font_data, font_source.size(), font_config.SizePixels, &font_config, japanese_and_extra_ranges.Data);
+                }
+            }
             font_config.MergeMode = false;
 
-            large_font_config.SizePixels = 134.f;
-            gui.large_font = io.Fonts->AddFontFromFileTTF(fs_utils::path_to_utf8(default_font_path / "mplus-1mn-bold.ttf").c_str(), large_font_config.SizePixels, &large_font_config, large_font_chars);
+            font_data = malloc(font_mplus.size());
+            memcpy(font_data, font_mplus.data(), font_mplus.size());
+            large_font_config.SizePixels = 134.f * atlas_font_scale;
+            gui.large_font = io.Fonts->AddFontFromMemoryTTF(font_data, font_mplus.size(), large_font_config.SizePixels, &large_font_config, large_font_chars);
 
             LOG_INFO("Using default Vita3K font.");
         } else
             LOG_WARN("Could not find default Vita3K font at \"{}\", using default ImGui font.", default_font_path);
     }
 
+    ImGui::GetIO().FontGlobalScale = emuenv.dpi_scale / atlas_font_scale;
+
     // Build font atlas loaded and upload to GPU
     io.Fonts->Build();
 
     // DPI scaling
-    io.FontGlobalScale = emuenv.dpi_scale;
+    io.FontGlobalScale = emuenv.dpi_scale / atlas_font_scale;
     io.DisplayFramebufferScale = { emuenv.dpi_scale, emuenv.dpi_scale };
 }
 
@@ -736,6 +759,11 @@ void init(GuiState &gui, EmuEnvState &emuenv) {
         const std::lock_guard<std::mutex> guard(gui.trophy_unlock_display_requests_access_mutex);
         gui.trophy_unlock_display_requests.insert(gui.trophy_unlock_display_requests.begin(), callback_data);
     };
+
+#ifdef ANDROID
+    // must be called once for the java side to get the scale
+    set_controller_overlay_scale(emuenv.cfg.overlay_scale);
+#endif
 }
 
 void draw_begin(GuiState &gui, EmuEnvState &emuenv) {
@@ -833,6 +861,8 @@ void draw_vita_area(GuiState &gui, EmuEnvState &emuenv) {
 }
 
 void draw_ui(GuiState &gui, EmuEnvState &emuenv) {
+    const float FONT_SCALE = ImGui::GetIO().DisplaySize.x / emuenv.res_width_dpi_scale;
+
     ImGui::PushFont(gui.vita_font);
     if ((gui.vita_area.home_screen || !emuenv.io.app_path.empty()) && get_sys_apps_state(gui) && !gui.vita_area.live_area_screen && !gui.vita_area.user_management && (!emuenv.cfg.show_info_bar || !gui.vita_area.information_bar))
         draw_main_menu_bar(gui, emuenv);
@@ -879,3 +909,17 @@ void draw_ui(GuiState &gui, EmuEnvState &emuenv) {
 }
 
 } // namespace gui
+
+namespace ImGui {
+
+void ScrollWhenDragging() {
+    ImGuiContext &g = *ImGui::GetCurrentContext();
+    ImGuiIO &io = ImGui::GetIO();
+    ImGuiWindow *window = g.CurrentWindow;
+    if (g.HoveredWindow == window && ImGui::IsMouseDragging(0)) {
+        ImGui::SetScrollY(window, window->Scroll.y - io.MouseDelta.y);
+        ImGui::SetActiveID(0, window);
+    }
+}
+
+} // namespace ImGui

@@ -16,7 +16,7 @@
 	url = https://github.com/Vita3K/dlmalloc
 [submodule "external/ffmpeg"]
 	path = external/ffmpeg
-	url = https://github.com/Vita3K/ffmpeg-core.git
+	url = https://github.com/Macdu/ffmpeg-core.git
 [submodule "external/glslang"]
 	path = external/glslang
 	url = https://github.com/KhronosGroup/glslang
@@ -40,7 +40,7 @@
 	url = https://github.com/zeux/pugixml
 [submodule "external/sdl"]
 	path = external/sdl
-	url = https://github.com/Vita3K/sdl
+	url = https://github.com/Macdu/sdl-Android.git
 [submodule "external/sdl2-cmake-scripts"]
 	path = external/sdl2-cmake-scripts
 	url = https://github.com/tcbrindle/sdl2-cmake-scripts
@@ -54,9 +54,6 @@
 [submodule "external/stb"]
 	path = external/stb
 	url = https://github.com/nothings/stb
-[submodule "external/unicorn"]
-	path = external/unicorn
-	url = https://github.com/Vita3K/unicorn.git
 [submodule "external/vita-toolchain"]
 	path = external/vita-toolchain
 	url = https://github.com/vitasdk/vita-toolchain.git
@@ -78,6 +75,7 @@
 [submodule "external/dynarmic"]
 	path = external/dynarmic
 	url = https://github.com/Vita3K/dynarmic.git
+	branch = aarch64
 [submodule "external/fmt"]
 	path = external/fmt
 	url = https://github.com/fmtlib/fmt.git
@@ -90,6 +88,12 @@
 [submodule "external/nativefiledialog-extended"]
 	path = external/nativefiledialog-extended
 	url = https://github.com/btzy/nativefiledialog-extended.git
+[submodule "external/unicorn"]
+	path = external/unicorn
+	url = https://github.com/Vita3K/unicorn
+[submodule "external/libadrenotools"]
+	path = external/libadrenotools
+	url = https://github.com/bylaws/libadrenotools.git
 [submodule "external/cubeb"]
 	path = external/cubeb
 	url = https://github.com/mozilla/cubeb.git

@@ -27,6 +27,56 @@
 
 #include <SDL_keyboard.h>
 
+#include <array>
+
+#ifdef ANDROID
+#include <SDL_gamecontroller.h>
+#include <jni.h>
+
+static int virtual_joystick_id = -1;
+static SDL_Joystick *virtual_joystick = nullptr;
+
+extern "C" {
+
+JNIEXPORT void JNICALL
+Java_org_vita3k_emulator_overlay_InputOverlay_attachController(JNIEnv *env, jobject thiz) {
+    virtual_joystick_id = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_GAMECONTROLLER, 6, 18, 0);
+    if (virtual_joystick_id == -1) {
+        LOG_CRITICAL("Could not create overlay virtual controller");
+        return;
+    }
+
+    virtual_joystick = SDL_JoystickOpen(virtual_joystick_id);
+    if (virtual_joystick == nullptr)
+        LOG_CRITICAL("Could not create virtual joystick");
+}
+
+JNIEXPORT void JNICALL
+Java_org_vita3k_emulator_overlay_InputOverlay_detachController(JNIEnv *env, jobject thiz) {
+    SDL_JoystickClose(virtual_joystick);
+    SDL_JoystickDetachVirtual(virtual_joystick_id);
+    virtual_joystick = nullptr;
+    virtual_joystick_id = -1;
+}
+
+JNIEXPORT void JNICALL
+Java_org_vita3k_emulator_overlay_InputOverlay_setAxis(JNIEnv *env, jobject thiz, jint axis, jshort value) {
+    SDL_JoystickSetVirtualAxis(virtual_joystick, axis, value);
+}
+
+JNIEXPORT void JNICALL
+Java_org_vita3k_emulator_overlay_InputOverlay_setButton(JNIEnv *env, jobject thiz, jint button, jboolean value) {
+    if(button < 0)
+        // l2/r2
+        SDL_JoystickSetVirtualAxis(virtual_joystick, -button, value ? SDL_MAX_SINT16 : 0);
+    else
+        SDL_JoystickSetVirtualButton(virtual_joystick, button, value);
+}
+}
+#endif
+
+static uint64_t timestamp;
+
 static int reserve_port(CtrlState &state) {
     for (int i = 0; i < SCE_CTRL_MAX_WIRELESS_NUM; i++) {
         if (state.free_ports[i]) {
@@ -69,6 +119,16 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
         }
         if (SDL_IsGameController(joystick_index)) {
             const SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(joystick_index);
+
+#ifdef ANDROID
+            // for whatever reasons, fingerprint sensors are detected as controllers, filter them out
+            const char *controller_name = SDL_GameControllerNameForIndex(joystick_index);
+            if (controller_name != nullptr && 
+                (std::string_view(controller_name).starts_with("uinput-")
+                || std::string_view(controller_name).starts_with("gf_")))
+                continue;
+#endif
+
             if (!state.controllers.contains(guid)) {
                 Controller new_controller;
                 const GameControllerPtr controller(SDL_GameControllerOpen(joystick_index), SDL_GameControllerClose);

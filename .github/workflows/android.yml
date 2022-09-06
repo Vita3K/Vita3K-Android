@@ -1,0 +1,64 @@
+name: Android build
+
+# this is greatly inspired by skyline ci build file
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JVM_OPTS: -Xmx6G
+      VCPKG_ROOT: /usr/local/share/vcpkg
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+ 
+      - uses: hendrikmuhs/ccache-action@v1.2
+
+      - name: Restore Gradle Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/
+            ${{ env.VCPKG_ROOT }}/installed
+            ${{ env.VCPKG_ROOT }}/packages
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-${{ hashFiles('android/**/*.xml') }}-${{ hashFiles('android/**.java') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-${{ hashFiles('android/**/*.xml') }}-
+            ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-
+            ${{ runner.os }}-gradle-
+
+      - name: Set up build environment
+        run: |
+          sudo apt-get install -y ninja-build
+          vcpkg install boost-system:arm64-android boost-filesystem:arm64-android boost-program-options:arm64-android boost-icl:arm64-android boost-variant:arm64-android openssl:arm64-android zlib:arm64-android
+
+      - name: Decode Keystore
+        env:
+          KEYSTORE_ENCODED: ${{ secrets.KEYSTORE }}
+        run: echo $KEYSTORE_ENCODED | base64 --decode > "/home/runner/keystore.jks"
+
+      - name: Gradle build
+        env:
+          SIGNING_STORE_PATH: "/home/runner/keystore.jks"
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          cp -r data android/assets
+          cp -r lang android/assets
+          cp -r vita3k/shaders-builtin android/assets
+          export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
+          ./gradlew --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleRelease
+
+      - name: Compute git short sha
+        shell: bash
+        run: echo "git_short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: vita3k-${{ env.git_short_sha }}-release.apk
+          path: android/build/outputs/apk/release/android-release.apk

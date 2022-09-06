@@ -738,6 +738,7 @@ void draw_trophy_collection(GuiState &gui, EmuEnvState &emuenv) {
             }
         }
     }
+    ImGui::ScrollWhenDragging();
     ImGui::EndChild();
 
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 10.f * SCALE.x);

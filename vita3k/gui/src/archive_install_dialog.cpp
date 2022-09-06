@@ -19,7 +19,7 @@
 #include "private.h"
 
 #include <gui/functions.h>
-#include <host/dialog/filesystem.hpp>
+#include <host/dialog/filesystem.h>
 #include <packages/sfo.h>
 
 #include <util/string_utils.h>
@@ -34,7 +34,7 @@ static bool delete_archive_file;
 static std::string state, type, title;
 static std::map<fs::path, std::vector<ContentInfo>> contents_archives;
 static std::vector<fs::path> invalid_archives;
-static std::filesystem::path archive_path = "";
+static fs::path archive_path = "";
 static float global_progress = 0.f;
 static float archives_count = 0.f;
 
@@ -94,10 +94,14 @@ void draw_archive_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
         if (ImGui::Button(lang["select_file"].c_str(), BUTTON_SIZE))
             type = "file";
         ImGui::Spacing();
+
+#ifndef ANDROID
         ImGui::SetCursorPosX(POS_BUTTON);
         if (ImGui::Button(lang["select_directory"].c_str(), BUTTON_SIZE))
             type = "directory";
         ImGui::Spacing();
+#endif
+
         ImGui::Separator();
         ImGui::Spacing();
         ImGui::SetCursorPosX(POS_BUTTON);
@@ -204,7 +208,7 @@ void draw_archive_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 ImGui::Spacing();
                 ImGui::Separator();
                 for (const auto &archive : contents_archives) {
-                    ImGui::TextWrapped("%s", fs_utils::path_to_utf8(archive.first.filename()).c_str());
+                    ImGui::TextWrapped("%s", host::dialog::filesystem::resolve_filename(archive.first).c_str());
                     ImGui::Spacing();
                     const auto count_contents_successed = count_content_state(archive.first, true);
                     if (count_contents_successed) {
@@ -246,7 +250,11 @@ void draw_archive_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
             ImGui::PopStyleVar();
             ImGui::Separator();
             ImGui::Spacing();
+#ifdef ANDROID
+            delete_archive_file = false;
+#else
             ImGui::Checkbox(lang["delete_archive"].c_str(), &delete_archive_file);
+#endif
             ImGui::SetCursorPos(ImVec2(POS_BUTTON, WINDOW_SIZE.y - BUTTON_SIZE.y - (12.f * SCALE.y)));
             if (ImGui::Button(common["ok"].c_str(), BUTTON_SIZE)) {
                 for (const auto &archive : contents_archives) {

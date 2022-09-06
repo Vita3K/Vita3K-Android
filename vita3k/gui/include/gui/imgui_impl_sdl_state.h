@@ -32,13 +32,20 @@ struct ImGui_State {
     SDL_Window *window{};
     renderer::State *renderer{};
 
-    uint64_t time = 0;
-    bool mouse_pressed[3] = { false, false, false };
-    SDL_Cursor *mouse_cursors[ImGuiMouseCursor_COUNT] = { nullptr };
+    uint64_t time;
+    int MouseButtonsDown;
+    SDL_Cursor *MouseCursors[ImGuiMouseCursor_COUNT];
+    int PendingMouseLeaveFrame;
+    bool MouseCanUseGlobalState;
 
-    bool init = false;
-    bool do_clear_screen = true;
+    bool init;
+    bool is_typing;
+    bool do_clear_screen;
 
+    ImGui_State() {
+        memset((void *)this, 0, sizeof(*this));
+        do_clear_screen = true;
+    }
     virtual ~ImGui_State() = default;
 };
 

@@ -70,6 +70,10 @@ void draw_about_dialog(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::Spacing();
 
     ImGui::Text("%s", lang["vita3k"].c_str());
+#ifdef ANDROID
+    ImGui::Spacing();
+    ImGui::TextWrapped("%s", "If you did not download this emulator from Vita3K's official discord, paid for it or it contains ads, uninstall it immediatly.");
+#endif
     ImGui::Spacing();
     ImGui::TextWrapped("%s", lang["about_vita3k"].c_str());
 
@@ -149,9 +153,11 @@ void draw_about_dialog(GuiState &gui, EmuEnvState &emuenv) {
         // Supporters list
         for (const auto supporter : supporters_list)
             ImGui::Text("%s", supporter);
+        ImGui::ScrollWhenDragging();
         ImGui::EndTable();
     }
 
+    ImGui::ScrollWhenDragging();
     ImGui::End();
 }
 

@@ -19,7 +19,7 @@
 
 #include <config/state.h>
 #include <gui/functions.h>
-#include <host/dialog/filesystem.hpp>
+#include <host/dialog/filesystem.h>
 #include <lang/functions.h>
 
 #include <util/string_utils.h>
@@ -28,7 +28,9 @@ namespace gui {
 
 enum InitialSetup {
     SELECT_LANGUAGE,
+#ifndef ANDROID
     SELECT_PREF_PATH,
+#endif
     INSTALL_FIRMWARE,
     SELECT_INTERFACE_SETTINGS,
     FINISHED
@@ -153,9 +155,12 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::PopStyleVar();
         ImGui::PopStyleColor(3);
         ImGui::Columns(1);
+        ImGui::ScrollWhenDragging();
         ImGui::EndChild();
         ImGui::PopStyleVar();
         break;
+
+#ifndef ANDROID
     case SELECT_PREF_PATH:
         title_str = lang["select_pref_path"];
         ImGui::SetCursorPos(ImVec2((WINDOW_SIZE.x / 2.f) - (ImGui::CalcTextSize(lang["current_emu_path"].c_str()).x / 2.f), (WINDOW_SIZE.y / 2.f) - ImGui::GetFontSize()));
@@ -165,7 +170,7 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::TextWrapped("%s", emuenv.cfg.pref_path.c_str());
         ImGui::SetCursorPos(!is_default_path ? ImVec2((WINDOW_SIZE.x / 2.f) - BIG_BUTTON_SIZE.x - (20.f * SCALE.x), BIG_BUTTON_POS.y) : BIG_BUTTON_POS);
         if (ImGui::Button(lang["change_emu_path"].c_str(), BIG_BUTTON_SIZE)) {
-            std::filesystem::path emulator_path = "";
+            fs::path emulator_path = "";
             host::dialog::filesystem::Result result = host::dialog::filesystem::pick_folder(emulator_path);
 
             if ((result == host::dialog::filesystem::Result::SUCCESS) && (emulator_path.native() != emuenv.pref_path.native())) {
@@ -185,6 +190,8 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
             }
         }
         break;
+#endif
+
     case INSTALL_FIRMWARE:
         title_str = lang["install_firmware"];
         ImGui::SetCursorPos(ImVec2((WINDOW_SIZE.x / 2.f) - (ImGui::CalcTextSize(lang["install_highly_recommended"].c_str()).x / 2.f), (WINDOW_SIZE.y / 2.f) - (ImGui::GetFontSize() * 2.f)));
@@ -250,9 +257,11 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::SetCursorPos(ImVec2(10.f * SCALE.x, display_size.y - BUTTON_SIZE.y - (14.f * SCALE.y)));
     if ((setup > SELECT_LANGUAGE) && ImGui::Button(lang["back"].c_str(), BUTTON_SIZE) || (setup > SELECT_LANGUAGE) && ImGui::IsKeyPressed(static_cast<ImGuiKey>(emuenv.cfg.keyboard_button_circle)))
         setup = (InitialSetup)(setup - 1);
+
     ImGui::SetCursorPos(ImVec2(display_size.x - BUTTON_SIZE.x - (14.f * SCALE.x), display_size.y - BUTTON_SIZE.y - (14.f * SCALE.y)));
     if ((setup < FINISHED) && ImGui::Button(lang["next"].c_str(), BUTTON_SIZE) || ImGui::IsKeyPressed(static_cast<ImGuiKey>(emuenv.cfg.keyboard_button_cross)))
         setup = (InitialSetup)(setup + 1);
+
     ImGui::SetWindowFontScale(1.f);
 
     ImGui::PopStyleVar(3);

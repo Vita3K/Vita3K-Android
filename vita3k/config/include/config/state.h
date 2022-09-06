@@ -129,10 +129,13 @@ public:
         int audio_volume = 100;
         bool ngs_enable = true;
         bool pstv_mode = false;
+        std::string backend_renderer = "Vulkan";
+        std::string custom_driver_name{};
         bool high_accuracy = false;
         float resolution_multiplier = 1.0f;
         bool disable_surface_sync = false;
         std::string screen_filter = "Bilinear";
+        std::string memory_mapping = "double-buffer";
         bool v_sync = true;
         int anisotropic_filtering = 1;
         bool async_pipeline_compilation = true;

@@ -88,8 +88,9 @@ void init_lang(LangState &lang, EmuEnvState &emuenv) {
     // Load lang xml
     pugi::xml_document lang_xml;
     const auto lang_xml_path{ (emuenv.cfg.user_lang.empty() ? system_lang_path / lang.user_lang[GUI] : (is_user_lang_static ? user_lang_static_path : user_lang_shared_path) / emuenv.cfg.user_lang).replace_extension("xml") };
-    if (fs::exists(lang_xml_path)) {
-        if (lang_xml.load_file(lang_xml_path.c_str())) {
+    std::vector<uint8_t> lang_content = fs_utils::read_asset_raw(lang_xml_path);
+    if (!lang_content.empty()) {
+        if (lang_xml.load_buffer(lang_content.data(), lang_content.size(), pugi::encoding_utf8)) {
             // Lang
             const auto lang_child = lang_xml.child("lang");
             if (!lang_child.empty()) {

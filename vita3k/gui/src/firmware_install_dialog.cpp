@@ -17,11 +17,12 @@
 
 #include "private.h"
 
+#include <util/log.h>
+
 #include <config/state.h>
 #include <gui/functions.h>
-#include <host/dialog/filesystem.hpp>
+#include <host/dialog/filesystem.h>
 #include <packages/functions.h>
-#include <util/log.h>
 #include <util/string_utils.h>
 
 #include <thread>
@@ -30,7 +31,7 @@ namespace gui {
 
 std::string fw_version;
 bool delete_pup_file;
-std::filesystem::path pup_path = "";
+fs::path pup_path = "";
 
 static void get_firmware_version(EmuEnvState &emuenv) {
     fs::ifstream versionFile(emuenv.pref_path / "PUP_DEC/PUP/version.txt");
@@ -74,7 +75,7 @@ void draw_firmware_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
 
         if (result == host::dialog::filesystem::Result::SUCCESS) {
             std::thread installation([&emuenv]() {
-                install_pup(emuenv.pref_path, fs::path(pup_path.native()), progress_callback);
+                install_pup(emuenv.pref_path, pup_path, progress_callback);
                 std::lock_guard<std::mutex> lock(install_mutex);
                 finished_installing = true;
                 get_firmware_version(emuenv);
@@ -138,12 +139,16 @@ void draw_firmware_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 ImGui::Separator();
                 ImGui::Spacing();
             }
+#ifdef ANDROID
+            delete_pup_file = false;
+#else
             ImGui::Checkbox(lang["delete_firmware"].c_str(), &delete_pup_file);
             ImGui::Spacing();
+#endif
             ImGui::SetCursorPos(ImVec2(POS_BUTTON, ImGui::GetWindowSize().y - BUTTON_SIZE.y - (20.f * SCALE.y)));
             if (ImGui::Button(common["ok"].c_str(), BUTTON_SIZE)) {
                 if (delete_pup_file) {
-                    fs::remove(fs::path(pup_path.native()));
+                    fs::remove(pup_path);
                     delete_pup_file = false;
                 }
                 get_modules_list(gui, emuenv);

@@ -28,6 +28,11 @@
 #include <variant>
 #include <vector>
 
+#ifdef __ANDROID__
+// Clang on android defines a VMIN macro, messing with the VMIN opcode...
+#undef VMIN
+#endif
+
 namespace shader {
 namespace usse {
 

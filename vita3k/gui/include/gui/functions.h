@@ -25,6 +25,7 @@
 
 struct DisplayState;
 struct EmuEnvState;
+struct Config;
 struct SDL_Window;
 struct NpTrophyUnlockCallbackData;
 
@@ -101,7 +102,7 @@ void pre_run_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path
 void reset_controller_binding(EmuEnvState &emuenv);
 void save_apps_cache(GuiState &gui, EmuEnvState &emuenv);
 void save_user(GuiState &gui, EmuEnvState &emuenv, const std::string &user_id);
-void set_config(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
+void set_config(EmuEnvState &emuenv, const std::string &app_path, bool custom = true);
 void set_shaders_compiled_display(GuiState &gui, EmuEnvState &emuenv);
 void update_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 void update_last_time_app_used(GuiState &gui, EmuEnvState &emuenv, const std::string &app);
@@ -109,6 +110,9 @@ void update_live_area_current_open_apps_list(GuiState &gui, EmuEnvState &emuenv,
 void update_notice_info(GuiState &gui, EmuEnvState &emuenv, const std::string &type);
 void update_time_app_used(GuiState &gui, EmuEnvState &emuenv, const std::string &app);
 void save_notice_list(EmuEnvState &emuenv);
+void set_controller_overlay_state(int overlay_mask, bool edit = false, bool reset = false);
+void set_controller_overlay_scale(float scale);
+int get_overlay_display_mask(const Config &cfg);
 
 void draw_begin(GuiState &gui, EmuEnvState &emuenv);
 void draw_end(GuiState &emuenv, SDL_Window *window);
@@ -131,3 +135,9 @@ void draw_perf_overlay(GuiState &gui, EmuEnvState &emuenv);
 ImTextureID load_image(GuiState &gui, const char *data, const std::uint32_t size);
 
 } // namespace gui
+
+// Extensions to ImGui
+namespace ImGui {
+
+void ScrollWhenDragging();
+} // namespace ImGui

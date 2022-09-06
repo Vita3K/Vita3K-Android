@@ -33,6 +33,39 @@
 
 #include <pugixml.hpp>
 
+#ifdef ANDROID
+#include <jni.h>
+
+static void create_shortcut(const std::string_view game_id, const std::string_view game_name){
+    // retrieve the JNI environment.
+    JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+
+    // retrieve the Java instance of the SDLActivity
+    jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+
+    // find the Java class of the activity. It should be SDLActivity or a subclass of it.
+    jclass clazz(env->GetObjectClass(activity));
+
+    // find the identifier of the method to call
+    jmethodID method_id = env->GetMethodID(clazz, "createShortcut", "(Ljava/lang/String;Ljava/lang/String;)Z");
+    jstring j_game_id = env->NewStringUTF(game_id.data());
+    jstring j_game_name = env->NewStringUTF(game_name.data());
+
+    jboolean result = env->CallBooleanMethod(activity, method_id, j_game_id, j_game_name);
+
+    // clean up the local references.
+    env->DeleteLocalRef(j_game_name);
+    env->DeleteLocalRef(j_game_id);
+    env->DeleteLocalRef(activity);
+    env->DeleteLocalRef(clazz);
+
+    if(result)
+        SDL_AndroidShowToast("Shortcut successfully created!", 0, -1, 0, 0);
+    else
+        SDL_AndroidShowToast("Failed to create shortcut.", 1, -1, 0, 0);
+}
+#endif
+
 namespace gui {
 
 static std::map<double, std::string> update_history_infos;
@@ -462,6 +495,7 @@ void draw_app_context_menu(GuiState &gui, EmuEnvState &emuenv, const std::string
                 }
                 ImGui::EndMenu();
             }
+#ifndef ANDROID
             if (ImGui::BeginMenu(lang.main["open_folder"].c_str())) {
                 if (ImGui::MenuItem(app_str["title"].c_str()))
                     open_path(APP_PATH.string());
@@ -481,6 +515,12 @@ void draw_app_context_menu(GuiState &gui, EmuEnvState &emuenv, const std::string
                     open_path(IMPORT_TEXTURES_PATH.string());
                 ImGui::EndMenu();
             }
+#else
+            if(ImGui::MenuItem("Create Shortcut")){
+                create_shortcut(title_id, APP_INDEX->title);
+            }
+#endif
+
             if (!emuenv.cfg.show_live_area_screen && ImGui::BeginMenu("Live Area")) {
                 if (ImGui::MenuItem("Live Area", nullptr, &gui.vita_area.live_area_screen))
                     open_live_area(gui, emuenv, app_path);
@@ -560,6 +600,7 @@ void draw_app_context_menu(GuiState &gui, EmuEnvState &emuenv, const std::string
                 ImGui::PopTextWrapPos();
                 ImGui::TextColored(GUI_COLOR_TEXT, "\n");
             }
+            ImGui::ScrollWhenDragging();
             ImGui::EndChild();
             ImGui::SetWindowFontScale(1.4f * RES_SCALE.x);
             ImGui::SetCursorPos(ImVec2((WINDOW_SIZE.x / 2.f) - (BUTTON_SIZE.x / 2.f), WINDOW_SIZE.y - BUTTON_SIZE.y - (22.f * SCALE.y)));
@@ -681,6 +722,7 @@ void draw_app_context_menu(GuiState &gui, EmuEnvState &emuenv, const std::string
             } else
                 ImGui::TextColored(GUI_COLOR_TEXT, "%s", lang.info["never"].c_str());
         }
+        ImGui::ScrollWhenDragging();
         ImGui::End();
     }
 }

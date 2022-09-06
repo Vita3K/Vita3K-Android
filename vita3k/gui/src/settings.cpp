@@ -20,7 +20,7 @@
 #include <config/functions.h>
 #include <config/state.h>
 #include <gui/functions.h>
-#include <host/dialog/filesystem.hpp>
+#include <host/dialog/filesystem.h>
 #include <ime/functions.h>
 #include <io/device.h>
 #include <io/state.h>
@@ -599,7 +599,7 @@ void draw_settings(GuiState &gui, EmuEnvState &emuenv) {
                             sub_menu.clear();
                         }
                     } else if (sub_menu == "image") {
-                        std::filesystem::path image_path = "";
+                        fs::path image_path = "";
                         host::dialog::filesystem::Result result = host::dialog::filesystem::open_file(image_path, { { "Image file", { "bmp", "gif", "jpg", "png", "tif" } } });
 
                         if ((result == host::dialog::filesystem::Result::SUCCESS) && init_user_start_background(gui, fs_utils::path_to_utf8(image_path.native()))) {
@@ -663,7 +663,7 @@ void draw_settings(GuiState &gui, EmuEnvState &emuenv) {
                     ImGui::NextColumn();
                 }
                 if (ImGui::Selectable(theme_background.home_screen_backgrounds["add_background"].c_str(), false, ImGuiSelectableFlags_None, SIZE_PACKAGE)) {
-                    std::filesystem::path background_path = "";
+                    fs::path background_path = "";
                     host::dialog::filesystem::Result result = host::dialog::filesystem::open_file(background_path, { { "Image file", { "bmp", "gif", "jpg", "png", "tif" } } });
 
                     if ((result == host::dialog::filesystem::Result::SUCCESS) && (!gui.user_backgrounds.contains(background_path.string()))) {

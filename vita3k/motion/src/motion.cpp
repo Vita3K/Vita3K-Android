@@ -20,9 +20,52 @@
 #include <motion/state.h>
 
 #include <ctrl/state.h>
+#include <util/log.h>
 
 #include <SDL.h>
 #include <SDL_gamecontroller.h>
+
+static void init_device_sensors(MotionState& state){
+    const int num_sensors = SDL_NumSensors();
+    for(int idx = 0; idx < num_sensors; idx++){
+        SDL_Sensor* sensor = SDL_SensorOpen(idx);
+        bool sensor_used = true;
+        switch (SDL_SensorGetType(sensor))
+        {
+        case SDL_SENSOR_ACCEL:
+            state.device_accel = sensor;
+            break;
+
+        case SDL_SENSOR_GYRO:
+            state.device_gyro = sensor;
+            break;
+        
+        default:
+            sensor_used = false;
+            break;
+        }
+        if(!sensor_used)
+            SDL_SensorClose(sensor);
+    }
+    state.has_device_motion_support = (state.device_accel && state.device_gyro);
+}
+
+void MotionState::init(){
+    init_device_sensors(*this);
+
+    if(has_device_motion_support)
+        LOG_INFO("Device has builtin accelerometer and gyroscope.");
+
+    // close them as having them opened uses battery
+    if(device_accel){
+        SDL_SensorClose(device_accel);
+        device_accel = nullptr;
+    }
+    if(device_gyro){
+        SDL_SensorClose(device_gyro);
+        device_gyro = nullptr;
+    }
+}
 
 SceFVector3 get_acceleration(const MotionState &state) {
     Util::Vec3f accelerometer = state.motion_data.GetAcceleration();
@@ -59,10 +102,20 @@ void set_gyro_bias_correction(MotionState &state, SceBool setValue) {
 }
 
 void refresh_motion(MotionState &state, CtrlState &ctrl_state) {
-    if (!state.is_sampling)
+    if (!state.is_sampling){
+        // the check is done here so that everything sensor related is done on the same thread
+        if(state.device_accel){
+            SDL_SensorClose(state.device_accel);
+            state.device_accel = nullptr;
+        }
+        if(state.device_gyro){
+            SDL_SensorClose(state.device_gyro);
+            state.device_gyro = nullptr;
+        }
         return;
+    }
 
-    if (!ctrl_state.has_motion_support)
+    if (!ctrl_state.has_motion_support && !state.has_device_motion_support)
         return;
 
     // make sure to use the data from only one accelerometer and gyroscope
@@ -99,6 +152,28 @@ void refresh_motion(MotionState &state, CtrlState &ctrl_state) {
         }
     }
 
+    const bool no_controller_sensor = (!found_gyro || !found_accel);
+    const bool device_sensor_uninitialized = (state.device_accel == nullptr && state.device_gyro == nullptr);
+    if(no_controller_sensor && state.has_device_motion_support && device_sensor_uninitialized){
+        init_device_sensors(state);
+    }
+
+    bool gyro_from_device = false;
+    if(!found_gyro && state.device_gyro){
+        if (SDL_SensorGetDataWithTimestamp(state.device_gyro, &gyro_timestamp, reinterpret_cast<float *>(&gyro), 3) == 0) {
+            found_gyro = true;
+            gyro_from_device = true;
+        }
+    }
+
+    bool accel_from_device = false;
+    if(!found_accel && state.device_accel){
+        if (SDL_SensorGetDataWithTimestamp(state.device_accel, &accel_timestamp, reinterpret_cast<float *>(&accel), 3) == 0) {
+            found_accel = true;
+            accel_from_device = true;
+        }
+    }
+
     if (!found_accel && !found_gyro)
         return;
 
@@ -113,16 +188,21 @@ void refresh_motion(MotionState &state, CtrlState &ctrl_state) {
             accel_timestamp = timestamp;
     }
 
-    std::lock_guard<std::mutex> guard(state.mutex);
-
     gyro /= static_cast<float>(2.0 * M_PI);
+    if(gyro_from_device)
+        std::tie(gyro.x, gyro.y, gyro.z) = std::make_tuple(-gyro.y, gyro.z, -gyro.x);
     std::swap(gyro.y, gyro.z);
     gyro.y *= -1;
-    state.motion_data.SetGyroscope(gyro);
 
     accel /= -SDL_STANDARD_GRAVITY;
+    if(accel_from_device)
+        std::tie(accel.x, accel.y, accel.z) = std::make_tuple(-accel.y, accel.z, -accel.x);
     std::swap(accel.y, accel.z);
     accel.y *= -1;
+
+    std::lock_guard<std::mutex> guard(state.mutex);
+
+    state.motion_data.SetGyroscope(gyro);
     state.motion_data.SetAcceleration(accel);
 
     state.motion_data.UpdateRotation(gyro_timestamp - state.last_gyro_timestamp);

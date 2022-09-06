@@ -27,6 +27,11 @@
 #include <stb_image.h>
 #include <stb_image_write.h>
 
+#ifdef ANDROID
+// for message popup
+#include <SDL.h>
+#endif
+
 static constexpr bool log_texture_import = false;
 static constexpr bool log_texture_export = true;
 
@@ -504,6 +509,20 @@ bool TextureCache::import_configure_texture() {
         is_srgb = ddspp::is_srgb(dds_descriptor->format);
         swap_rb = dds_swap_rb(dds_descriptor->format);
 
+        if (texture::is_astc_format(base_format) && !support_astc) {
+            LOG_ERROR_ONCE("ASTC textures are not support by this device");
+            return false;
+        }
+
+        if (gxm::is_bcn_format(base_format) && !support_dxt) {
+            LOG_ERROR_ONCE("BCn textures are not supported by this device");
+#ifdef ANDROID
+            // this issue is most likely to happen on android
+            SDL_AndroidShowToast("BCn textures are not supported by this device!", 1, -1, 0, 0);
+#endif
+            return false;
+        }
+
         imported_texture_decoded = imported_texture_raw_data.data() + dds_descriptor->headerSize;
     } else {
         int nb_channels;
@@ -740,6 +759,15 @@ static SceGxmTextureBaseFormat dxgi_to_gxm(const ddspp::DXGIFormat format) {
         return SCE_GXM_TEXTURE_BASE_FORMAT_U5U6U5;
     case B4G4R4A4_UNORM:
         return SCE_GXM_TEXTURE_BASE_FORMAT_U4U4U4U4;
+
+#define ASTC_FMT(b_x, b_y)                \
+    case ASTC_##b_x##X##b_y##_UNORM:      \
+    case ASTC_##b_x##X##b_y##_UNORM_SRGB: \
+        return SCE_GXM_TEXTURE_BASE_FORMAT_ASTC##b_x##x##b_y;
+
+#include "../texture/astc_formats.inc"
+#undef ASTC_FMT
+
     default:
         return static_cast<SceGxmTextureBaseFormat>(-1);
     }
@@ -847,6 +875,14 @@ static ddspp::DXGIFormat dxgi_apply_srgb(const ddspp::DXGIFormat format) {
         return BC3_UNORM_SRGB;
     case BC7_UNORM:
         return BC7_UNORM_SRGB;
+
+#define ASTC_FMT(b_x, b_y)           \
+    case ASTC_##b_x##X##b_y##_UNORM: \
+        return ASTC_##b_x##X##b_y##_UNORM_SRGB;
+
+#include "../texture/astc_formats.inc"
+#undef ASTC_FMT
+
     default:
         return format;
     }

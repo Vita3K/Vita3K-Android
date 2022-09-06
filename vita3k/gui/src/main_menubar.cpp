@@ -30,6 +30,7 @@ static void draw_file_menu(GuiState &gui, EmuEnvState &emuenv) {
 
     auto &lang = gui.lang.main_menubar.file;
     if (ImGui::BeginMenu(lang["title"].c_str())) {
+#ifndef ANDROID
         if (ImGui::MenuItem(lang["open_pref_path"].c_str()))
             open_path(emuenv.pref_path.string());
         if (ImGui::MenuItem(lang["open_textures_path"].c_str())) {
@@ -41,6 +42,8 @@ static void draw_file_menu(GuiState &gui, EmuEnvState &emuenv) {
             open_path(textures_path.string());
         }
         ImGui::Separator();
+#endif
+
         ImGui::MenuItem(lang["install_firmware"].c_str(), nullptr, &gui.file_menu.firmware_install_dialog);
         ImGui::MenuItem(lang["install_pkg"].c_str(), nullptr, &gui.file_menu.pkg_install_dialog);
         ImGui::MenuItem(lang["install_zip"].c_str(), nullptr, &gui.file_menu.archive_install_dialog);
@@ -81,7 +84,9 @@ static void draw_emulation_menu(GuiState &gui, EmuEnvState &emuenv) {
     if (ImGui::BeginMenu(lang["title"].c_str())) {
         const auto app_list_is_empty = gui.time_apps[emuenv.io.user_id].empty();
         ImGui::SetNextWindowSize(ImVec2(!app_list_is_empty ? 480.f * SCALE.x : 0.f, 0.f));
+#ifndef ANDROID
         ImGui::SetWindowFontScale(RES_SCALE.x);
+#endif
         if (ImGui::BeginMenu(lang["last_apps_used"].c_str())) {
             if (!app_list_is_empty) {
                 for (auto i = 0; i < std::min(8, int32_t(gui.time_apps[emuenv.io.user_id].size())); i++) {
@@ -135,7 +140,12 @@ static void draw_config_menu(GuiState &gui, EmuEnvState &emuenv) {
 static void draw_controls_menu(GuiState &gui) {
     auto &lang = gui.lang.main_menubar.controls;
     if (ImGui::BeginMenu(lang["title"].c_str())) {
-        ImGui::MenuItem(lang["keyboard_controls"].c_str(), nullptr, &gui.controls_menu.controls_dialog);
+#ifdef ANDROID
+        const char *controls_name = "Overlay";
+#else
+        const char *controls_name = lang["keyboard_controls"].c_str();
+#endif
+        ImGui::MenuItem(controls_name, nullptr, &gui.controls_menu.controls_dialog);
         ImGui::MenuItem(gui.lang.controllers["title"].c_str(), nullptr, &gui.controls_menu.controllers_dialog);
         ImGui::EndMenu();
     }
@@ -145,8 +155,10 @@ static void draw_help_menu(GuiState &gui) {
     auto &lang = gui.lang.main_menubar.help;
     if (ImGui::BeginMenu(lang["title"].c_str())) {
         ImGui::MenuItem(gui.lang.about["title"].c_str(), nullptr, &gui.help_menu.about_dialog);
+#ifndef ANDROID
         if (ImGui::MenuItem(gui.lang.vita3k_update["title"].c_str(), nullptr, &gui.help_menu.vita3k_update))
             init_vita3k_update(gui);
+#endif
         ImGui::MenuItem(lang["welcome"].c_str(), nullptr, &gui.help_menu.welcome_dialog);
         ImGui::EndMenu();
     }
@@ -157,7 +169,7 @@ void draw_main_menu_bar(GuiState &gui, EmuEnvState &emuenv) {
         const ImVec2 display_size(emuenv.viewport_size.x, emuenv.viewport_size.y);
         const ImVec2 RES_SCALE(display_size.x / emuenv.res_width_dpi_scale, display_size.y / emuenv.res_height_dpi_scale);
 
-        ImGui::SetWindowFontScale(RES_SCALE.x);
+        ImGui::SetWindowFontScale(RES_SCALE.x * 1.3f);
         ImGui::PushStyleColor(ImGuiCol_Text, GUI_COLOR_TEXT_MENUBAR);
 
         draw_file_menu(gui, emuenv);

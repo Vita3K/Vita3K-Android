@@ -23,7 +23,11 @@
 
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
+#ifdef ANDROID
+#include <spdlog/sinks/android_sink.h>
+#else
 #include <spdlog/sinks/stdout_color_sinks.h>
+#endif
 
 namespace logging {
 
@@ -39,8 +43,12 @@ void flush() {
 
 ExitCode init(const Root &root_paths, bool use_stdout) {
     sinks.clear();
-    if (use_stdout)
+    if(use_stdout)
+#ifdef ANDROID
+        sinks.push_back(std::make_shared<spdlog::sinks::android_sink_mt>());
+#else
         sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+#endif
 
     if (add_sink(root_paths.get_log_path() / LOG_FILE_NAME) != Success)
         return InitConfigFailed;
@@ -54,6 +62,11 @@ ExitCode init(const Root &root_paths, bool use_stdout) {
     // set console codepage to UTF-8
     SetConsoleOutputCP(65001);
     SetConsoleTitle("Vita3K PSVita Emulator");
+#endif
+
+#ifdef ANDROID
+    // needed, otherwise the log file contains nothing
+    spdlog::flush_on(spdlog::level::trace);
 #endif
 
     register_log_exception_handler();

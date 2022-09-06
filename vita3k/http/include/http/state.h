@@ -167,7 +167,7 @@ enum SceHttpAddHeaderMode : SceUInt32 {
     SCE_HTTP_HEADER_ADD
 };
 
-enum SceHttpErrorCode {
+enum SceHttpErrorCode : uint32_t {
     SCE_HTTP_ERROR_BEFORE_INIT = 0x80431001,
     SCE_HTTP_ERROR_ALREADY_INITED = 0x80431020,
     SCE_HTTP_ERROR_BUSY = 0x80431021,

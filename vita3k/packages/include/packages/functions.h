@@ -28,7 +28,6 @@
 #include <string>
 #include <vector>
 
-// TODO: remove
 #include <util/fs.h>
 
 struct SfoFile;

@@ -26,9 +26,14 @@
 
 #pragma once
 
-#include <filesystem>
+#include <util/fs.h>
+
 #include <string>
 #include <vector>
+
+#ifdef ERROR
+#undef ERROR
+#endif
 
 namespace host {
 namespace dialog {
@@ -87,7 +92,7 @@ struct FileFilter {
  * @param default_path Path to the folder the file browser dialog should show first when opened
  * @return Result code of the operation as specified in `host::dialog::filesystem::Result`
  */
-Result open_file(std::filesystem::path &resulting_path, std::vector<FileFilter> file_filters = {}, std::filesystem::path default_path = "");
+Result open_file(fs::path &resulting_path, std::vector<FileFilter> file_filters = {}, fs::path default_path = "");
 
 /**
  * @brief Open a native file browser dialog to request a directory path from the user
@@ -96,7 +101,19 @@ Result open_file(std::filesystem::path &resulting_path, std::vector<FileFilter> 
  * @param default_path Path to the folder the file browser dialog should show first when opened
  * @return Result code of the operation as specified in `host::dialog::filesystem::Result`
  */
-Result pick_folder(std::filesystem::path &resulting_path, std::filesystem::path default_path = "");
+Result pick_folder(fs::path &resulting_path, fs::path default_path = "");
+
+/**
+ * @brief Open a File* handle when given a path that was obtained using open_file
+ */
+FILE *resolve_host_handle(const fs::path &path);
+
+/**
+ * @brief Return a print-friendly path
+ */
+std::string resolve_path_string(const fs::path &path);
+
+std::string resolve_filename(const fs::path &path);
 
 /**
  * @brief Get a string describing the last dialog error

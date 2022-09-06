@@ -24,7 +24,7 @@
 
 #include <display/state.h>
 #include <gui/functions.h>
-#include <host/dialog/filesystem.hpp>
+#include <host/dialog/filesystem.h>
 #include <io/state.h>
 #include <np/common.h>
 
@@ -45,7 +45,7 @@ enum AvatarSize {
 };
 
 static ImVec2 get_avatar_size(AvatarSize size, const ImVec2 scale = { 1, 1 }) {
-    return ImVec2(static_cast<float>(size) * scale.x, static_cast<float>(size) * scale.y);
+    return ImVec2(static_cast<float>(size) * scale.x, static_cast<float>(size) * scale.x);
 }
 
 struct AvatarInfo {
@@ -57,17 +57,16 @@ static std::map<std::string, std::map<AvatarSize, AvatarInfo>> users_avatar_info
 static bool init_avatar(GuiState &gui, EmuEnvState &emuenv, const std::string &user_id, const std::string &avatar_path) {
     const auto avatar_path_path = avatar_path == "default" ? emuenv.static_assets_path / "data/image/icon.png" : fs_utils::utf8_to_path(avatar_path);
 
-    if (!fs::exists(avatar_path_path)) {
+    int32_t width = 0;
+    int32_t height = 0;
+
+    const std::vector<uint8_t> raw_data = fs_utils::read_asset_raw(avatar_path_path);
+    if(raw_data.empty()){
         LOG_WARN("Avatar image doesn't exist: {}.", avatar_path_path);
         return false;
     }
 
-    int32_t width = 0;
-    int32_t height = 0;
-
-    FILE *f = FOPEN(avatar_path_path.c_str(), "rb");
-
-    stbi_uc *data = stbi_load_from_file(f, &width, &height, nullptr, STBI_rgb_alpha);
+    stbi_uc *data = stbi_load_from_memory(raw_data.data(), raw_data.size(), &width, &height, nullptr, STBI_rgb_alpha);
 
     if (!data) {
         LOG_ERROR("Invalid or corrupted image: {}.", avatar_path_path);
@@ -77,7 +76,6 @@ static bool init_avatar(GuiState &gui, EmuEnvState &emuenv, const std::string &u
     gui.users_avatar[user_id] = {};
     gui.users_avatar[user_id].init(gui.imgui_state.get(), data, width, height);
     stbi_image_free(data);
-    fclose(f);
 
     // Calculate avatar size and position based of aspect ratio
     // Resize for all size of avatar
@@ -468,14 +466,14 @@ void browse_users_management(GuiState &gui, EmuEnvState &emuenv, const uint32_t 
 }
 
 void draw_user_management(GuiState &gui, EmuEnvState &emuenv) {
-    const ImVec2 WINDOW_SIZE(emuenv.viewport_size.x, emuenv.viewport_size.y);
+    const ImVec2 WINDOW_SIZE = ImGui::GetIO().DisplaySize;
     const auto RES_SCALE = ImVec2(WINDOW_SIZE.x / emuenv.res_width_dpi_scale, WINDOW_SIZE.y / emuenv.res_height_dpi_scale);
     const auto SCALE = ImVec2(RES_SCALE.x * emuenv.dpi_scale, RES_SCALE.y * emuenv.dpi_scale);
 
     // Clear users list available
     users_list_available.clear();
 
-    const ImVec2 WINDOW_POS(emuenv.viewport_pos.x, emuenv.viewport_pos.y);
+    const ImVec2 WINDOW_POS(0.0f, 0.0f);
     ImGui::SetNextWindowPos(WINDOW_POS, ImGuiCond_Always);
     ImGui::SetNextWindowSize(WINDOW_SIZE, ImGuiCond_Always);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.f, 0.f));
@@ -539,7 +537,7 @@ void draw_user_management(GuiState &gui, EmuEnvState &emuenv) {
             ImVec2 AVATAR_POS;
             const auto user_avatar_infos = users_avatar_infos[user_id][size];
             AVATAR_POS = ImVec2(origin_pos.x + (user_avatar_infos.pos.x * SCALE.x), origin_pos.y + (user_avatar_infos.pos.y * SCALE.y));
-            AVATAR_SIZE = ImVec2(user_avatar_infos.size.x * SCALE.x, user_avatar_infos.size.y * SCALE.y);
+            AVATAR_SIZE = ImVec2(user_avatar_infos.size.x * SCALE.x, user_avatar_infos.size.y * SCALE.x);
             ImGui::SetCursorPos(AVATAR_POS);
             ImGui::Image(gui.users_avatar[user_id], AVATAR_SIZE);
         }
@@ -673,7 +671,7 @@ void draw_user_management(GuiState &gui, EmuEnvState &emuenv) {
         const ImVec2 CHANGE_AVATAR_BTN_SIZE(LARGE_AVATAR_SIZE.x, 36.f * SCALE.y);
         ImGui::SetCursorPos(ImVec2(AVATAR_POS.x + (LARGE_AVATAR_SIZE.x / 2.f) - (CHANGE_AVATAR_BTN_SIZE.x / 2.f), AVATAR_POS.y + LARGE_AVATAR_SIZE.y + (5.f * SCALE.y)));
         if (ImGui::Button(lang["choose_avatar"].c_str(), CHANGE_AVATAR_BTN_SIZE)) {
-            std::filesystem::path avatar_path = "";
+            fs::path avatar_path = "";
             host::dialog::filesystem::Result result = host::dialog::filesystem::open_file(avatar_path, { { "Image file", { "bmp", "gif", "jpg", "png", "tif" } } });
 
             if ((result == host::dialog::filesystem::Result::SUCCESS) && init_avatar(gui, emuenv, "temp", avatar_path.string()))

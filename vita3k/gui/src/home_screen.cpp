@@ -506,8 +506,8 @@ static const ImU32 ARROW_COLOR = 0xFFFFFFFF; // White
 static float scroll_type, current_scroll_pos, max_scroll_pos;
 
 void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
-    const ImVec2 VIEWPORT_POS(emuenv.viewport_pos.x, emuenv.viewport_pos.y);
-    const ImVec2 VIEWPORT_SIZE(emuenv.viewport_size.x, emuenv.viewport_size.y);
+    const ImVec2 VIEWPORT_POS(0.0, 0.0);
+    const ImVec2 VIEWPORT_SIZE = ImGui::GetIO().DisplaySize;
     const ImVec2 VIEWPORT_RES_SCALE(VIEWPORT_SIZE.x / emuenv.res_width_dpi_scale, VIEWPORT_SIZE.y / emuenv.res_height_dpi_scale);
     const ImVec2 VIEWPORT_SCALE(VIEWPORT_RES_SCALE.x * emuenv.dpi_scale, VIEWPORT_RES_SCALE.y * emuenv.dpi_scale);
     const auto INFORMATION_BAR_HEIGHT = 32.f * VIEWPORT_SCALE.y;
@@ -711,7 +711,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     auto child_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
     if (gui.is_nav_button)
         child_flags |= ImGuiWindowFlags_NoMouseInputs;
-    ImGui::SetNextWindowPos(emuenv.cfg.apps_list_grid ? POS_APP_LIST : ImVec2(emuenv.viewport_pos.x, VIEWPORT_POS.y + MARGIN_HEIGHT), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(emuenv.cfg.apps_list_grid ? POS_APP_LIST : ImVec2(VIEWPORT_POS.x, VIEWPORT_POS.y + MARGIN_HEIGHT), ImGuiCond_Always);
     ImGui::BeginChild("##apps_list", SIZE_APP_LIST, false, child_flags);
 
     // Get Scroll Pos
@@ -923,6 +923,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::PopStyleColor();
     ImGui::Columns(1);
     ImGui::SetWindowFontScale(1.f);
+    ImGui::ScrollWhenDragging();
     ImGui::EndChild();
 
     // When visible apps list is not empty, set first visible app index to 0

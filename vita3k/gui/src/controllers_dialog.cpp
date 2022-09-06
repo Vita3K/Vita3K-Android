@@ -22,6 +22,7 @@
 #include <ctrl/state.h>
 #include <emuenv/state.h>
 #include <gui/functions.h>
+#include <motion/state.h>
 
 #include <SDL_events.h>
 
@@ -353,6 +354,11 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::Spacing();
         ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - (ImGui::GetStyle().WindowPadding.x * 2.f));
         ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", lang["motion_support"].c_str());
+        ImGui::PopTextWrapPos();
+    } else if (emuenv.motion.has_device_motion_support){
+        ImGui::Spacing();
+        ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - (ImGui::GetStyle().WindowPadding.x * 2.f));
+        ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", "Using builtin device motion sensors");
         ImGui::PopTextWrapPos();
     }
 

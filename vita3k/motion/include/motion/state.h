@@ -31,5 +31,12 @@ struct MotionState {
     uint64_t last_gyro_timestamp = 0;
     uint64_t last_accel_timestamp = 0;
 
+    // gyroscope and accelerometer on the device itself
+    SDL_Sensor* device_gyro = nullptr;
+    SDL_Sensor* device_accel = nullptr;
+    bool has_device_motion_support = false;
+
     bool is_sampling = false;
+
+    void init();
 };

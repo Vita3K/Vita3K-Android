@@ -615,9 +615,9 @@ SurfaceRetrieveResult VKSurfaceCache::retrieve_depth_stencil_for_framebuffer(Sce
 
     // check if MSAA is used, the depth buffer is never downscaled
     if (target->multisample_mode != SCE_GXM_MULTISAMPLE_NONE)
-        memory_width *= 2;
-    if (target->multisample_mode == SCE_GXM_MULTISAMPLE_4X)
         memory_height *= 2;
+    if (target->multisample_mode == SCE_GXM_MULTISAMPLE_4X)
+        memory_width *= 2;
 
     const bool is_stencil_only = depth_stencil->depth_data.address() == 0;
     DepthStencilSurfaceCacheInfo *cached_info = nullptr;
@@ -776,9 +776,9 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_depth_stencil_as_tex
 
     // take MSAA into account
     if (cached_info.multisample_mode != SCE_GXM_MULTISAMPLE_NONE)
-        width /= 2;
-    if (cached_info.multisample_mode == SCE_GXM_MULTISAMPLE_4X)
         height /= 2;
+    if (cached_info.multisample_mode == SCE_GXM_MULTISAMPLE_4X)
+        width /= 2;
 
     const bool is_stencil = can_be_stencil;
 
@@ -909,9 +909,8 @@ Framebuffer &VKSurfaceCache::retrieve_framebuffer_handle(MemState &mem, SceGxmCo
         return empty_framebuffer;
     }
 
-    if (!color && !depth_stencil) {
+    if (!color && !depth_stencil) 
         LOG_ERROR_ONCE("Depth stencil and color surface are both null!");
-    }
 
     // might get modified by retrieve_color_surface_for_framebuffer
     state.pipeline_cache.can_use_deferred_compilation = true;
@@ -973,7 +972,7 @@ Framebuffer &VKSurfaceCache::retrieve_framebuffer_handle(MemState &mem, SceGxmCo
 
 ColorSurfaceCacheInfo *VKSurfaceCache::perform_surface_sync() {
     // surface sync is supported only if memory mapping is enabled
-    if (!state.features.support_memory_mapping)
+    if (!state.features.enable_memory_mapping)
         return nullptr;
 
     if (last_written_surface == nullptr || !*last_written_surface->need_surface_sync)
@@ -1041,7 +1040,12 @@ ColorSurfaceCacheInfo *VKSurfaceCache::perform_surface_sync() {
 
         buffer = copy_buffer.buffer;
         offset = 0;
+
+        last_written_surface->need_buffer_sync = false;
+        last_written_surface->need_post_surface_sync = true;
     } else {
+        last_written_surface->need_buffer_sync = true;
+        last_written_surface->need_post_surface_sync = !is_swizzle_identity;
         std::tie(buffer, offset) = state.get_matching_mapping(last_written_surface->data);
     }
     const uint32_t pixel_stride = (last_written_surface->stride_bytes * 8) / gxm::bits_per_pixel(last_written_surface->format);
@@ -1055,8 +1059,7 @@ ColorSurfaceCacheInfo *VKSurfaceCache::perform_surface_sync() {
     };
     cmd_buffer.copyImageToBuffer(image_to_copy, image_layout, buffer, copy);
 
-    const bool need_post_sync = !is_swizzle_identity || format_need_additional_memory(last_written_surface->format);
-    ColorSurfaceCacheInfo *return_value = need_post_sync ? last_written_surface : nullptr;
+    ColorSurfaceCacheInfo *return_value = last_written_surface;
     last_written_surface = nullptr;
 
     return return_value;

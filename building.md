@@ -135,6 +135,25 @@ Note: The CMake preset `linux-ninja-clang` makes use of the LLD linker, which wi
   cmake --build build/linux-ninja-clang
   ```
 
+## Android
+
+- Building the Android version requires both the [Android SDK](https://developer.android.com/ndk/downloads) and [Android NDK](https://developer.android.com/ndk/downloads), both can be installed from Android Studio. You will need to set the environment variable ANDROID_NDK_HOME (and ANDROID_SDK_HOME when not using Android Studio) to their proper location.
+
+- The Android version of Vita3K relies on [vcpkg](https://vcpkg.io/en/) to build some of its dependencies.
+  ```sh
+  vcpkg install boost-system:arm64-android boost-filesystem:arm64-android boost-program-options:arm64-android boost-icl:arm64-android boost-variant:arm64-android openssl:arm64-android zlib:arm64-android
+  ```
+  You will also need to set the environment variable VCPKG_ROOT to its proper location.
+
+- Building can be done with Android studio: select the Vita3K Android folder and click on the build icon or by command line:
+  ```sh
+  ./gradlew --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleRelease
+  ```
+
+### Building SDL
+
+Note that if you want to build the SDL library yourself for Android instead of using the prebuilt version, its source code must be patched to allow for custom drivers to be loaded. Please refer to (get permalink)
+
 ## Note
 
 - After cloning or checking out a branch, you should always update submodules.

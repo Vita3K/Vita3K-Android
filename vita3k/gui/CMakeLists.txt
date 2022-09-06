@@ -51,5 +51,10 @@ add_library(
 
 target_include_directories(gui PUBLIC include ${CMAKE_SOURCE_DIR}/vita3k)
 target_link_libraries(gui PUBLIC app compat config dialog emuenv ime imgui glutil lang regmgr np)
-target_link_libraries(gui PRIVATE audio ctrl kernel miniz psvpfsparser pugixml::pugixml stb renderer packages sdl2 touch vkutil host::dialog concurrentqueue)
-target_link_libraries(gui PUBLIC tracy)
+target_link_libraries(gui PRIVATE audio ctrl kernel miniz motion psvpfsparser pugixml::pugixml stb renderer packages sdl2 touch vkutil host::dialog concurrentqueue)
+if(TRACY_ENABLE_ON_CORE_COMPONENTS)
+    target_link_libraries(gui PUBLIC tracy)
+endif()
+if(ANDROID)
+	target_link_libraries(gui PRIVATE android)
+endif()

@@ -31,6 +31,7 @@
 #include <util/log.h>
 
 #include <SDL_thread.h>
+
 #include <spdlog/fmt/fmt.h>
 #include <util/lock_and_find.h>
 
@@ -90,7 +91,9 @@ bool KernelState::init(MemState &mem, CallImportFunc call_import, CPUBackend cpu
     constexpr std::size_t MAX_CORE_COUNT = 150;
 
     corenum_allocator.set_max_core_count(MAX_CORE_COUNT);
+#ifdef USE_DYNARMIC
     exclusive_monitor = new_exclusive_monitor(MAX_CORE_COUNT);
+#endif
     start_tick = rtc_get_ticks(rtc_base_ticks());
     base_tick = { rtc_base_ticks() };
     cpu_protocol = std::make_unique<CPUProtocol>(*this, mem, call_import);

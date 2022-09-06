@@ -339,8 +339,8 @@ static std::string get_notice_time(GuiState &gui, EmuEnvState &emuenv, const tim
 static bool notice_info_state;
 
 static void draw_notice_info(GuiState &gui, EmuEnvState &emuenv) {
-    const ImVec2 VIEWPORT_POS(emuenv.viewport_pos.x, emuenv.viewport_pos.y);
-    const ImVec2 VIEWPORT_SIZE(emuenv.viewport_size.x, emuenv.viewport_size.y);
+    const ImVec2 VIEWPORT_SIZE = ImGui::GetIO().DisplaySize;
+    const ImVec2 VIEWPORT_POS = { 0, 0 };
     const ImVec2 RES_SCALE(VIEWPORT_SIZE.x / emuenv.res_width_dpi_scale, VIEWPORT_SIZE.y / emuenv.res_height_dpi_scale);
     const ImVec2 SCALE(RES_SCALE.x * emuenv.dpi_scale, RES_SCALE.y * emuenv.dpi_scale);
 
@@ -514,8 +514,8 @@ static void draw_notice_info(GuiState &gui, EmuEnvState &emuenv) {
 }
 
 void draw_information_bar(GuiState &gui, EmuEnvState &emuenv) {
-    const ImVec2 VIEWPORT_POS(emuenv.viewport_pos.x, emuenv.viewport_pos.y);
-    const ImVec2 VIEWPORT_SIZE(emuenv.viewport_size.x, emuenv.viewport_size.y);
+    const ImVec2 VIEWPORT_SIZE = ImGui::GetIO().DisplaySize;
+    const ImVec2 VIEWPORT_POS = { 0, 0 };
     const ImVec2 RES_SCALE(VIEWPORT_SIZE.x / emuenv.res_width_dpi_scale, VIEWPORT_SIZE.y / emuenv.res_height_dpi_scale);
     const ImVec2 SCALE(RES_SCALE.x * emuenv.dpi_scale, RES_SCALE.y * emuenv.dpi_scale);
 

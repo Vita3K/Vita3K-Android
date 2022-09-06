@@ -39,12 +39,15 @@ enum class AppRunType {
 };
 
 void init_paths(Root &root_paths);
-bool init(EmuEnvState &state, Config &cfg, const Root &root_paths);
+bool init(EmuEnvState &state, const Root &root_paths);
 bool late_init(EmuEnvState &state);
 void destroy(EmuEnvState &emuenv, ImGui_State *imgui);
 void update_viewport(EmuEnvState &state);
 void switch_state(EmuEnvState &emuenv, const bool pause);
 void error_dialog(const std::string &message, SDL_Window *window = nullptr);
+
+void add_custom_driver(EmuEnvState &emuenv);
+void remove_custom_driver(EmuEnvState &emuenv, const std::string &driver);
 
 void set_window_title(EmuEnvState &emuenv);
 void calculate_fps(EmuEnvState &emuenv);

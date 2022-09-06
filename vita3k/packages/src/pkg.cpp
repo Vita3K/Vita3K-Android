@@ -31,6 +31,7 @@
 
 #include <config/state.h>
 #include <emuenv/state.h>
+#include <host/dialog/filesystem.h>
 #include <packages/functions.h>
 #include <packages/pkg.h>
 #include <packages/sce_types.h>
@@ -88,12 +89,16 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
 }
 
 bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_zRIF, const std::function<void(float)> &progress_callback) {
-    fs::ifstream infile(pkg_path, std::ios::binary);
+    FILE *infile = host::dialog::filesystem::resolve_host_handle(pkg_path);
+    fseek(infile, 0, SEEK_END);
+    const uint64_t pkg_size = ftell(infile);
+
     PkgHeader pkg_header;
     PkgExtHeader ext_header;
-    infile.read(reinterpret_cast<char *>(&pkg_header), sizeof(PkgHeader));
-    infile.seekg(sizeof(PkgHeader));
-    infile.read(reinterpret_cast<char *>(&ext_header), sizeof(PkgExtHeader));
+    fseek(infile, 0, SEEK_SET);
+    fread(reinterpret_cast<void *>(&pkg_header), sizeof(PkgHeader), 1, infile);
+    fseek(infile, sizeof(PkgHeader), SEEK_SET);
+    fread(reinterpret_cast<char *>(&ext_header), sizeof(PkgExtHeader), 1, infile);
 
     progress_callback(0);
 
@@ -102,12 +107,12 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         return false;
     }
 
-    if (fs::file_size(pkg_path) < byte_swap(pkg_header.total_size)) {
+    if (pkg_size < byte_swap(pkg_header.total_size)) {
         LOG_ERROR("The pkg file is too small");
         return false;
     }
 
-    if (fs::file_size(pkg_path) < byte_swap(pkg_header.data_offset) + byte_swap(pkg_header.file_count) * 32) {
+    if (pkg_size < byte_swap(pkg_header.data_offset) + byte_swap(pkg_header.file_count) * 32) {
         LOG_ERROR("The pkg file is too small");
         return false;
     }
@@ -120,8 +125,8 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     for (uint32_t i = 0; i < byte_swap(pkg_header.info_count); i++) {
         uint32_t block[4];
-        infile.seekg(info_offset);
-        infile.read((char *)block, sizeof(block));
+        fseek(infile, info_offset, SEEK_SET);
+        fread(block, sizeof(block), 1, infile);
 
         auto type = byte_swap(block[0]);
         auto size = byte_swap(block[1]);
@@ -201,8 +206,9 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     std::vector<uint8_t> sfo_buffer(sfo_size);
     SfoFile sfo_file;
-    infile.seekg(sfo_offset);
-    infile.read((char *)&sfo_buffer[0], sfo_size);
+
+    fseek(infile, sfo_offset, SEEK_SET);
+    fread(sfo_buffer.data(), sfo_buffer.size(), 1, infile);
     sfo::load(sfo_file, sfo_buffer);
     sfo::get_param_info(emuenv.app_info, sfo_buffer, emuenv.cfg.sys_lang);
 
@@ -249,12 +255,12 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     for (uint32_t i = 0; i < byte_swap(pkg_header.file_count); i++) {
         PkgEntry entry;
         uint64_t file_offset = items_offset + i * 32;
-        infile.seekg(byte_swap(pkg_header.data_offset) + file_offset, std::ios_base::beg);
-        infile.read(reinterpret_cast<char *>(&entry), sizeof(PkgEntry));
+        fseek(infile, byte_swap(pkg_header.data_offset) + file_offset, SEEK_SET);
+        fread(&entry, sizeof(PkgEntry), 1, infile);
 
-        decrypt_aes_ctr(file_offset / 16, reinterpret_cast<unsigned char *>(&entry), sizeof(PkgEntry));
+        decrypt_aes_ctr(file_offset / 16, reinterpret_cast<unsigned char*>(&entry), sizeof(PkgEntry));
 
-        if (fs::file_size(pkg_path) < byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset) + byte_swap(entry.name_size) || fs::file_size(pkg_path) < byte_swap(pkg_header.data_offset) + byte_swap(entry.data_offset) + byte_swap(entry.data_size)) {
+        if (pkg_size < byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset) + byte_swap(entry.name_size) || pkg_size < byte_swap(pkg_header.data_offset) + byte_swap(entry.data_offset) + byte_swap(entry.data_size)) {
             LOG_ERROR("The pkg file size is too small, possibly corrupted");
             evp_cleanup();
             return false;
@@ -262,8 +268,8 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         const auto file_count = (float)byte_swap(pkg_header.file_count);
         progress_callback(i / file_count * 100.f * 0.6f);
         std::vector<unsigned char> name(byte_swap(entry.name_size));
-        infile.seekg(byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset));
-        infile.read((char *)&name[0], byte_swap(entry.name_size));
+        fseek(infile, byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset), SEEK_SET);
+        fread(name.data(), byte_swap(entry.name_size), 1, infile);
 
         decrypt_aes_ctr(byte_swap(entry.name_offset) / 16, name.data(), byte_swap(entry.name_size));
 
@@ -285,9 +291,9 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
             std::vector<uint8_t> buffer(0x10000);
             while (data_size != 0) {
-                int size = data_size < buffer.size() ? data_size : buffer.size();
-                infile.seekg(byte_swap(pkg_header.data_offset) + offset);
-                infile.read(reinterpret_cast<char *>(buffer.data()), size);
+                auto size = data_size < sizeof(buffer) ? data_size : sizeof(buffer);
+                fseek(infile, byte_swap(pkg_header.data_offset) + offset, SEEK_SET);
+                fread(buffer.data(), size, 1, infile);
 
                 EVP_DecryptUpdate(cipher_ctx, buffer.data(), &dec_len, buffer.data(), size);
 
@@ -301,7 +307,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
             outfile.close();
         }
     }
-    infile.close();
+    fclose(infile);
 
     evp_cleanup();
     fs::path title_id_src = path;
@@ -320,6 +326,8 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     case PkgType::PKG_TYPE_VITA_PATCH:
 
         if (execute(zRIF, title_id_src, title_id_dst, f00d_enc_type, f00d_arg) < 0) {
+            fs::remove_all(fs::path(title_id_src));
+            fs::remove_all(fs::path(title_id_dst));
             return false;
         }
         fs::remove_all(title_id_src);
@@ -335,6 +343,8 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     case PkgType::PKG_TYPE_VITA_DLC:
 
         if (execute(zRIF, title_id_src, title_id_dst, f00d_enc_type, f00d_arg) < 0) {
+            fs::remove_all(fs::path(title_id_src));
+            fs::remove_all(fs::path(title_id_dst));
             return false;
         } else {
             fs::remove_all(title_id_src);
