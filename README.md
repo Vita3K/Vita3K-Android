@@ -1,4 +1,4 @@
-## Vita3K Android
+# Vita3K Android
 
 This repository contains the public releases and CI (automated build) for the Vita3K Android version.
 Vita3K Android is an experimental PlayStation Vita emulator for Android. It comes as an APK, ready for you to install.
