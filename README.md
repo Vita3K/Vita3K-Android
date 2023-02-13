@@ -5,8 +5,8 @@ Vita3K Android is an experimental PlayStation Vita emulator for Android. It come
 
 Minimum requirements are as follow:
 - ARM64 device
-- Vulkan 1.0 support
-- Android 7+ (Note: if your device supports Vulkan 1.0, then it is running at least Android 7, and vice versa)
+- Vulkan 1.0 support 
+- Android 7+ (Note: If your device supports Vulkan, it's Android 7 or higher)
 
 For more information about Vita3K:
 - [Main repository](https://github.com/Vita3K/Vita3K)
@@ -19,6 +19,6 @@ No GPL dependencies were used in these builds.
 
 ## Note
 
-The purpose of this emulator is **not** to enable illegal activity. You can dump games by using [NoNpDrm](https://github.com/TheOfficialFloW/NoNpDrm) or [FAGDec](https://github.com/CelesteBlue-dev/PSVita-RE-tools/tree/master/FAGDec/build). You can get homebrew games from [VitaDB](https://vitadb.rinnegatamante.it/).
+The purpose of this emulator is **not** to enable illegal activity. You must dump games by using [NoNpDrm](https://github.com/TheOfficialFloW/NoNpDrm) or [FAGDec](https://github.com/CelesteBlue-dev/PSVita-RE-tools/tree/master/FAGDec/build). You can get homebrew games from [VitaDB](https://vitadb.rinnegatamante.it/).
 
-PlayStation, PlayStation Vita and PS Vita are trademarks of Sony Interactive Entertainment Inc. This emulator is not related to or endorsed by Sony, or derived from confidential materials belonging to Sony.
+PlayStation and PlayStation Vita are trademarks of Sony Interactive Entertainment Inc. This emulator is not related to or endorsed by Sony, or derived from confidential materials belonging to Sony.
