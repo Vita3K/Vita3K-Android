@@ -16,6 +16,7 @@ For more information about Vita3K:
 All the releases were published with the approval of the developers and contributors of Vita3K. If you contributed to the main repository and were not aware of this version, please contact the developers via Discord.
 
 No GPL dependencies were used in these builds.
+A way to build the version of FFmpeg used for Vita3K Android can be found [here](https://github.com/Macdu/ffmpeg-core/tree/android).
 
 ## Note
 
