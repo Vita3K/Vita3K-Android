@@ -33,6 +33,7 @@ android {
 		debug {
 			debuggable true
 			jniDebuggable true
+			applicationIdSuffix '.debug'
 		}
 
 		reldebug {
@@ -45,6 +46,7 @@ android {
 			}
 			minifyEnabled false
 			shrinkResources false
+			applicationIdSuffix '.debug'
 			signingConfig = signingConfigs.debug
 		}
 
