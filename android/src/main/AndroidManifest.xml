@@ -111,7 +111,7 @@
 
         <provider
             android:name="org.vita3k.emulator.provider.VitaDocumentsProvider"
-            android:authorities="org.vita3k.provider"
+            android:authorities="${applicationId}.provider"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
