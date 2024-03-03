@@ -95,6 +95,27 @@ void set_controller_overlay_scale(float scale) {
     env->DeleteLocalRef(clazz);
 }
 
+void set_controller_overlay_opacity(int opacity) {
+    // retrieve the JNI environment.
+    JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+
+    // retrieve the Java instance of the SDLActivity
+    jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+
+    // find the Java class of the activity. It should be SDLActivity or a subclass of it.
+    jclass clazz(env->GetObjectClass(activity));
+
+    // find the identifier of the method to call
+    jmethodID method_id = env->GetMethodID(clazz, "setControllerOverlayOpacity", "(I)V");
+
+    // effectively call the Java method
+    env->CallVoidMethod(activity, method_id, opacity);
+
+    // clean up the local references.
+    env->DeleteLocalRef(activity);
+    env->DeleteLocalRef(clazz);
+}
+
 void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
     static bool overlay_editing = false;
 
@@ -128,10 +149,17 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
         set_controller_overlay_scale(emuenv.cfg.overlay_scale);
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
     }
+    ImGui::Spacing();
+    if (overlay_editing && ImGui::SliderInt("Overlay opacity", &emuenv.cfg.overlay_opacity, 0, 100, "%d%%")) {
+        set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
+        config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+    }
     if (overlay_editing && ImGui::Button("Reset Gamepad")) {
         set_controller_overlay_state(get_overlay_display_mask(emuenv.cfg), true, true);
         emuenv.cfg.overlay_scale = 1.0f;
+        emuenv.cfg.overlay_opacity = 100;
         set_controller_overlay_scale(emuenv.cfg.overlay_scale);
+        set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
     }
     ImGui::Spacing();
@@ -149,6 +177,7 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
 
 void set_controller_overlay_state(int overlay_mask, bool edit, bool reset) {}
 void set_controller_overlay_scale(float scale) {}
+void set_controller_overlay_opacity(int opacity) {}
 
 static char const *SDL_key_to_string[]{ "[unset]", "[unknown]", "[unknown]", "[unknown]", "A", "B", "C", "D", "E", "F", "G",
     "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",

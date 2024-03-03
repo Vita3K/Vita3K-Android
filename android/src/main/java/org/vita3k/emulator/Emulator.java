@@ -233,6 +233,11 @@ public class Emulator extends SDLActivity
     }
 
     @Keep
+    public void setControllerOverlayOpacity(int opacity){
+        mOverlay.setOpacity(opacity);
+    }
+
+    @Keep
     public boolean createShortcut(String game_id, String game_name){
         if(!ShortcutManagerCompat.isRequestPinShortcutSupported(getContext()))
             return false;
