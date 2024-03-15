@@ -764,6 +764,7 @@ void init(GuiState &gui, EmuEnvState &emuenv) {
     // must be called once for the java side to get the scale
     set_controller_overlay_scale(emuenv.cfg.overlay_scale);
     set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
+    set_controller_overlay_buttons_color(gui::rgb_to_color(emuenv.cfg.overlay_buttons_color));
 #endif
 }
 

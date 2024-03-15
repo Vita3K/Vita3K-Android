@@ -238,6 +238,11 @@ public class Emulator extends SDLActivity
     }
 
     @Keep
+    public void setControllerOverlayButtonsColor(int color){
+        mOverlay.setColor(color);
+    }
+
+    @Keep
     public boolean createShortcut(String game_id, String game_name){
         if(!ShortcutManagerCompat.isRequestPinShortcutSupported(getContext()))
             return false;

@@ -17,11 +17,14 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -60,6 +63,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
   private InputOverlayDrawableJoystick mJoystickBeingConfigured;
   private static float mGlobalScale = 1.0f;
   private static int mGlobalOpacity = 100;
+  private static int mGlobalButtonsColor = -1;
 
   private Timer mTimer;
 
@@ -616,6 +620,13 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     }
   }
 
+  public void setColor(int color)  {
+    if(color != mGlobalButtonsColor){
+      mGlobalButtonsColor = color;
+      refreshControls();
+    }
+  }
+
   private void saveControlPosition(int sharedPrefsId, int x, int y,
           String orientation)
   {
@@ -720,6 +731,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     // Need to set the image's position
     overlayDrawable.setPosition(drawableX, drawableY);
     overlayDrawable.setOpacity((int) (mGlobalOpacity * 0.01 * 255));
+    overlayDrawable.setColor(mGlobalButtonsColor);
 
     return overlayDrawable;
   }
@@ -789,6 +801,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     // Need to set the image's position
     overlayDrawable.setPosition(drawableX, drawableY);
     overlayDrawable.setOpacity((int) (mGlobalOpacity * 0.01 * 255));
+    overlayDrawable.setColor(mGlobalButtonsColor);
 
     return overlayDrawable;
   }
@@ -847,6 +860,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     // Need to set the image's position
     overlayDrawable.setPosition(drawableX, drawableY);
     overlayDrawable.setOpacity((int) (mGlobalOpacity * 0.01 * 255));
+    overlayDrawable.setColor(mGlobalButtonsColor);
 
     return overlayDrawable;
   }

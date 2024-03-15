@@ -8,6 +8,7 @@ package org.vita3k.emulator.overlay;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.view.MotionEvent;
@@ -295,6 +296,17 @@ public final class InputOverlayDrawableJoystick
       mOuterBitmap.setAlpha(0);
       mBoundsBoxBitmap.setAlpha(value);
     }
+  }
+
+  public void setColor(int color)
+  {
+    mDefaultStateInnerBitmap.setTint(color);
+    mBoundsBoxBitmap.setTint(color);
+    mOuterBitmap.setTint(color);
+
+    int newAlpha = (mPressedStateInnerBitmap.getAlpha() / 3) << 24;
+    int colorWithoutAlpha = color & 0x00FFFFFF;
+    mPressedStateInnerBitmap.setTint(newAlpha | colorWithoutAlpha);
   }
 
   public Rect getBounds()

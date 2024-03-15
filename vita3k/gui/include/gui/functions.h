@@ -113,7 +113,9 @@ void save_notice_list(EmuEnvState &emuenv);
 void set_controller_overlay_state(int overlay_mask, bool edit = false, bool reset = false);
 void set_controller_overlay_scale(float scale);
 void set_controller_overlay_opacity(int opacity);
+void set_controller_overlay_buttons_color(int color);
 int get_overlay_display_mask(const Config &cfg);
+int rgb_to_color(std::vector<float> &rgb);
 
 void draw_begin(GuiState &gui, EmuEnvState &emuenv);
 void draw_end(GuiState &emuenv, SDL_Window *window);
