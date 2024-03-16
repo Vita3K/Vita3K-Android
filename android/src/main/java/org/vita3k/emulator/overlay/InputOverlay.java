@@ -59,6 +59,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
   private InputOverlayDrawableDpad mDpadBeingConfigured;
   private InputOverlayDrawableJoystick mJoystickBeingConfigured;
   private static float mGlobalScale = 1.0f;
+  private static int mGlobalOpacity = 100;
 
   private Timer mTimer;
 
@@ -608,6 +609,13 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
     }
   }
 
+  public void setOpacity(int opacity){
+    if(opacity != mGlobalOpacity){
+      mGlobalOpacity = opacity;
+      refreshControls();
+    }
+  }
+
   private void saveControlPosition(int sharedPrefsId, int x, int y,
           String orientation)
   {
@@ -711,7 +719,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
 
     // Need to set the image's position
     overlayDrawable.setPosition(drawableX, drawableY);
-    overlayDrawable.setOpacity(60 * 255 / 100);
+    overlayDrawable.setOpacity((int) (mGlobalOpacity * 0.01 * 255));
 
     return overlayDrawable;
   }
@@ -780,7 +788,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
 
     // Need to set the image's position
     overlayDrawable.setPosition(drawableX, drawableY);
-    overlayDrawable.setOpacity(80 * 255 / 100);
+    overlayDrawable.setOpacity((int) (mGlobalOpacity * 0.01 * 255));
 
     return overlayDrawable;
   }
@@ -838,7 +846,7 @@ public final class InputOverlay extends SurfaceView implements OnTouchListener
 
     // Need to set the image's position
     overlayDrawable.setPosition(drawableX, drawableY);
-    overlayDrawable.setOpacity(80 * 255 / 100);
+    overlayDrawable.setOpacity((int) (mGlobalOpacity * 0.01 * 255));
 
     return overlayDrawable;
   }
