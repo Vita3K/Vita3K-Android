@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+project.ext.isBuildSigned = (System.getenv("CI") == "true") && (System.getenv("IS_BUILD_SIGNED") == "true")
+
 android {
 	namespace "org.vita3k.emulator"
 	compileSdk 34
@@ -33,6 +35,7 @@ android {
 		debug {
 			debuggable true
 			jniDebuggable true
+			applicationIdSuffix '.debug'
 		}
 
 		reldebug {
@@ -45,6 +48,7 @@ android {
 			}
 			minifyEnabled false
 			shrinkResources false
+			applicationIdSuffix '.debug'
 			signingConfig = signingConfigs.debug
 		}
 
@@ -59,7 +63,7 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-			signingConfig = signingConfigs.ci
+			signingConfig = isBuildSigned ? signingConfigs.ci : signingConfigs.debug
 		}
 	}
 
