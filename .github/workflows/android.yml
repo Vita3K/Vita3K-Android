@@ -52,7 +52,7 @@ jobs:
           cp -r lang android/assets
           cp -r vita3k/shaders-builtin android/assets
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
-          ./gradlew --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleRelease
+          ./gradlew --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleRelease  assembleDebug
 
       - name: Compute git short sha
         shell: bash
