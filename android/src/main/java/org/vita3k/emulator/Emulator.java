@@ -266,12 +266,15 @@ public class Emulator extends SDLActivity
                             }else{
                                 result_uri_string = result_uri_string.replace("tree/", "storage/");    // external storage like SDCARD or USB storage
                             }
+                            result_uri_string = result_uri_string.replace("%3A", "/");
+                            result_uri_string = result_uri_string.replace("%2F", "/"); // fix sub folder
+                            result_uri_string = result_uri_string.replace("%20", " "); // incase contains space
                             result_fd = 0;
                         }else{
                             result_fd = 0;
                             result_uri_string = "";
                         }
-                        result_uri_string = result_uri_string.replace("%3A", "/");
+
                     }
                     catch (Exception e) {
                         result_fd = -1;
