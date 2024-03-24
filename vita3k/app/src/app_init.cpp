@@ -212,6 +212,13 @@ void init_paths(Root &root_paths) {
     root_paths.set_config_path(storage_path);
     root_paths.set_shared_path(storage_path);
     root_paths.set_cache_path(storage_path / "cache" / "");
+    auto fscheck = storage_path / "vita3k.log";
+    if(fs::exists(fscheck) && !fs::is_empty(fscheck)){
+       fs::copy_file(fscheck , storage_path / "vita3k.log.old", fs::copy_options::overwrite_existing);
+     //   LOG_INFO("Old log moved");
+    }else{
+     //   LOG_INFO("Log empty, skip copy");
+    }
 #else
     auto sdl_base_path = SDL_GetBasePath();
     auto base_path = fs_utils::utf8_to_path(sdl_base_path);
@@ -352,23 +359,50 @@ bool init(EmuEnvState &state, const Root &root_paths) {
     state.static_assets_path = root_paths.get_static_assets_path();
 
     // If configuration does not provide a preference path, use SDL's default
-    if (state.cfg.pref_path == root_paths.get_pref_path() || state.cfg.pref_path.empty())
+    if (state.cfg.pref_path == root_paths.get_pref_path() || state.cfg.pref_path.empty()){
         state.pref_path = root_paths.get_pref_path();
-    else {
+    }else {
         auto last_char = state.cfg.pref_path.back();
         if (last_char != fs::path::preferred_separator && last_char != '/')
             state.cfg.pref_path += fs::path::preferred_separator;
         state.pref_path = state.cfg.get_pref_path();
     }
+           
+#ifdef ANDROID
+        fs::create_directories(root_paths.get_shared_path() / "lang"); 
+        fs::create_directories(root_paths.get_shared_path() / "lang" / "user");
+      //  fs::create_directories(state.cfg.get_pref_path() / "vita");
+        fs::create_directories(state.cfg.get_pref_path() / "logs");
+        fs::create_directories(state.cfg.get_pref_path() / "shared");
+        auto fscheck = fs::path(root_paths.get_base_path()) / "vita3k.log.old";
+       
+        state.log_path = fs::path(state.cfg.get_pref_path() / "logs" / "");
+        state.shared_path = fs::path(state.cfg.get_pref_path() / "shared" / "");
+   //     state.pref_path = fs::path(state.cfg.get_pref_path() / "vita" / "");
+        if(fs::exists(fscheck)){
+           // LOG_INFO("Vita3k.log exist!");
+            if(!fs::equivalent(state.log_path, root_paths.get_base_path())){
+                fs::copy_file(fscheck , state.log_path / "vita3k.log.txt", fs::copy_options::overwrite_existing);
+                fs::remove(fscheck);
+                LOG_INFO("Last Vita3k.log stored at: {}", state.log_path);
+            }else{
+                LOG_INFO("Vita3K.Log not copied because it's using default folder!");
+            }
+        }else{
+        //    LOG_INFO("Vita3k.log is empty!");
+        }
+#endif
 
-    LOG_INFO("Base path: {}", state.base_path);
-#if defined(__linux__) && !defined(__ANDROID__) && !defined(__APPLE__)
+/*    LOG_INFO("Base path: {}", state.base_path);
+// #if defined(__linux__) && defined(__ANDROID__) && !defined(__APPLE__)
+#if !defined(__APPLE__)
     LOG_INFO("Static assets path: {}", state.static_assets_path);
     LOG_INFO("Shared path: {}", state.shared_path);
     LOG_INFO("Log path: {}", state.log_path);
     LOG_INFO("User config path: {}", state.config_path);
     LOG_INFO("User cache path: {}", state.cache_path);
 #endif
+*/ //no need
     LOG_INFO("User pref path: {}", state.pref_path);
 
     if (ImGui::GetCurrentContext() == NULL) {
@@ -500,7 +534,6 @@ bool init(EmuEnvState &state, const Root &root_paths) {
         discordrpc::update_presence();
     }
 #endif
-
     return true;
 }
 
