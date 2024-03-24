@@ -382,7 +382,7 @@ bool init(EmuEnvState &state, const Root &root_paths) {
         if(fs::exists(fscheck)){
            // LOG_INFO("Vita3k.log exist!");
             if(!fs::equivalent(state.log_path, root_paths.get_base_path())){
-                fs::copy_file(fscheck , state.log_path / "vita3k.log", fs::copy_options::overwrite_existing);
+                fs::copy_file(fscheck , state.log_path / "vita3k.log.txt", fs::copy_options::overwrite_existing);
                 fs::remove(fscheck);
                 LOG_INFO("Last Vita3k.log stored at: {}", state.log_path);
             }else{
