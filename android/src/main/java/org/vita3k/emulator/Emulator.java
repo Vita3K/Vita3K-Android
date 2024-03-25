@@ -30,6 +30,11 @@ import org.libsdl.app.SDLActivity;
 import org.libsdl.app.SDLSurface;
 import org.vita3k.emulator.overlay.InputOverlay;
 
+// for folder picker
+import androidx.documentfile.provider.DocumentFile;
+import android.os.Environment;
+import android.provider.Settings;
+
 public class Emulator extends SDLActivity
 {
     private InputOverlay mOverlay;
@@ -83,7 +88,10 @@ public class Emulator extends SDLActivity
 
     @Override
     protected String[] getArguments() {
-        Intent intent = getIntent();
+        Intent intent = getIntent()
+                .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION) //must declare because without this emulator will trow boostfs::file permission denial
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         String[] args = intent.getStringArrayExtra(APP_RESTART_PARAMETERS);
         if(args == null)
@@ -133,7 +141,7 @@ public class Emulator extends SDLActivity
         ProcessPhoenix.triggerRebirth(getContext(), restart_intent);
     }
 
-    static final int FILE_DIALOG_CODE = 545;
+    //static final int FILE_DIALOG_CODE = 545; // no need, just declare directly 
 
     @Keep
     public void showFileDialog(){
@@ -142,7 +150,28 @@ public class Emulator extends SDLActivity
                 .setAction(Intent.ACTION_GET_CONTENT);
 
         intent = Intent.createChooser(intent, "Choose a file");
-        startActivityForResult(intent, FILE_DIALOG_CODE);
+    //    startActivityForResult(intent, FILE_DIALOG_CODE);
+        startActivityForResult(intent, 545);
+    }
+
+    @Keep
+    public void changeDir(){
+        if (Environment.isExternalStorageManager()){
+            Intent intent = new Intent()
+            .setAction(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            .addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION) // must declare again because it will crash emulator due permission denial
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        
+            startActivityForResult(intent, 546);
+        }else{
+            Intent intent = new Intent();    
+            intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION); // open settings for file access permission
+            Uri uri = Uri.fromParts("package", this.getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+            startActivityForResult(intent, 547);
+        }
     }
 
     private File getFileFromUri(Uri uri){
@@ -193,7 +222,8 @@ public class Emulator extends SDLActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == FILE_DIALOG_CODE){
+        // if(requestCode == FILE_DIALOG_CODE){
+        if(requestCode == 545){                    // file picker
             if(resultCode == RESULT_OK){
                 Uri result_uri = data.getData();
                 String filename = getFileName(result_uri);
@@ -214,6 +244,52 @@ public class Emulator extends SDLActivity
                 filedialogReturn(result_uri_string, result_fd, filename);
             } else if(resultCode == RESULT_CANCELED){
                 filedialogReturn("", -1, "");
+            }
+        }
+
+        if(requestCode == 546){                    // folder selector
+            if(resultCode == RESULT_OK){
+                    Uri result_uri = data.getData();
+                    DocumentFile df = DocumentFile.fromTreeUri(getApplicationContext(), result_uri);
+                    String result_uri_string = String.valueOf(result_uri);
+                    int result_fd = -1;
+                    try{
+                        if(result_uri_string.contains("content://")){
+                            result_uri_string = result_uri_string.replace("content://com.android.externalstorage.documents/", "/");
+                            
+                            if(result_uri_string.contains("tree/primary")){ // some custom rom
+                                result_uri_string = result_uri_string.replace("tree/primary", "sdcard");
+                            }else if(result_uri_string.contains("tree/emulated")){ // stock rom
+                              result_uri_string = result_uri_string.replace("tree/emulated", "sdcard");
+                            }else if(result_uri_string.contains("tree/raw")){ // AVD (untested)
+                                result_uri_string = result_uri_string.replace("tree/raw", "");
+                            }else{
+                                result_uri_string = result_uri_string.replace("tree/", "storage/");    // external storage like SDCARD or USB storage
+                            }
+                            result_uri_string = result_uri_string.replace("%3A", "/");
+                            result_uri_string = result_uri_string.replace("%2F", "/"); // fix sub folder
+                            result_uri_string = result_uri_string.replace("%20", " "); // incase contains space
+                            result_fd = 0;
+                        }else{
+                            result_fd = 0;
+                            result_uri_string = "";
+                        }
+
+                    }
+                    catch (Exception e) {
+                        result_fd = -1;
+                        result_uri_string = "";
+                    }
+                    filedialogReturn(result_uri_string, result_fd, "");
+
+            }else if(resultCode == RESULT_CANCELED){
+                filedialogReturn("", -1, "");
+            }
+        }
+
+        if(requestCode == 547){                    // if all file access granted or not it will return to select folder path, if not do this emulator will blank and then crash
+            if(resultCode == RESULT_OK || resultCode == RESULT_CANCELED){
+                filedialogReturn("", -1, ""); // force mark it as cancel command
             }
         }
     }

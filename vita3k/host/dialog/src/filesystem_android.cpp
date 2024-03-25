@@ -127,7 +127,38 @@ Result open_file(fs::path &resulting_path, std::vector<FileFilter> file_filters,
 };
 
 Result pick_folder(fs::path &resulting_path, fs::path default_path) {
-    return Result::ERROR;
+    SDL_AndroidRequestPermission("android.permission.MANAGE_EXTERNAL_STORAGE");
+    
+    // retrieve the JNI environment.
+    JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
+
+    // retrieve the Java instance of the SDLActivity
+    jobject activity = reinterpret_cast<jobject>(SDL_AndroidGetActivity());
+
+    // find the Java class of the activity. It should be SDLActivity or a subclass of it.
+    jclass clazz(env->GetObjectClass(activity));
+
+    // find the identifier of the method to call
+    jmethodID method_id = env->GetMethodID(clazz, "changeDir", "()V");
+
+    file_dialog_running = true;
+    // effectively call the Java method
+    env->CallVoidMethod(activity, method_id);
+
+    // clean up the local references.
+    env->DeleteLocalRef(activity);
+    env->DeleteLocalRef(clazz);
+
+    while (file_dialog_running)
+        SDL_Delay(10);
+
+    if (dialog_result_uri.empty())
+        return Result::CANCEL;
+            
+    resulting_path = fs::path(dialog_result_uri);
+    return Result::SUCCESS;
+    
+    // return Result::ERROR;
 };
 
 std::string get_error() {

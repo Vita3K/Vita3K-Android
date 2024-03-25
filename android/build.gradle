@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+project.ext.isBuildSigned = (System.getenv("CI") == "true") && (System.getenv("IS_BUILD_SIGNED") == "true")
+
 android {
 	namespace "org.vita3k.emulator"
 	compileSdk 34
@@ -61,7 +63,7 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-			signingConfig = signingConfigs.ci
+			signingConfig = isBuildSigned ? signingConfigs.ci : signingConfigs.debug
 		}
 	}
 
@@ -103,4 +105,5 @@ dependencies {
 	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 	implementation 'com.getkeepsafe.relinker:relinker:1.4.5'
 	implementation 'com.jakewharton:process-phoenix:2.1.2'
+	implementation 'androidx.documentfile:documentfile:1.0.1'
 }

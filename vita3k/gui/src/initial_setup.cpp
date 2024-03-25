@@ -28,9 +28,9 @@ namespace gui {
 
 enum InitialSetup {
     SELECT_LANGUAGE,
-#ifndef ANDROID
+//#ifndef ANDROID
     SELECT_PREF_PATH,
-#endif
+//#endif
     INSTALL_FIRMWARE,
     SELECT_INTERFACE_SETTINGS,
     FINISHED
@@ -160,7 +160,7 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::PopStyleVar();
         break;
 
-#ifndef ANDROID
+//#ifndef ANDROID
     case SELECT_PREF_PATH:
         title_str = lang["select_pref_path"];
         ImGui::SetCursorPos(ImVec2((WINDOW_SIZE.x / 2.f) - (ImGui::CalcTextSize(lang["current_emu_path"].c_str()).x / 2.f), (WINDOW_SIZE.y / 2.f) - ImGui::GetFontSize()));
@@ -190,7 +190,7 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
             }
         }
         break;
-#endif
+//#endif
 
     case INSTALL_FIRMWARE:
         title_str = lang["install_firmware"];

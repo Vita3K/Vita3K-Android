@@ -1085,7 +1085,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
             ImGui::SetTooltip("%s", lang.emulator["case_insensitive_description"].c_str());
 #endif
         ImGui::Separator();
-#ifndef ANDROID
+//#ifndef ANDROID
         ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(lang.emulator["emu_storage_folder"].c_str()).x / 2.f));
         ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", lang.emulator["emu_storage_folder"].c_str());
         ImGui::Spacing();
@@ -1111,7 +1111,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
             if (ImGui::IsItemHovered())
                 ImGui::SetTooltip("%s", lang.emulator["reset_emu_path_description"].c_str());
         }
-#endif
+//#endif
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(lang.emulator["custom_config_settings"].c_str()).x / 2.f));
