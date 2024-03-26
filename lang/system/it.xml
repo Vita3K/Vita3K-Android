@@ -57,6 +57,7 @@
 		<an_error_occurred>Si è verificato un errore.
 Codice di errore: {}</an_error_occurred>
 		<cancel>Annulla</cancel>
+		<close>Chiudersi</close>
 		<delete>Elimina</delete>
 		<file_corrupted>Il file è danneggiato.</file_corrupted>
 		<microphone_disabled>Attiva il microfono.</microphone_disabled>

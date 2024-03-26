@@ -57,6 +57,7 @@
 		<an_error_occurred>Bir hata oluştu.
 Hata Kodu: {}</an_error_occurred>
 		<cancel>İptal</cancel>
+		<close>Kapat</close>
 		<delete>Sil</delete>
 		<file_corrupted>Dosya bozuk.</file_corrupted>
 		<no>Hayır</no>

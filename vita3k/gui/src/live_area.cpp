@@ -1155,7 +1155,9 @@ void draw_live_area_screen(GuiState &gui, EmuEnvState &emuenv) {
                 ImGui::TextColored(col, "%s", str);
                 ImGui::Spacing();
             };
+#ifndef ANDROID
             TextColoredCentered(gui, GUI_COLOR_TEXT, "control_setting");
+#endif
             if (gui.modules.empty()) {
                 TextColoredCentered(gui, GUI_COLOR_TEXT, "firmware_not_detected");
             }

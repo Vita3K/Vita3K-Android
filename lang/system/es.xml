@@ -64,6 +64,7 @@
 		<an_error_occurred>Ha ocurrido un error.
 Código del error: {}</an_error_occurred>
 		<cancel>Cancelar</cancel>
+		<close>Cerrar</close>
 		<delete>Eliminar</delete>
 		<file_corrupted>El archivo está dañado.</file_corrupted>
 		<microphone_disabled>Activa el micrófono.</microphone_disabled>

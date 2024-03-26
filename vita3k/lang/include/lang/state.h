@@ -33,6 +33,7 @@ struct DialogLangState {
     std::map<std::string, std::string> common = {
         { "an_error_occurred", "An error occurred.\nError code: {}" },
         { "cancel", "Cancel" },
+        { "close", "Close" },
         { "delete", "Delete" },
         { "file_corrupted", "The file is corrupt." },
         { "microphone_disabled", "Enable the microphone." },
@@ -136,6 +137,7 @@ struct LangState {
     MainMenubar main_menubar;
     std::map<std::string, std::string> about = {
         { "title", "About" },
+        { "for_android", "If you did not download this emulator from Vita3K's official discord, paid for it or it contains ads, uninstall it immediatly." },
         { "vita3k", "Vita3K: a PS Vita/PS TV Emulator. The world's first functional PS Vita/PS TV emulator." },
         { "about_vita3k", "Vita3K is an experimental open-source PlayStation Vita/PlayStation TV emulator written in C++ for Windows, Linux, macOS and Android operating systems." },
         { "special_credit", "Special credit: The Vita3K icon was designed by:" },
@@ -168,6 +170,7 @@ struct LangState {
             { "shaders_log", "Shaders Log" },
             { "export_textures", "Export Textures" },
             { "import_textures", "Import Textures" },
+            { "create_shortcut", "Create Shortcut" },
             { "manual", "Manual" },
             { "update", "Update" },
             { "update_history", "Update History" },
@@ -260,6 +263,7 @@ struct LangState {
         { "num", "Num" },
         { "not_connected", "No compatible controllers connected.\nPlease connect a controller that is compatible with SDL2." },
         { "motion_support", "Gamepad has motion support" },
+        { "motion_sensors", "Using builtin device motion sensors" },
         { "rebind_controls", "Rebind Controls" },
         { "led_color", "LED Color" },
         { "use_custom_color", "Use Custom Color" },
@@ -442,6 +446,18 @@ struct LangState {
         };
     };
     LiveArea live_area;
+    std::map<std::string, std::string> overlay = {
+        { "title", "Overlay" },
+        { "gamepad_overlay", "Gamepad Overlay" },
+        { "enable_gamepad_overlay", "Show gamepad overlay ingame" },
+        { "hide_gamepad_overlay", "Hide Gamepad Overlay" },
+        { "modify_gamepad_overlay", "Modify Gamepad Overlay" },
+        { "overlay_scale", "Overlay Scale" },
+        { "overlay_opacity", "Overlay Opacity" },
+        { "reset_gamepad", "Reset Gamepad" },
+        { "overlay_show_touch_switch", "Show front/back touchscreen switch button." },
+        { "l2_r2_triggers", "L2/R2 triggers will be displayed only if PSTV mode is enabled." }
+    };
     std::map<std::string, std::string> performance_overlay = {
         { "avg", "Avg" },
         { "min", "Min" },
@@ -541,6 +557,8 @@ struct LangState {
             { "select_backend_renderer", "Select your preferred backend renderer." },
             { "gpu", "GPU (Reboot to apply)" },
             { "select_gpu", "Select the GPU Vita3K should run on." },
+            { "add_custom_driver", "Add custom driver" },
+            { "remove_custom_driver", "Remove custom driver" },
             { "standard", "Standard" },
             { "high", "High" },
             { "renderer_accuracy", "Renderer Accuracy" },
@@ -566,8 +584,15 @@ struct LangState {
             { "shaders", "Shaders" },
             { "shader_cache", "Use Shader Cache" },
             { "shader_cache_description", "Check the box to enable shader cache to pre-compile it at game startup.\nUncheck to disable this feature." },
+            { "disabled", "Disabled" },
+            { "double_buffer", "Double buffer" },
+            { "external_host", "External host" },
+            { "page_table", "Page table" },
+            { "native_buffer", "Native buffer" },
             { "mapping_method", "Memory mapping method" },
-            { "mapping_method_description", "Memory mapping improved performances, reduces memory usage and fixes many graphical issues.\nHowever, it may be unstable on some GPUs" },
+            { "mapping_method_description", "Memory mapping improved performances, reduces memory usage and fixes many graphical issues.\nHowever, it may be unstable on some GPUs." },
+            { "turbo_mode", "Enable Turbo Mode" },
+            { "turbo_mode_description", "Provides a way to force the GPU to run at the maximum possible clocks (thermal constraints will still be applied)." },
             { "spirv_shader", "Use Spir-V Shader (deprecated)" },
             { "spirv_shader_description", "Pass generated Spir-V shader directly to driver.\nNote that some beneficial extensions will be disabled,\nand not all GPUs are compatible with this." },
             { "clean_shaders", "Clean Shaders Cache and Log" },
@@ -789,6 +814,7 @@ struct LangState {
     };
     std::map<std::string, std::string> welcome = {
         { "title", "Welcome to Vita3K" },
+        { "for_android", "This emulator is free and was distributed on Vita3K's official discord. If you did not download this application from Vita3K's discord, paid for it or it has ads, consider uninstalling it immediately for your own safety." },
         { "vita3k", "Vita3K PlayStation Vita Emulator" },
         { "about_vita3k", "Vita3K is an open-source PlayStation Vita emulator written in C++ for Windows, Linux, macOS and Android." },
         { "development_stage", "The emulator is still in its development stages so any feedback and testing is greatly appreciated." },

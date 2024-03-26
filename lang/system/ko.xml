@@ -79,6 +79,7 @@
 		<an_error_occurred>에러기 발생했습니다.
 에러  코드: {}</an_error_occurred>
 		<cancel>취소</cancel>
+		<close>닫다</close>
 		<delete>삭제</delete>
 		<file_corrupted>파일이 손상되어 있습니다.</file_corrupted>
 		<microphone_disabled>마이크를 활성화해 주십시오.</microphone_disabled>

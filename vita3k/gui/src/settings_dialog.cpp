@@ -1,4 +1,4 @@
-// Vita3K emulator project
+﻿// Vita3K emulator project
 // Copyright (C) 2024 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
@@ -674,7 +674,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 if (emuenv.cfg.gpu_idx == 0)
                     config.custom_driver_name = "";
 
-                if (ImGui::Button("Add custom driver")) {
+                if (ImGui::Button(lang.gpu["add_custom_driver"].c_str())) {
                     app::add_custom_driver(emuenv);
                     // also set it to stock after
                     emuenv.cfg.gpu_idx = 0;
@@ -685,7 +685,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                     config.custom_driver_name = gpu_list_str[emuenv.cfg.gpu_idx];
 
                     ImGui::SameLine();
-                    if (ImGui::Button("Remove custom driver")) {
+                    if (ImGui::Button(lang.gpu["remove_custom_driver"].c_str())) {
                         app::remove_custom_driver(emuenv, config.custom_driver_name);
                         // set back to stock
                         emuenv.cfg.gpu_idx = 0;
@@ -882,11 +882,11 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 ImGui::BeginDisabled();
 
             std::vector<const char *> mapping_methods_strings = {
-                "Disabled",
-                "Double buffer",
-                "External host",
-                "Page table",
-                "Native buffer"
+                lang.gpu["disabled"].c_str(),
+                lang.gpu["double_buffer"].c_str(),
+                lang.gpu["external_host"].c_str(),
+                lang.gpu["page_table"].c_str(),
+                lang.gpu["native_buffer"].c_str()
             };
             std::vector<std::string_view> mapping_methods_indexes = {
                 "disabled",
@@ -921,10 +921,10 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
 
         if (emuenv.renderer->support_custom_drivers()) {
             ImGui::Spacing();
-            ImGui::Checkbox("Enable Turbo Mode", &emuenv.cfg.turbo_mode);
+            ImGui::Checkbox(lang.gpu["turbo_mode"].c_str(), &emuenv.cfg.turbo_mode);
 
             if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Provides a way to force the GPU to run at the maximum possible clocks (thermal constraints will still be applied)");
+                ImGui::SetTooltip("%s", lang.gpu["turbo_mode_description"].c_str());
             }
         }
 

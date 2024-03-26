@@ -51,6 +51,7 @@
 		<an_error_occurred>Wystąpił błąd.
 Kod błędu: {}</an_error_occurred>
 		<cancel>Anuluj</cancel>
+		<close>Zamykać</close>
 		<delete>Usuń</delete>
 		<file_corrupted>Plik jest uszkodzony.</file_corrupted>
 		<microphone_disabled>Włącz mikrofon.</microphone_disabled>
