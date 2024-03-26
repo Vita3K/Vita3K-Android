@@ -141,7 +141,7 @@ static void draw_controls_menu(GuiState &gui) {
     auto &lang = gui.lang.main_menubar.controls;
     if (ImGui::BeginMenu(lang["title"].c_str())) {
 #ifdef ANDROID
-        const char *controls_name = "Overlay";
+        const char *controls_name = gui.lang.overlay["title"].c_str();
 #else
         const char *controls_name = lang["keyboard_controls"].c_str();
 #endif

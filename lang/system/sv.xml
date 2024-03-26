@@ -51,6 +51,7 @@
 		<an_error_occurred>Ett fel har inträffat.
 Felkod: {}</an_error_occurred>
 		<cancel>Avbryt</cancel>
+		<close>Stänga</close>
 		<delete>Radera</delete>
 		<file_corrupted>Filen är skadad.</file_corrupted>
 		<microphone_disabled>Aktivera mikrofonen.</microphone_disabled>

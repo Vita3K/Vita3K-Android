@@ -87,6 +87,7 @@
 		<an_error_occurred>Произошла ошибка.
 Код ошибки: {}</an_error_occurred>
 		<cancel>Отмена</cancel>
+		<close>Закрыть</close>
 		<delete>Удалить</delete>
 		<file_corrupted>Файл поврежден.</file_corrupted>
 		<microphone_disabled>Включите микрофон.</microphone_disabled>

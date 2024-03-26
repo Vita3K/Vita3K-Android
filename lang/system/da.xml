@@ -51,6 +51,7 @@
 		<an_error_occurred>Der er opstået en fejl.
 Fejlkode: {}</an_error_occurred>
 		<cancel>Afbryd</cancel>
+		<close>Lukke</close>
 		<delete>Slet</delete>
 		<file_corrupted>Filen er defekt.</file_corrupted>
 		<microphone_disabled>Aktivér mikrofonen.</microphone_disabled>

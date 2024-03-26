@@ -51,6 +51,7 @@
 		<an_error_occurred>Virhe on tapahtunut.
 Virhekoodi: {}</an_error_occurred>
 		<cancel>Peruuta</cancel>
+		<close>Sulkea</close>
 		<delete>Poista</delete>
 		<file_corrupted>Tiedosto on vioittunt.</file_corrupted>
 		<microphone_disabled>Ota mikrofoni käyttöön.</microphone_disabled>

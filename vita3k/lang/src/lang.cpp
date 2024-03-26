@@ -289,6 +289,9 @@ void init_lang(LangState &lang, EmuEnvState &emuenv) {
                     set_lang_string(lang.live_area.help, live_area.child("help"));
                 }
 
+                // Overlay
+                set_lang_string(lang.overlay, lang_child.child("overlay"));
+
                 // Performance Overlay
                 set_lang_string(lang.performance_overlay, lang_child.child("performance_overlay"));
 

@@ -619,7 +619,7 @@ void draw_user_management(GuiState &gui, EmuEnvState &emuenv) {
                 if ((user_item_rect_half > HALF_SIZE_USER) || (user_item_rect_half < HALF_SIZE_USER))
                     ImGui::SetScrollHereX(0.5f);
             }
-#if defined(__Win32__) && !defined(__linux__) && !defined(__APPLE__)
+#ifndef ANDROID
             if (ImGui::BeginPopupContextItem("##user_context_menu")) {
                 if (ImGui::MenuItem(lang["open_user_folder"].c_str()))
                     open_path((user_path / user.first).string());

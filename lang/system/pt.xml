@@ -54,6 +54,7 @@
 		<an_error_occurred>Ocorreu um erro.
 Código de erro: {}</an_error_occurred>
 		<cancel>Cancelar</cancel>
+		<close>Fechar</close>
 		<delete>Eliminar</delete>
 		<file_corrupted>O ficheiro está corrompido.</file_corrupted>
 		<microphone_disabled>Ative o microfone.</microphone_disabled>

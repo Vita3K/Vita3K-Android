@@ -57,6 +57,7 @@
 		<an_error_occurred>Er is een fout opgetreden.
 Foutcode: {}</an_error_occurred>
 		<cancel>Annuleren</cancel>
+		<close>Sluiten</close>
 		<delete>Verwijderen</delete>
 		<file_corrupted>Het bestand is beschadigd.</file_corrupted>
 		<microphone_disabled>Schakel de microfoon in.</microphone_disabled>

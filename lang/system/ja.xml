@@ -98,6 +98,7 @@
 		<an_error_occurred>エラーが起きました。
 エラーコード：{}</an_error_occurred>
 		<cancel>キャンセル</cancel>
+		<close>閉じる</close>
 		<delete>削除</delete>
 		<file_corrupted>ファイルが壊れています。</file_corrupted>
 		<microphone_disabled>マイクを有効にしてください。</microphone_disabled>

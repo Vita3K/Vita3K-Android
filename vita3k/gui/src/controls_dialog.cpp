@@ -117,44 +117,47 @@ void set_controller_overlay_opacity(int opacity) {
 }
 
 void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
-    static bool overlay_editing = false;
-
     const ImVec2 display_size(emuenv.viewport_size.x, emuenv.viewport_size.y);
     const auto RES_SCALE = ImVec2(display_size.x / emuenv.res_width_dpi_scale, display_size.y / emuenv.res_height_dpi_scale);
+    static const auto BUTTON_SIZE = ImVec2(120.f * emuenv.dpi_scale, 0.f);
+
+    auto &lang = gui.lang.overlay;
+    auto &common = emuenv.common_dialog.lang.common;
+
+    static bool overlay_editing = false;
     ImGui::SetNextWindowPos(ImVec2(display_size.x / 2.f, display_size.y / 2.f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-    ImGui::Begin("Overlay", &gui.controls_menu.controls_dialog, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("##overlay", &gui.controls_menu.controls_dialog, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::SetWindowFontScale(RES_SCALE.x);
-
-    if (!gui.controls_menu.controls_dialog) {
-        set_controller_overlay_state(0);
-        overlay_editing = false;
-    }
-
+    auto title_str = lang["title"].c_str();
+    ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (ImGui::CalcTextSize(title_str).x / 2.f));
+    ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", title_str);
+    ImGui::Spacing();
+    ImGui::Separator();
     ImGui::Spacing();
 
-    const auto gmpd = ImGui::CalcTextSize("Gamepad Overlay").x;
+    const auto gmpd = ImGui::CalcTextSize(lang["gamepad_overlay"].c_str()).x;
     ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (gmpd / 2.f));
-    ImGui::TextColored(GUI_COLOR_TEXT_MENUBAR, "Gamepad Overlay");
+    ImGui::TextColored(GUI_COLOR_TEXT_MENUBAR, "%s", lang["gamepad_overlay"].c_str());
     ImGui::Spacing();
-    if (ImGui::Checkbox("Show gamepad overlay ingame", &emuenv.cfg.enable_gamepad_overlay))
+    if (ImGui::Checkbox(lang["enable_gamepad_overlay"].c_str(), &emuenv.cfg.enable_gamepad_overlay))
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
 
-    const char *overlay_edit_text = overlay_editing ? "Hide Gamepad Overlay" : "Modify Gamepad Overlay";
+    const char *overlay_edit_text = overlay_editing ? lang["hide_gamepad_overlay"].c_str() : lang["modify_gamepad_overlay"].c_str();
     if (ImGui::Button(overlay_edit_text)) {
         overlay_editing = !overlay_editing;
         set_controller_overlay_state(overlay_editing ? get_overlay_display_mask(emuenv.cfg) : 0, overlay_editing);
     }
     ImGui::Spacing();
-    if (overlay_editing && ImGui::SliderFloat("Overlay scale", &emuenv.cfg.overlay_scale, 0.25f, 4.0f, "%.3f", ImGuiSliderFlags_NoInput | ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_Logarithmic)) {
+    if (overlay_editing && ImGui::SliderFloat(lang["overlay_scale"].c_str(), &emuenv.cfg.overlay_scale, 0.25f, 4.0f, "%.3f", ImGuiSliderFlags_NoInput | ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_Logarithmic)) {
         set_controller_overlay_scale(emuenv.cfg.overlay_scale);
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
     }
     ImGui::Spacing();
-    if (overlay_editing && ImGui::SliderInt("Overlay opacity", &emuenv.cfg.overlay_opacity, 0, 100, "%d%%")) {
+    if (overlay_editing && ImGui::SliderInt(lang["overlay_opacity"].c_str(), &emuenv.cfg.overlay_opacity, 0, 100, "%d%%")) {
         set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
     }
-    if (overlay_editing && ImGui::Button("Reset Gamepad")) {
+    if (overlay_editing && ImGui::Button(lang["reset_gamepad"].c_str())) {
         set_controller_overlay_state(get_overlay_display_mask(emuenv.cfg), true, true);
         emuenv.cfg.overlay_scale = 1.0f;
         emuenv.cfg.overlay_opacity = 100;
@@ -164,11 +167,20 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
     }
     ImGui::Spacing();
     ImGui::Separator();
-    if(emuenv.cfg.enable_gamepad_overlay && ImGui::Checkbox("Show front/back touchscreen switch button.", &emuenv.cfg.overlay_show_touch_switch)){
+    if (emuenv.cfg.enable_gamepad_overlay && ImGui::Checkbox(lang["overlay_show_touch_switch"].c_str(), &emuenv.cfg.overlay_show_touch_switch)) {
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
         set_controller_overlay_state(get_overlay_display_mask(emuenv.cfg), overlay_editing);
     }
-    ImGui::Text("L2/R2 triggers will be displayed only if PSTV mode is enabled.");
+    ImGui::Text("%s", lang["l2_r2_triggers"].c_str());
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (BUTTON_SIZE.x / 2.f));
+    if (ImGui::Button(common["close"].c_str(), BUTTON_SIZE)) {
+        set_controller_overlay_state(0);
+        overlay_editing = false;
+        gui.controls_menu.controls_dialog = false;
+    }
 
     ImGui::End();
 }
