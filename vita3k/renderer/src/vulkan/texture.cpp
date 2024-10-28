@@ -305,23 +305,23 @@ static vk::Format bcn_to_rgba8(const vk::Format format) {
     case vk::Format::eBc1RgbUnormBlock:
         return vk::Format::eR8G8B8Unorm;
     case vk::Format::eBc1RgbSrgbBlock:
-        return vk::Format::eR8G8B8Snorm;
+        return vk::Format::eR8G8B8Srgb;
     case vk::Format::eBc1RgbaUnormBlock:
         return vk::Format::eR8G8B8A8Unorm;
     case vk::Format::eBc1RgbaSrgbBlock:
-        return vk::Format::eR8G8B8A8Snorm;
-    
+        return vk::Format::eR8G8B8A8Srgb;
+  
     // BC2
     case vk::Format::eBc2UnormBlock:
         return vk::Format::eR8G8B8A8Unorm;
     case vk::Format::eBc2SrgbBlock:
-        return vk::Format::eR8G8B8A8Snorm;
+        return vk::Format::eR8G8B8A8Srgb;
 
     // BC3
     case vk::Format::eBc3UnormBlock:
         return vk::Format::eR8G8B8A8Unorm;
     case vk::Format::eBc3SrgbBlock:
-        return vk::Format::eR8G8B8A8Snorm;
+        return vk::Format::eR8G8B8A8Srgb;
 
     // BC4
     case vk::Format::eBc4UnormBlock:
@@ -337,7 +337,7 @@ static vk::Format bcn_to_rgba8(const vk::Format format) {
 
     // BC6
     case vk::Format::eBc6HUfloatBlock:
-        return vk::Format::eR16G16B16Sfloat;
+        return vk::Format::eR16G16Sfloat;
     case vk::Format::eBc6HSfloatBlock:
         return vk::Format::eR16G16B16Sfloat;
 
@@ -345,10 +345,10 @@ static vk::Format bcn_to_rgba8(const vk::Format format) {
     case vk::Format::eBc7UnormBlock:
         return vk::Format::eR16G16B16A16Unorm;
     case vk::Format::eBc7SrgbBlock:
-        return vk::Format::eR16G16B16A16Snorm;
+        return vk::Format::eR16G16B16A16Unorm;
 
     default:{
-        LOG_ERROR_ONCE("Trying to convert bcn format with non-compatible format {}", vk::to_string(format));
+        LOG_ERROR("Trying to convert bcn format with non-compatible format: {}", vk::to_string(format));
         return vk::Format::eR8G8B8A8Unorm;
     }
     }
