@@ -385,11 +385,12 @@ void VKTextureCache::configure_texture(const SceGxmTexture &gxm_texture) {
     const uint16_t mip_count = renderer::texture::get_upload_mip(gxm_texture.true_mip_count(), width, height);
 
     vk::Format vk_format = texture::translate_format(base_format);
+    if (gxm_texture.gamma_mode)
+        vk_format = linear_to_srgb(vk_format);
+    
     if (gxm::is_bcn_format(base_format) && !support_dxt)
         // texture will be decompressed
         vk_format = bcn_to_rgba8(vk_format);
-    if (gxm_texture.gamma_mode)
-        vk_format = linear_to_srgb(vk_format);
 
     current_texture->mip_count = mip_count;
     current_texture->is_cube = is_cube;
