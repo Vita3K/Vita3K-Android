@@ -167,11 +167,24 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
         set_controller_overlay_state(get_overlay_display_mask(emuenv.cfg), true, true);
         emuenv.cfg.overlay_scale = 1.0f;
         emuenv.cfg.overlay_scale_joystick = 1.0f;
-        emuenv.cfg.overlay_opacity = 100;
+        emuenv.cfg.overlay_opacity = 80;
         set_controller_overlay_scale(emuenv.cfg.overlay_scale, emuenv.cfg.overlay_scale_joystick);
         set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
     }
+    ImGui::Spacing();
+    ImGui::Separator();
+
+    if(emuenv.cfg.enable_gamepad_overlay){
+        auto &emulator = gui.lang.settings_dialog.emulator;
+        ImGui::Checkbox(emulator["sensor_disable"].c_str(), &emuenv.cfg.disable_motion);
+        SetTooltipEx(emulator["sensors_description"].c_str());
+        if (!emuenv.cfg.disable_motion){
+            ImGui::Checkbox(emulator["invert_gyro"].c_str(), &emuenv.cfg.invert_gyro);
+            SetTooltipEx(emulator["invert_gyro_description"].c_str());
+        }
+    }
+    
     ImGui::Spacing();
     ImGui::Separator();
     if(emuenv.cfg.enable_gamepad_overlay && ImGui::Checkbox("Show front/back touchscreen switch button.", &emuenv.cfg.overlay_show_touch_switch)){
