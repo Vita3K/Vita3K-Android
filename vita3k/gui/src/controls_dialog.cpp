@@ -147,7 +147,7 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
         set_controller_overlay_state(overlay_editing ? get_overlay_display_mask(emuenv.cfg) : 0, overlay_editing);
     }
     ImGui::Spacing();
-    if(emuenv.cfg.enable_gamepad_overlay){
+    if(overlay_editing){
        if (ImGui::SliderFloat("Overlay scale", &emuenv.cfg.overlay_scale, 0.25f, 4.0f, "%.3f", ImGuiSliderFlags_NoInput | ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_Logarithmic)) {
            set_controller_overlay_scale(emuenv.cfg.overlay_scale, emuenv.cfg.overlay_scale_joystick);
            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
@@ -180,12 +180,12 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
     if(emuenv.cfg.enable_gamepad_overlay){
         auto &emulator = gui.lang.settings_dialog.emulator;
         ImGui::Checkbox(emulator["sensor_disable"].c_str(), &emuenv.cfg.disable_motion);
-        SetTooltipEx(emulator["sensors_description"].c_str());
         if (!emuenv.cfg.disable_motion){
             ImGui::Checkbox(emulator["invert_gyro"].c_str(), &emuenv.cfg.invert_gyro);
             SetTooltipEx(emulator["invert_gyro_description"].c_str());
         }
     }
+    SetTooltipEx(emulator["sensors_description"].c_str());
     
     ImGui::Spacing();
     ImGui::Separator();
