@@ -645,7 +645,11 @@ struct LangState {
             { "reset_emu_path", "Reset Emulator Path" },
             { "reset_emu_path_description", "Reset Vita3K emulator path to the default.\nYou will need to move your old folder to the new location manually." },
             { "custom_config_settings", "Custom Config Settings" },
-            { "clear_custom_config", "Clear Custom Config" }
+            { "clear_custom_config", "Clear Custom Config" },
+            { "sensor_disable", "Disable HW acceleration and gyroscope" },
+            { "sensors_description", "Disable or enable built-in sensor" },
+            { "invert_gyro", "Invert gyroscope sensor motion" },
+            { "invert_gyro_description", "Change gyroscope sensor to inverse mode" }
         };
         std::map<std::string, std::string> gui = {
             { "title", "GUI" },
@@ -683,12 +687,7 @@ struct LangState {
             { "delay_background", "Delay for backgrounds" },
             { "select_delay_background", "Select the delay (in seconds) before changing backgrounds." },
             { "delay_start", "Delay for start screen" },
-            { "select_delay_start", "Select the delay (in seconds) before returning to the start screen." },
-            { "sensor_enable", "Disable HW acceleration and gyroscope" },
-            { "sensors_description", "Disable or enable built-in sensor" },
-            { "invert_gyro", "Invert gyroscope sensor input" },
-            { "invert_gyro_description", "Change logic of gyroscope sensor to inverse type" }
-            
+            { "select_delay_start", "Select the delay (in seconds) before returning to the start screen." }
         };
         std::map<std::string, std::string> network = {
             { "title", "Network" },
