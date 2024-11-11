@@ -683,7 +683,12 @@ struct LangState {
             { "delay_background", "Delay for backgrounds" },
             { "select_delay_background", "Select the delay (in seconds) before changing backgrounds." },
             { "delay_start", "Delay for start screen" },
-            { "select_delay_start", "Select the delay (in seconds) before returning to the start screen." }
+            { "select_delay_start", "Select the delay (in seconds) before returning to the start screen." },
+            { "sensor_enable", "Disable HW acceleration and gyroscope" },
+            { "sensors_description", "Disable or enable built-in sensor" },
+            { "invert_gyro", "Invert gyroscope sensor input" },
+            { "invert_gyro_description", "Change logic of gyroscope sensor to inverse type" }
+            
         };
         std::map<std::string, std::string> network = {
             { "title", "Network" },
