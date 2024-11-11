@@ -112,6 +112,8 @@ enum PerfomanceOverleyPosition {
     code(float, "overlay-scale", 1.0f, overlay_scale)                                                   \
     code(int, "overlay-opacity", 100, overlay_opacity)                                                  \
     code(float, "overlay-scale-joystick", 1.0f, overlay_scale_joystick)                                 \
+    code(bool, "disable-motion", false, disable_motion)                                                 \
+    code(bool, "invert-gyro", false, invert_gyro)
     code(int, "keyboard-button-select", 229, keyboard_button_select)                                    \
     code(int, "keyboard-button-start", 40, keyboard_button_start)                                       \
     code(int, "keyboard-button-up", 82, keyboard_button_up)                                             \
