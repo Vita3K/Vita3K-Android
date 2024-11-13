@@ -71,7 +71,7 @@ int ThreadState::init(const char *name, Ptr<const void> entry_point, int init_pr
     start_tick = rtc_get_ticks(kernel.base_tick.tick);
     last_vblank_waited = 0;
 
-    cpu = init_cpu(kernel.cpu_backend, kernel.cpu_opt, id, static_cast<std::size_t>(core_num), mem, kernel.cpu_protocol.get());
+    cpu = init_cpu(kernel.cpu_backend, kernel.cpu_opt, kernel.cpu_unsafe, id, static_cast<std::size_t>(core_num), mem, kernel.cpu_protocol.get());
     if (!cpu) {
         return SCE_KERNEL_ERROR_ERROR;
     }
@@ -92,13 +92,18 @@ int ThreadState::init(const char *name, Ptr<const void> entry_point, int init_pr
     const Ptr<uint8_t> base_tls_ptr = tls.get_ptr<uint8_t>();
     memset(base_tls_ptr.get(mem), 0, tls_size);
 
+    int *tls_array = tls.get_ptr<int>().get(mem);
+    tls_array[TLS_PROCESS_ID] = 1; // stubbed. unused
+    tls_array[TLS_THREAD_ID] = id;
+    tls_array[TLS_SP_TOP] = stack.get();
+    tls_array[TLS_SP_BOTTOM] = stack.get() + stack_size;
+    tls_array[TLS_CURRENT_PRIORITY] = priority;
+    tls_array[TLS_CPU_AFFINITY_MASK] = affinity_mask;
+    const Ptr<uint8_t> user_tls_ptr = base_tls_ptr + KERNEL_TLS_SIZE;
+    write_tpidruro(*cpu, user_tls_ptr.address());
     if (kernel.tls_address) {
-        const Ptr<uint8_t> user_tls_ptr = base_tls_ptr + KERNEL_TLS_SIZE;
-        write_tpidruro(*cpu, user_tls_ptr.address());
         assert(kernel.tls_psize <= kernel.tls_msize);
         memcpy(user_tls_ptr.get(mem), kernel.tls_address.get(mem), kernel.tls_psize);
-    } else {
-        write_tpidruro(*cpu, 0);
     }
 
     CPUContext ctx;
