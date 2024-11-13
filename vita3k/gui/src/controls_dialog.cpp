@@ -177,9 +177,9 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::Spacing();
     ImGui::Separator();
 
+    auto &emulator = gui.lang.settings_dialog.emulator;
     if(emuenv.cfg.enable_gamepad_overlay){
-        auto &emulator = gui.lang.settings_dialog.emulator;
-        ImGui::Checkbox(emulator["sensor_disable"].c_str(), &emuenv.cfg.disable_motion);
+          ImGui::Checkbox(emulator["sensor_disable"].c_str(), &emuenv.cfg.disable_motion);
         if (!emuenv.cfg.disable_motion){
             ImGui::Checkbox(emulator["invert_gyro"].c_str(), &emuenv.cfg.invert_gyro);
             SetTooltipEx(emulator["invert_gyro_description"].c_str());
