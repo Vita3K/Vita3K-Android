@@ -174,7 +174,7 @@ else()
 	add_executable(vita3k MACOSX_BUNDLE main.cpp interface.cpp interface.h performance.cpp)
 endif()
 
-target_link_libraries(vita3k PRIVATE app config cppcommon ctrl display gdbstub gui gxm host_dialog io miniz modules packages renderer shader touch)
+target_link_libraries(vita3k PRIVATE app config cppcommon ctrl display gdbstub gui gxm host_dialog io miniz modules packages patch renderer shader touch)
 if(USE_DISCORD_RICH_PRESENCE)
 	target_link_libraries(vita3k PRIVATE discord-rpc)
 endif()
