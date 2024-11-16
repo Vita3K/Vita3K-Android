@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <patch/patch.h>
 #include <util/fs.h>
 #include <util/types.h>
 
@@ -26,5 +27,5 @@ struct KernelState;
 struct MemState;
 struct KernelModule;
 
-SceUID load_self(KernelState &kernel, MemState &mem, const void *self, const std::string &self_path, const fs::path &log_path);
+SceUID load_self(KernelState &kernel, MemState &mem, const void *self, const std::string &self_path, const fs::path &log_path, const std::vector<Patch> &patches);
 int unload_self(KernelState &kernel, MemState &mem, KernelModule &module);
