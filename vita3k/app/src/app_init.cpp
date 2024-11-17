@@ -362,7 +362,7 @@ bool init(EmuEnvState &state, const Root &root_paths) {
     if(fs::exists(fscheck)){
         if(!fs::equivalent(state.log_path, root_paths.get_base_path())){
             fs::copy_file(fscheck , state.log_path / "vita3k.log.txt", fs::copy_options::overwrite_existing);
-            SDL_AndroidShowToast(fmt::format("copying logs to {}", state.log_path), 1, -1, 0, 0);
+            SDL_AndroidShowToast(fmt::format("copying logs to {}", state.log_path).c_str(), 1, -1, 0, 0);
             fs::remove(fscheck);
         }
     }
