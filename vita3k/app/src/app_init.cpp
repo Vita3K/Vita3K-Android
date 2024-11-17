@@ -320,6 +320,7 @@ void init_paths(Root &root_paths) {
     fs::create_directories(root_paths.get_cache_path());
     fs::create_directories(root_paths.get_log_path() / "shaderlog");
     fs::create_directories(root_paths.get_log_path() / "texturelog");
+    fs::create_directories(root_paths.get_shared_path() / "patch");
 }
 
 bool init(EmuEnvState &state, const Root &root_paths) {
@@ -345,10 +346,7 @@ bool init(EmuEnvState &state, const Root &root_paths) {
 #ifdef ANDROID
     fs::create_directories(state.cfg.get_pref_path() / "logs");
     fs::create_directories(state.cfg.get_pref_path() / "shared");
-
-    state.log_path = fs::path(state.cfg.get_pref_path() / "logs" / "");
-    state.shared_path = fs::path(state.cfg.get_pref_path() / "shared" / "");
-
+    fs::create_directories(state.cfg.get_pref_path() / "shared" / "patch");
     fs::create_directories(state.cfg.get_pref_path() / "shared" / "screenshots");
     fs::create_directories(state.cfg.get_pref_path() / "shared" / "textures");
     fs::create_directories(state.cfg.get_pref_path() / "shared" / "textures" / "export");
@@ -356,10 +354,15 @@ bool init(EmuEnvState &state, const Root &root_paths) {
     fs::create_directories(root_paths.get_shared_path() / "lang");
     fs::create_directories(root_paths.get_shared_path() / "lang" / "user");
 
+    state.log_path = fs::path(state.cfg.get_pref_path() / "logs" / "");
+    state.shared_path = fs::path(state.cfg.get_pref_path() / "shared" / "");
+    state.patch_path = fs::path(state.cfg.get_pref_path() / "shared" / "patch" / "");
+
     auto fscheck = fs::path(root_paths.get_base_path()) / "vita3k.log.old";
     if(fs::exists(fscheck)){
         if(!fs::equivalent(state.log_path, root_paths.get_base_path())){
             fs::copy_file(fscheck , state.log_path / "vita3k.log.txt", fs::copy_options::overwrite_existing);
+            SDL_AndroidShowToast(fmt::format("copying logs to {}", state.log_path), 1, -1, 0, 0);
             fs::remove(fscheck);
         }
     }
