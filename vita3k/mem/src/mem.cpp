@@ -19,29 +19,30 @@
 #include <mem/state.h>
 
 #include <util/align.h>
-#include <util/float_to_half.h>
 #include <util/log.h>
-#include <util/float_to_half.h>
 
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <cstring>
+#include <mutex>
 #include <utility>
+
+#include <SDL_cpuinfo.h> // to call size of memory free
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #else
-#include <signal.h>
+#include <csignal>
 #include <sys/mman.h>
 #include <unistd.h>
 #endif
 
 constexpr uint32_t STANDARD_PAGE_SIZE = KiB(4);
-constexpr size_t TOTAL_MEM_SIZE = GiB(4);
 constexpr bool LOG_PROTECT = false;
 constexpr bool PAGE_NAME_TRACKING = false;
+constexpr uint64_t MAX_TOTAL_MEM_SIZE = GiB(8);
+uint64_t TOTAL_MEM_SIZE = GiB(3);
 
 // TODO: support multiple handlers
 static AccessViolationHandler access_violation_handler;
@@ -70,6 +71,19 @@ bool init(MemState &state, const bool use_page_table) {
 #endif
     state.page_size = std::max(STANDARD_PAGE_SIZE, state.page_size);
 
+    uint64_t mem_size_tmp = static_cast<int>(SDL_GetSystemRAM());
+    mem_size_tmp = mem_size_tmp - (mem_size_tmp / 3);
+    mem_size_tmp = MB(mem_size_tmp);
+    if(TOTAL_MEM_SIZE > mem_size_tmp){
+       LOG_DEBUG("Virtual Memory size too low!, using lowest allowed value!");
+    } else if (MAX_TOTAL_MEM_SIZE < mem_size_tmp){
+        LOG_DEBUG("Virtual Memory size too big!, limit to 8GB now!");
+    } else {
+       TOTAL_MEM_SIZE = mem_size_tmp;
+    }
+    mem_size_tmp = TOTAL_MEM_SIZE / MB(1);
+    LOG_DEBUG("Virtual Memory size set: {} MB", mem_size_tmp);
+    
     assert(state.page_size >= 4096); // Limit imposed by Unicorn.
     assert(!use_page_table || state.page_size == KiB(4));
 
@@ -88,10 +102,10 @@ bool init(MemState &state, const bool use_page_table) {
     }
 #else
     // http://man7.org/linux/man-pages/man2/mmap.2.html
-    const int prot = PROT_NONE;
-    const int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-    const int fd = 0;
-    const off_t offset = 0;
+    constexpr int prot = PROT_NONE;
+    constexpr int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+    constexpr int fd = 0;
+    constexpr off_t offset = 0;
     // preferred_address is only a hint for mmap, if it can't use it, the kernel will choose itself the address
     state.memory = Memory(static_cast<uint8_t *>(mmap(preferred_address, TOTAL_MEM_SIZE, prot, flags, fd, offset)), delete_memory);
     if (state.memory.get() == MAP_FAILED) {
@@ -100,7 +114,7 @@ bool init(MemState &state, const bool use_page_table) {
     }
 #endif
 
-    const size_t table_length = TOTAL_MEM_SIZE / state.page_size;
+    constexpr size_t table_length = TOTAL_MEM_SIZE / state.page_size;
     state.alloc_table = AllocPageTable(new AllocMemPage[table_length]);
     memset(state.alloc_table.get(), 0, sizeof(AllocMemPage) * table_length);
 
@@ -121,13 +135,6 @@ bool init(MemState &state, const bool use_page_table) {
     // const int ret = mprotect(state.memory.get(), state.page_size, PROT_NONE);
     // LOG_CRITICAL_IF(ret == -1, "mprotect failed: {}", get_error_msg());
 #endif
-
-    state.use_page_table = use_page_table;
-    if (use_page_table) {
-        state.page_table = PageTable(new PagePtr[TOTAL_MEM_SIZE / KiB(4)]);
-        // we use an absolute offset (it is faster), so each entry is the same
-        std::fill_n(state.page_table.get(), TOTAL_MEM_SIZE / KiB(4), state.memory.get());
-    }
 
     state.use_page_table = use_page_table;
     if (use_page_table) {
