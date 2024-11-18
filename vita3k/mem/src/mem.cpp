@@ -19,44 +19,43 @@
 #include <mem/state.h>
 
 #include <util/align.h>
+#include <util/float_to_half.h>
 #include <util/log.h>
+#include <util/float_to_half.h>
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstring>
-#include <mutex>
 #include <utility>
-
-#include <SDL_cpuinfo.h> // to call size of memory free
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #else
-#include <csignal>
+#include <signal.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #endif
 
 constexpr uint32_t STANDARD_PAGE_SIZE = KiB(4);
+constexpr size_t TOTAL_MEM_SIZE = GiB(4);
 constexpr bool LOG_PROTECT = false;
 constexpr bool PAGE_NAME_TRACKING = false;
-constexpr uint64_t MAX_TOTAL_MEM_SIZE = GiB(8);
-uint64_t TOTAL_MEM_SIZE = GiB(4);
 
 // TODO: support multiple handlers
-AccessViolationHandler access_violation_handler;
-void register_access_violation_handler(const AccessViolationHandler &handler);
+static AccessViolationHandler access_violation_handler;
+static void register_access_violation_handler(const AccessViolationHandler &handler);
 
-Address alloc_inner(MemState &state, uint32_t start_page, int page_count, const char *name, const bool force);
-void delete_memory(uint8_t *memory);
+static Address alloc_inner(MemState &state, uint32_t start_page, int page_count, const char *name, const bool force);
+static void delete_memory(uint8_t *memory);
 
 #ifdef WIN32
-std::string get_error_msg() {
+static std::string get_error_msg() {
     return std::system_category().message(GetLastError());
 }
 #else
-std::string get_error_msg() {
+static std::string get_error_msg() {
     return strerror(errno);
 }
 #endif
@@ -67,24 +66,12 @@ bool init(MemState &state, const bool use_page_table) {
     GetSystemInfo(&system_info);
     state.page_size = system_info.dwPageSize;
 #else
-    state.page_size = static_cast<uint32_t>(sysconf(_SC_PAGESIZE));
+    state.page_size = static_cast<int>(sysconf(_SC_PAGESIZE));
 #endif
     state.page_size = std::max(STANDARD_PAGE_SIZE, state.page_size);
 
-    uint64_t mem_size_tmp = static_cast<int>(SDL_GetSystemRAM());
-    mem_size_tmp = mem_size_tmp - (mem_size_tmp / 3);
-    mem_size_tmp = MB(mem_size_tmp);
-    if(TOTAL_MEM_SIZE > mem_size_tmp){
-       LOG_DEBUG("Virtual Memory size too low!, using default value!");
-    } else if (MAX_TOTAL_MEM_SIZE < mem_size_tmp){
-        LOG_DEBUG("Virtual Memory size too big!, limit to 8GB now!");
-    } else {
-       TOTAL_MEM_SIZE = mem_size_tmp;
-    }
-    mem_size_tmp = TOTAL_MEM_SIZE / MB(1);
-    LOG_DEBUG("Virtual Memory size set: {} MB", mem_size_tmp);
-   // assert(state.page_size >= 4096); // Limit imposed by Unicorn.
-    assert(!use_page_table || state.page_size == STANDARD_PAGE_SIZE);
+    assert(state.page_size >= 4096); // Limit imposed by Unicorn.
+    assert(!use_page_table || state.page_size == KiB(4));
 
     void *preferred_address = reinterpret_cast<void *>(1ULL << 34);
 
@@ -101,10 +88,10 @@ bool init(MemState &state, const bool use_page_table) {
     }
 #else
     // http://man7.org/linux/man-pages/man2/mmap.2.html
-    constexpr int prot = PROT_NONE;
-    constexpr int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-    constexpr int fd = 0;
-    constexpr off_t offset = 0;
+    const int prot = PROT_NONE;
+    const int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+    const int fd = 0;
+    const off_t offset = 0;
     // preferred_address is only a hint for mmap, if it can't use it, the kernel will choose itself the address
     state.memory = Memory(static_cast<uint8_t *>(mmap(preferred_address, TOTAL_MEM_SIZE, prot, flags, fd, offset)), delete_memory);
     if (state.memory.get() == MAP_FAILED) {
@@ -137,15 +124,22 @@ bool init(MemState &state, const bool use_page_table) {
 
     state.use_page_table = use_page_table;
     if (use_page_table) {
-        state.page_table = PageTable(new PagePtr[TOTAL_MEM_SIZE / STANDARD_PAGE_SIZE]);
+        state.page_table = PageTable(new PagePtr[TOTAL_MEM_SIZE / KiB(4)]);
         // we use an absolute offset (it is faster), so each entry is the same
-        std::fill_n(state.page_table.get(), TOTAL_MEM_SIZE / STANDARD_PAGE_SIZE, state.memory.get());
+        std::fill_n(state.page_table.get(), TOTAL_MEM_SIZE / KiB(4), state.memory.get());
+    }
+
+    state.use_page_table = use_page_table;
+    if (use_page_table) {
+        state.page_table = PageTable(new PagePtr[TOTAL_MEM_SIZE / KiB(4)]);
+        // we use an absolute offset (it is faster), so each entry is the same
+        std::fill_n(state.page_table.get(), TOTAL_MEM_SIZE / KiB(4), state.memory.get());
     }
 
     return true;
 }
 
-void delete_memory(uint8_t *memory) {
+static void delete_memory(uint8_t *memory) {
     if (memory != nullptr) {
 #ifdef WIN32
         const BOOL ret = VirtualFree(memory, 0, MEM_RELEASE);
@@ -167,7 +161,7 @@ bool is_valid_addr_range(const MemState &state, Address start, Address end) {
     return state.allocator.free_slot_count(start_page, end_page) == 0;
 }
 
-Address alloc_inner(MemState &state, uint32_t start_page, int page_count, const char *name, const bool force) {
+static Address alloc_inner(MemState &state, uint32_t start_page, int page_count, const char *name, const bool force) {
     int page_num;
     if (force) {
         if (state.allocator.allocate_at(start_page, page_count) < 0) {
@@ -180,7 +174,7 @@ Address alloc_inner(MemState &state, uint32_t start_page, int page_count, const 
             return 0;
     }
 
-    const uint32_t size = page_count * state.page_size;
+    const int size = page_count * state.page_size;
     const Address addr = page_num * state.page_size;
     uint8_t *const memory = &state.memory[addr];
 
@@ -230,7 +224,7 @@ Address alloc_aligned(MemState &state, uint32_t size, const char *name, unsigned
     return align_addr;
 }
 
-void align_to_page(MemState &state, Address &addr, Address &size) {
+static void align_to_page(MemState &state, Address &addr, Address &size) {
     const Address end = align(addr + size, state.page_size);
     addr = align_down(addr, state.page_size);
     size = end - addr;
@@ -240,7 +234,7 @@ void unprotect_inner(MemState &state, Address addr, uint32_t size) {
     if (LOG_PROTECT) {
         fmt::print("Unprotect: {} {}\n", log_hex(addr), size);
     }
-    uint8_t *addr_ptr = state.use_page_table ? state.page_table[addr / STANDARD_PAGE_SIZE] : state.memory.get();
+    uint8_t *addr_ptr = state.use_page_table ? state.page_table[addr / KiB(4)] : state.memory.get();
 
 #ifdef WIN32
     DWORD old_protect = 0;
@@ -253,7 +247,7 @@ void unprotect_inner(MemState &state, Address addr, uint32_t size) {
 }
 
 void protect_inner(MemState &state, Address addr, uint32_t size, const MemPerm perm) {
-    uint8_t *addr_ptr = state.use_page_table ? state.page_table[addr / STANDARD_PAGE_SIZE] : state.memory.get();
+    uint8_t *addr_ptr = state.use_page_table ? state.page_table[addr / KiB(4)] : state.memory.get();
 
 #ifdef WIN32
     DWORD old_protect = 0;
@@ -384,16 +378,16 @@ void add_external_mapping(MemState &mem, Address addr, uint32_t size, uint8_t *a
     uint64_t addr_value = std::bit_cast<uint64_t>(addr_ptr);
     uint8_t *page_table_entry = addr_ptr - addr;
     uint8_t *original_address = &mem.memory[addr];
-    for (int block = 0; block < size / STANDARD_PAGE_SIZE; block++) {
+    for (int block = 0; block < size / KiB(4); block++) {
         // this is not thread write safe, but hopefully not other thread is busy copying while this happens
-        memcpy(addr_ptr + block * STANDARD_PAGE_SIZE, original_address + block * STANDARD_PAGE_SIZE, STANDARD_PAGE_SIZE);
-        mem.page_table[addr / STANDARD_PAGE_SIZE + block] = page_table_entry;
+        memcpy(addr_ptr + block * KiB(4), original_address + block * KiB(4), KiB(4));
+        mem.page_table[addr / KiB(4) + block] = page_table_entry;
     }
 
     // set the first page table entry to the original value to be able to call protect_inner
-    mem.page_table[addr / STANDARD_PAGE_SIZE] = mem.memory.get();
+    mem.page_table[addr / KiB(4)] = mem.memory.get();
     protect_inner(mem, addr, size, MemPerm::None);
-    mem.page_table[addr / STANDARD_PAGE_SIZE] = page_table_entry;
+    mem.page_table[addr / KiB(4)] = page_table_entry;
 
     const std::unique_lock<std::mutex> lock(mem.protect_mutex);
     mem.external_mapping[addr_value] = { addr, size };
@@ -438,13 +432,13 @@ void remove_external_mapping(MemState &mem, uint8_t *addr_ptr, uint32_t size) {
 
     if (mem.use_page_table) {
         // unprotect the original memory range
-        mem.page_table[mapping.address / STANDARD_PAGE_SIZE] = mem.memory.get();
+        mem.page_table[mapping.address / KiB(4)] = mem.memory.get();
         unprotect_inner(mem, mapping.address, mapping.size);
         // copy back and reset the page table
-        for (int block = 0; block < mapping.size / STANDARD_PAGE_SIZE; block++) {
+        for (int block = 0; block < mapping.size / KiB(4); block++) {
             // this is not thread write safe, but hopefully not other thread is busy copying while this happens
-            memcpy(&mem.memory[mapping.address] + block * STANDARD_PAGE_SIZE, addr_ptr + block * STANDARD_PAGE_SIZE, STANDARD_PAGE_SIZE);
-            mem.page_table[mapping.address / STANDARD_PAGE_SIZE + block] = mem.memory.get();
+            memcpy(&mem.memory[mapping.address] + block * KiB(4), addr_ptr + block * KiB(4), KiB(4));
+            mem.page_table[mapping.address / KiB(4) + block] = mem.memory.get();
         }
     }
 }
@@ -499,17 +493,16 @@ void free(MemState &state, Address address) {
         state.page_name_map.erase(page_num);
     }
 
-    assert(!state.use_page_table || state.page_table[address / STANDARD_PAGE_SIZE] == state.memory.get());
-    uint8_t *const memory = &state.memory[static_cast<size_t>(page_num) * state.page_size];
+    assert(!state.use_page_table || state.page_table[address / KiB(4)] == state.memory.get());
+    uint8_t *const memory = &state.memory[page_num * state.page_size];
 
 #ifdef WIN32
-    const BOOL ret = VirtualFree(memory, static_cast<size_t>(page.size) * state.page_size, MEM_DECOMMIT);
+    const BOOL ret = VirtualFree(memory, page.size * state.page_size, MEM_DECOMMIT);
     LOG_CRITICAL_IF(!ret, "VirtualFree failed: {}", get_error_msg());
 #else
-    const auto pagesize = page.size * state.page_size;
-    int ret = mprotect(memory, pagesize, PROT_NONE);
+    int ret = mprotect(memory, page.size * state.page_size, PROT_NONE);
     LOG_CRITICAL_IF(ret == -1, "mprotect failed: {}", get_error_msg());
-    ret = madvise(memory, pagesize, MADV_DONTNEED);
+    ret = madvise(memory, page.size * state.page_size, MADV_DONTNEED);
     LOG_CRITICAL_IF(ret == -1, "madvise failed: {}", get_error_msg());
 #endif
 }
@@ -553,7 +546,7 @@ static void register_access_violation_handler(const AccessViolationHandler &hand
 
 #else
 
-void signal_handler(int sig, siginfo_t *info, void *uct) noexcept {
+static void signal_handler(int sig, siginfo_t *info, void *uct) noexcept {
     auto context = static_cast<ucontext_t *>(uct);
 
 #ifdef __aarch64__
@@ -599,7 +592,7 @@ void signal_handler(int sig, siginfo_t *info, void *uct) noexcept {
     return;
 }
 
-void register_access_violation_handler(const AccessViolationHandler &handler) {
+static void register_access_violation_handler(const AccessViolationHandler &handler) {
     access_violation_handler = handler;
     struct sigaction sa;
     sa.sa_flags = SA_SIGINFO;
