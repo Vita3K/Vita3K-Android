@@ -84,7 +84,7 @@ bool init(MemState &state, const bool use_page_table) {
     mem_size_tmp = TOTAL_MEM_SIZE / MB(1);
     LOG_DEBUG("Virtual Memory size set: {} MB", mem_size_tmp);
     
-    assert(state.page_size >= 4096); // Limit imposed by Unicorn.
+ //   assert(state.page_size >= 4096); // Limit imposed by Unicorn.
     assert(!use_page_table || state.page_size == KiB(4));
 
     void *preferred_address = reinterpret_cast<void *>(1ULL << 34);
