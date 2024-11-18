@@ -114,7 +114,7 @@ bool init(MemState &state, const bool use_page_table) {
     }
 #endif
 
-    constexpr size_t table_length = TOTAL_MEM_SIZE / state.page_size;
+    const size_t table_length = TOTAL_MEM_SIZE / state.page_size;
     state.alloc_table = AllocPageTable(new AllocMemPage[table_length]);
     memset(state.alloc_table.get(), 0, sizeof(AllocMemPage) * table_length);
 
@@ -507,9 +507,10 @@ void free(MemState &state, Address address) {
     const BOOL ret = VirtualFree(memory, page.size * state.page_size, MEM_DECOMMIT);
     LOG_CRITICAL_IF(!ret, "VirtualFree failed: {}", get_error_msg());
 #else
-    int ret = mprotect(memory, page.size * state.page_size, PROT_NONE);
+    const auto pagesize = page.size * state.page_size;
+    int ret = mprotect(memory, pagesize, PROT_NONE);
     LOG_CRITICAL_IF(ret == -1, "mprotect failed: {}", get_error_msg());
-    ret = madvise(memory, page.size * state.page_size, MADV_DONTNEED);
+    ret = madvise(memory, pagesize, MADV_DONTNEED);
     LOG_CRITICAL_IF(ret == -1, "madvise failed: {}", get_error_msg());
 #endif
 }
