@@ -497,6 +497,7 @@ bool VKState::create(SDL_Window *window, std::unique_ptr<renderer::State> &state
 
         LOG_INFO("Vulkan device: {}", physical_device_properties.deviceName.data());
         LOG_INFO("Driver version: {}", get_driver_version(physical_device_properties.vendorID, physical_device_properties.driverVersion));
+	LOG_INFO("Vulkan memory size: {}", physical_device_memory);
     }
 
     if (support_custom_drivers()) {
@@ -1076,17 +1077,10 @@ bool VKState::map_memory(MemState &mem, Ptr<void> address, uint32_t size) {
         int mapped_memory_type = find_mem_type_with_flag(vk::MemoryPropertyFlagBits::eHostCoherent | vk::MemoryPropertyFlagBits::eHostCached, hardware_types);
 
 	if (mapped_memory_type == -1){
-            // then only coherent (lower performance)
             mapped_memory_type = find_mem_type_with_flag(vk::MemoryPropertyFlagBits::eHostCached, hardware_types);
           //  LOG_TRACE_ONCE("Call mapped_memory_type : eHostCached");
 	}
 	    
-        if (mapped_memory_type == -1){
-            // then only coherent (lower performance)
-            mapped_memory_type = find_mem_type_with_flag(vk::MemoryPropertyFlagBits::eHostCoherent, hardware_types);
-          //  LOG_TRACE_ONCE("Call mapped_memory_type : eHostCoherent");
-	}
-	
 	if (mapped_memory_type == -1){
             mapped_memory_type = find_mem_type_with_flag(vk::MemoryPropertyFlagBits::eDeviceLocal, hardware_types);
           // LOG_TRACE_ONCE("Call mapped_memory_type : eDeviceLocal");
@@ -1101,6 +1095,12 @@ bool VKState::map_memory(MemState &mem, Ptr<void> address, uint32_t size) {
             mapped_memory_type = find_mem_type_with_flag(vk::MemoryPropertyFlagBits::eLazilyAllocated, hardware_types);
           // LOG_TRACE_ONCE("Call mapped_memory_type : eLazilyAllocated");
 	}
+
+	if (mapped_memory_type == -1){
+            // then only coherent (lower performance)
+            mapped_memory_type = find_mem_type_with_flag(vk::MemoryPropertyFlagBits::eHostCoherent, hardware_types);
+          //  LOG_TRACE_ONCE("Call mapped_memory_type : eHostCoherent");
+        }
 
 	if (mapped_memory_type == -1) {
             static bool has_happened = false;
