@@ -497,7 +497,6 @@ bool VKState::create(SDL_Window *window, std::unique_ptr<renderer::State> &state
 
         LOG_INFO("Vulkan device: {}", physical_device_properties.deviceName.data());
         LOG_INFO("Driver version: {}", get_driver_version(physical_device_properties.vendorID, physical_device_properties.driverVersion));
-	LOG_INFO("Vulkan memory size: {}", physical_device_memory.data());
     }
 
     if (support_custom_drivers()) {
