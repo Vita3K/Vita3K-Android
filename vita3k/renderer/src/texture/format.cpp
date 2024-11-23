@@ -468,7 +468,7 @@ static void decompress_block_bc1(const uint8_t *block_storage, uint32_t *image) 
         std::uint32_t c2 = 0xFF000000 | (b2 << 16) | (g2 << 8) | r2;
         std::uint32_t c3 = 0xFF000000 | (b3 << 16) | (g3 << 8) | r3;
 
-        for (int i = 0; i < 16; ++i) {
+        for (uint8_t i = 0; i < 16; ++i) {
             int index = (block_storage[i / 4] >> (i % 4 * 2)) & 0x03;
             switch (index) {
             case 0:
@@ -493,7 +493,7 @@ static void decompress_block_bc1(const uint8_t *block_storage, uint32_t *image) 
 
         std::uint32_t c2 = 0xFF000000 | (b2 << 16) | (g2 << 8) | r2;
 
-        for (int i = 0; i < 16; ++i) {
+        for (uint8_t i = 0; i < 16; ++i) {
             int index = (block_storage[i / 4] >> (i % 4 * 2)) & 0x03;
             switch (index) {
             case 0:
@@ -630,7 +630,7 @@ static void decompress_block_alpha_signed(const uint8_t *block_storage, uint8_t 
 static void decompress_block_bc2(const uint8_t *block_storage, uint32_t *image) {
     decompress_block_bc1(block_storage + 8, image);
 
-    for (int i = 0; i < 8; i++) {
+    for (uint8_t i = 0; i < 8; i++) {
         image[2 * i] = (((block_storage[i] & 0x0F) | ((block_storage[i] & 0x0F) << 4)) << 24) | (image[2 * i] & 0x00FFFFFF);
         image[2 * i + 1] = (((block_storage[i] & 0xF0) | ((block_storage[i] & 0xF0) >> 4)) << 24) | (image[2 * i + 1] & 0x00FFFFFF);
     }
@@ -654,7 +654,7 @@ static void decompress_block_bc3(const uint8_t *block_storage, uint32_t *image) 
  * \param image             pointer to image where the decompressed pixel data should be stored.
  **/
 static void decompress_block_bc4u(const uint8_t *block_storage, uint8_t *image) {
-    for (int i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < 16; i++)
         image[i] = 0x00;
     decompress_block_alpha(block_storage, image, 0, 1);
 }
@@ -666,7 +666,7 @@ static void decompress_block_bc4u(const uint8_t *block_storage, uint8_t *image) 
  * \param image             pointer to image where the decompressed pixel data should be stored.
  **/
 static void decompress_block_bc4s(const uint8_t *block_storage, uint8_t *image) {
-    for (int i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < 16; i++)
         image[i] = 0x00;
     decompress_block_alpha_signed(block_storage, image, 0, 1);
 }
@@ -678,7 +678,7 @@ static void decompress_block_bc4s(const uint8_t *block_storage, uint8_t *image) 
  * \param image             pointer to image where the decompressed pixel data should be stored.
  **/
 static void decompress_block_bc5u(const uint8_t *block_storage, uint16_t *image) {
-    for (int i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < 16; i++)
         image[i] = 0x0000;
     decompress_block_alpha(block_storage, reinterpret_cast<uint8_t *>(image), 0, 2);
     decompress_block_alpha(block_storage + 8, reinterpret_cast<uint8_t *>(image), 1, 2);
@@ -691,7 +691,7 @@ static void decompress_block_bc5u(const uint8_t *block_storage, uint16_t *image)
  * \param image             pointer to image where the decompressed pixel data should be stored.
  **/
 static void decompress_block_bc5s(const uint8_t *block_storage, uint16_t *image) {
-    for (int i = 0; i < 16; i++)
+    for (uint8_t i = 0; i < 16; i++)
         image[i] = 0x0000;
     decompress_block_alpha_signed(block_storage, reinterpret_cast<uint8_t *>(image), 0, 2);
     decompress_block_alpha_signed(block_storage + 8, reinterpret_cast<uint8_t *>(image), 1, 2);
