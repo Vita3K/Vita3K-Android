@@ -2000,6 +2000,8 @@ static std::string convert_spirv_to_glsl(const std::string &shader_name, SpirvCo
     options.fragment.default_int_precision = options.Highp;
     options.version = 320;
     options.es = true;
+    options.enable_row_major_load_workaround = false; // spirv.hpp say when true it reduce performance in some android devices
+    options.vertex.fixup_clipspace = true; // test it!
 #else
     options.version = 430;
     options.es = false;
