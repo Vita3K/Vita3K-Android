@@ -1996,7 +1996,8 @@ static std::string convert_spirv_to_glsl(const std::string &shader_name, SpirvCo
     spirv_cross::CompilerGLSL::Options options;
 
 #ifdef ANDROID
-    options.fragment.default_float_precision = options.Highp;
+    options.fragment.default_float_precision = options.Mediump; // original Highp
+    options.fragment.default_int_precision = options.Highp;
     options.version = 320;
     options.es = true;
 #else
