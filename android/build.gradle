@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
 	namespace "org.vita3k.emulator"
-	compileSdk 34
+	compileSdk 35
 	ndkVersion "28.0.12674087-rc1"
 	buildFeatures {
 		buildConfig true
@@ -11,7 +11,7 @@ android {
 	defaultConfig {
 		applicationId "org.vita3k.emulator.ikhoeyZX"
 		minSdk 28
-		targetSdk 34
+		targetSdk 35
 		versionCode 12
 		versionName "0.2.0-12.5-ikhoeyZX"
 
