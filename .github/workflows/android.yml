@@ -41,6 +41,9 @@ jobs:
           KEYSTORE_ENCODED: ${{ secrets.KEYSTORE }}
         run: echo $KEYSTORE_ENCODED | base64 --decode > "/home/runner/keystore.jks"
 
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1.5.0
+            
       - name: Gradle build
         env:
           SIGNING_STORE_PATH: "/home/runner/keystore.jks"
