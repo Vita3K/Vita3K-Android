@@ -990,6 +990,26 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                     ImGui::SetTooltip("%s", lang.gpu["surface_format_method_description"].c_str());
                 }
                 ImGui::Spacing();
+
+                std::vector<const char *> fragment_spirv_strings = {
+                       "High",
+                       "Medium",
+                       "Low"
+                };
+                std::vector<std::string_view> fragment_spirv_indexes = {
+                       "Highp",
+                       "Mediump",
+                       "Lowp"
+                };
+    
+                static int current_fragment_spirv = std::find(fragment_spirv_indexes.begin(), fragment_spirv_indexes.end(), emuenv.cfg.fragment_precision) - fragment_spirv_indexes.begin();
+                if (ImGui::Combo(lang.gpu["fragment_spirv"].c_str(), &current_fragment_spirv, fragment_spirv_strings.data(), fragment_spirv_strings.size())) {
+                    config.vk_mapping = vk_surface_format_methods_indexes[current_surface_format];
+                }
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("%s", lang.gpu["fragment_spirv_description"].c_str());
+                }
+                ImGui::Spacing();
             }
             
             if (is_ingame)
