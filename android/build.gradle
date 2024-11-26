@@ -44,6 +44,7 @@ android {
 			externalNativeBuild {
 				cmake {
 					arguments "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+					arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
 				}
 			}
 			minifyEnabled false
@@ -58,6 +59,7 @@ android {
 			externalNativeBuild {
 				cmake {
 					arguments "-DCMAKE_BUILD_TYPE=Release"
+					arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
 				}
 			}
 			minifyEnabled true
@@ -79,8 +81,7 @@ android {
 	externalNativeBuild {
 		cmake {
 			path '../CMakeLists.txt'
-			version '3.28.1+'
-			arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+			version '3.30.6+'
 		} 
 	}
 
