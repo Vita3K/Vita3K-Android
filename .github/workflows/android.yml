@@ -55,7 +55,7 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
-          bash -c "y || Y || YES || yes || Yes || true" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          bash -c "y || Y || YES || yes || Yes || true" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null
           
           mkdir android/assets/data
           cp -r data/image android/assets/data/image
