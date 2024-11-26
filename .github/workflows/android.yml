@@ -41,12 +41,12 @@ jobs:
           KEYSTORE_ENCODED: ${{ secrets.KEYSTORE }}
         run: echo $KEYSTORE_ENCODED | base64 --decode > "/home/runner/keystore.jks"
 
-      - name: Setup Android NDK
-        uses: nttld/setup-ndk@v1.5.0
-        id: setup-ndk
-        with:
-             ndk-version: 28.0.12674087-rc1
-             link-to-sdk: true
+#      - name: Setup Android NDK
+#        uses: nttld/setup-ndk@v1.5.0
+#        id: setup-ndk
+#        with:
+#             ndk-version: 28.0.12674087-rc1
+#             link-to-sdk: true
              
       - name: Gradle build
         env:
@@ -55,6 +55,8 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
+          cd $ANDROID_HOME
+          yes | tools/bin/sdkmanager --licenses
           mkdir android/assets/data
           cp -r data/image android/assets/data/image
           cp -r lang android/assets
