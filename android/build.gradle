@@ -80,6 +80,7 @@ android {
 		cmake {
 			path '../CMakeLists.txt'
 			version '3.28.1+'
+			arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
 		} 
 	}
 
