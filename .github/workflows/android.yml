@@ -59,7 +59,7 @@ jobs:
           cp -r data/image android/assets/data/image
           cp -r lang android/assets
           cp -r vita3k/shaders-builtin android/assets
-          sdkmanager --licenses -y
+          yes | sdkmanager --licenses > /dev/null
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
           ./gradlew --stacktrace --info --configuration-cache --build-cache --parallel --configure-on-demand assembleRelease
 
