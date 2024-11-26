@@ -163,6 +163,7 @@ enum ScreenshotFormat {
     code(bool, "asia-font-support", false, asia_font_support)                                           \
     code(bool, "shader-cache", true, shader_cache)                                                      \
     code(bool, "spirv-shader", false, spirv_shader)                                                     \
+    code(int, "fragment-precision", 0, fragment_precision)                                              \
     code(bool, "fps-hack", false, fps_hack)                                                             \
     code(bool, "acceleration-and-gyroscope", true, tiltsens)                                            \
     code(int, "acceleration-pos", 0, tiltpos)                                                           \
