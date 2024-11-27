@@ -996,10 +996,10 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                        "Medium",
                        "Low"
                 };
-    
+
                 static int current_fragment_spirv = emuenv.cfg.fragment_precision;
                 if (ImGui::Combo(lang.gpu["fragment_spirv"].c_str(), &current_fragment_spirv, fragment_spirv_strings.data(), fragment_spirv_strings.size())) {
-                    emuenv.cfg.fragment_precision = vk_surface_format_methods_indexes[current_surface_format];
+                    emuenv.cfg.fragment_precision = current_fragment_spirv;
                 }
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("%s", lang.gpu["fragment_spirv_description"].c_str());
