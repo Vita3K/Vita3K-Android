@@ -16,6 +16,10 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#include <config/functions.h>
+#include <config/state.h>
+#include <emuenv/state.h>
+
 #include <shader/spirv_recompiler.h>
 #include <shader/uniform_block.h>
 #include <shader/usse_disasm.h>
@@ -1996,12 +2000,15 @@ static std::string convert_spirv_to_glsl(const std::string &shader_name, SpirvCo
     spirv_cross::CompilerGLSL::Options options;
 
 #ifdef ANDROID
+    // todo call config for this 2 option
     options.fragment.default_float_precision = options.Mediump; // original Highp
-    options.fragment.default_int_precision = options.Highp;
+    options.fragment.default_int_precision = options.Mediump;
+    
     options.version = 320;
     options.es = true;
     options.enable_row_major_load_workaround = false; // spirv.hpp say when true it reduce performance in some android devices
-    options.vertex.fixup_clipspace = true; // test it!
+    options.vertex.fixup_clipspace = false;
+    options.enable_420pack_extension = false; // because opengles and default value is true
 #else
     options.version = 430;
     options.es = false;
