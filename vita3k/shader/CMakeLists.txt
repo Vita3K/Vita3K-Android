@@ -19,7 +19,7 @@ add_library(
 )
 
 target_include_directories(shader PUBLIC include)
-target_link_libraries(shader PUBLIC features gxm util)
+target_link_libraries(shader PUBLIC config emuenv features gxm util)
 target_link_libraries(shader PRIVATE SPIRV spirv-cross-glsl)
 
 # Marshmallow Tracy linking
