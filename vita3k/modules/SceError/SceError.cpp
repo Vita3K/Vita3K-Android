@@ -15,9 +15,8 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include <module/module.h>
+#include "SceError.h"
 
-#include <util/tracy.h>
 TRACY_MODULE_NAME(SceError);
 
 EXPORT(SceInt32, _sceErrorGetExternalString, char *result, int err) {
