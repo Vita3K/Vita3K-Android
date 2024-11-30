@@ -39,8 +39,6 @@ Java_org_vita3k_emulator_overlay_InputOverlay_setTouchState(JNIEnv *env, jobject
 }
 #endif
 
-constexpr int MAX_TOUCH_BUFFER_SAVED = 64;
-
 static SceTouchData touch_buffers[MAX_TOUCH_BUFFER_SAVED][2];
 static int touch_buffer_idx = 0;
 static bool is_touchpad = false;
