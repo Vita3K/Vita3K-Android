@@ -157,7 +157,7 @@ Note: The CMake preset `linux-ninja-clang` makes use of the LLD linker, which wi
 
 ### Building SDL
 
-Note that if you want to build the SDL library yourself for Android instead of using the prebuilt version, its source code must be patched to allow for custom drivers to be loaded. Please refer to [this part of the code](https://github.com/Vita3K/Vita3K-Android/blob/2791cf6bbf694a549080b958a7127ff483b11b99/vita3k/app/src/app_init.cpp#L132). If Vita3K is built using an unpatched version of SDL, it will compile and run correctly but crash when trying to load a custom driver.
+You can use prebuild libsdl from Macdu build or build from libsdl.org without any patch since this version of Vita3K already support libadrenotools but you just need merge "android/src/main/java/org/libsdl/app" from libsdl.org source code if you build from libsdl.org
 
 ## Note
 
