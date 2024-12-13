@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22...VERSION 3.30.6)
+cmake_minimum_required(VERSION 3.30.6)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Android")
 	set(ANDROID 1)
