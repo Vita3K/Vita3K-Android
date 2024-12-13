@@ -712,7 +712,8 @@ bool VKState::create(SDL_Window *window, std::unique_ptr<renderer::State> &state
 
         try {
             device = physical_device.createDevice(device_info.get());
-        } catch (vk::NotPermittedKHRError &) {
+       // } catch (vk::NotPermittedKHRError &) {
+	} catch (vk::NotPermittedError &) {
             // according to the vk spec, when using a priority higher than medium
             // we can get this error (although I think it will only possibly happen
             // for realtime priority)
