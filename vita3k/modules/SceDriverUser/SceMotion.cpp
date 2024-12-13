@@ -24,9 +24,9 @@
 #include <util/tracy.h>
 TRACY_MODULE_NAME(SceMotion);
 
-EXPORT(int, sceMotionGetAngleThreshold) {
+EXPORT(SceFloat, sceMotionGetAngleThreshold) {
     TRACY_FUNC(sceMotionGetAngleThreshold);
-    return UNIMPLEMENTED();
+    return get_angle_threshold(emuenv.motion);
 }
 
 EXPORT(int, sceMotionGetBasicOrientation, SceFVector3 *basicOrientation) {
@@ -35,26 +35,15 @@ EXPORT(int, sceMotionGetBasicOrientation, SceFVector3 *basicOrientation) {
         return RET_ERROR(SCE_MOTION_ERROR_NULL_PARAMETER);
 
     std::lock_guard<std::mutex> guard(emuenv.motion.mutex);
-    Util::Quaternion quat = get_orientation(emuenv.motion);
-
-    *basicOrientation = { 0.f, 0.f, 0.f };
-    // get the basic orientation, only one component is not zero and will be 1 or -1
-    // TODO: this is probably wrong
-    float max_val = std::max({ std::abs(quat.xyz.x), std::abs(quat.xyz.y), std::abs(quat.xyz.z) });
-    if (max_val == std::abs(quat.xyz.x)) {
-        basicOrientation->x = quat.xyz.x > 0.0f ? 1.0f : -1.0f;
-    } else if (max_val == std::abs(quat.xyz.y)) {
-        basicOrientation->y = quat.xyz.y > 0.0f ? 1.0f : -1.0f;
-    } else {
-        basicOrientation->z = quat.xyz.z > 0.0f ? 1.0f : -1.0f;
-    }
+    SceFVector3 accelerometer = get_acceleration(emuenv.motion);
+    *basicOrientation = get_basic_orientation(emuenv.motion);
 
     return 0;
 }
 
 EXPORT(SceBool, sceMotionGetDeadband) {
     TRACY_FUNC(sceMotionGetDeadband);
-    return UNIMPLEMENTED();
+    return get_deadband(emuenv.motion);
 }
 
 EXPORT(int, sceMotionGetDeadbandExt) {
