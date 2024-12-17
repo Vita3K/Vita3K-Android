@@ -781,8 +781,8 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     }
     ImGui::PushStyleColor(ImGuiCol_Text, GUI_COLOR_TEXT);
 
-    std::vector<int32_t> visible_apps{};
-
+    std::vector<std::string> visible_apps{};
+    
     const auto display_app = [&](const std::vector<gui::App> &apps_list, std::map<std::string, ImGui_Texture> &apps_icon) {
         for (const auto &app : apps_list) {
             bool selected = false;
@@ -812,13 +812,11 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
                 ImGui::SetCursorPosX(GRID_ICON_POS);
 
             // Get the current app index off the apps list.
-            const auto app_index = static_cast<int>(&app - &apps_list[0]);
-            const auto current_app_index = !is_sys ? app_index : app_index - 4;
-            apps_list_filtered.push_back(current_app_index);
+            apps_list_filtered.push_back(app.path);
 
             // Check if the current app is selected.
-            const auto is_app_selected = gui.is_nav_button && (current_selected_app_index == current_app_index);
-
+            const auto is_current_app_selected = gui.is_nav_button && (current_selected_app == app.path);
+            
             const auto icon_flags = emuenv.cfg.apps_list_grid ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_SpanAllColumns;
             if (ImGui::Selectable("##icon", selected || is_app_selected, icon_flags, SELECTABLE_APP_SIZE))
                 selected = true;
@@ -858,11 +856,11 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
             // Draw the app icons and custom config button only when they are within the visible area.
             if (element_is_within_visible_area) {
                 // Add the current app index to the visible apps list.
-                visible_apps.push_back(current_app_index);
+                visible_apps.push_back(app.path);
 
                 // Set the current selected app index to the current app index when the app is hovered.
                 if (!gui.is_nav_button && ImGui::IsItemHovered())
-                    current_selected_app_index = current_app_index;
+                    current_selected_app = app.path;
 
                 // Draw the app icon
                 if (apps_icon.contains(app.path)) {
@@ -887,9 +885,9 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
                     ImGui::Button("CC", ImVec2(40.f * VIEWPORT_SCALE.x, 0.f));
                     ImGui::PopStyleColor();
                 }
-            } else if (!gui.is_nav_button && (current_selected_app_index == current_app_index)) {
+            } else if (!gui.is_nav_button && (current_selected_app == app.path)) {
                 // When the app is selected but not visible, reset the current selected app index.
-                current_selected_app_index = -5;
+                current_selected_app.clear()
             }
 
             if (!emuenv.cfg.apps_list_grid)
@@ -967,7 +965,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
 
     // When visible apps list is not empty, set first visible app index to 0
     if (!visible_apps.empty())
-        first_visible_app_index = visible_apps.front();
+        first_visible_app = visible_apps.front();
 
     const auto SELECTABLE_SIZE = ImVec2(50.f * VIEWPORT_SCALE.x, 60.f * VIEWPORT_SCALE.y);
 
