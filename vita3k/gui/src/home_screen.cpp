@@ -483,7 +483,7 @@ void browse_home_apps_list(GuiState &gui, EmuEnvState &emuenv, const uint32_t bu
             if (((current_selected_app_index + 1) % 4 == 0) || (current_selected_app_index == apps_list_filtered_size))
                 switch_to_first_live_area_open_app();
             else
-                current_selected_app_index = next_filtered_index;
+                current_selected_app = next_filtered_app;
         } else
             switch_to_first_live_area_open_app();
         break;
@@ -495,7 +495,7 @@ void browse_home_apps_list(GuiState &gui, EmuEnvState &emuenv, const uint32_t bu
             current_selected_app = next_filtered_app;
         break;
     case SCE_CTRL_LEFT:
-                if (emuenv.cfg.apps_list_grid && (current_selected_app_index % 4 != 0))
+        if (emuenv.cfg.apps_list_grid && (current_selected_app_index % 4 != 0))
             current_selected_app = prev_filtered_app;
         break;
     case SCE_CTRL_R1:
@@ -504,11 +504,11 @@ void browse_home_apps_list(GuiState &gui, EmuEnvState &emuenv, const uint32_t bu
         gui.vita_area.home_screen = !gui.vita_area.live_area_screen;
         break;
     case SCE_CTRL_CIRCLE:
-                if (emuenv.cfg.sys_button == 0)
+        if (emuenv.cfg.sys_button == 0)
             pre_load_app(gui, emuenv, emuenv.cfg.show_live_area_screen, current_selected_app);
         break;
     case SCE_CTRL_CROSS:
-                if (emuenv.cfg.sys_button == 1)
+        if (emuenv.cfg.sys_button == 1)
             pre_load_app(gui, emuenv, emuenv.cfg.show_live_area_screen, current_selected_app);
         break;
     default: break;
@@ -816,12 +816,13 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
 
             // Check if the current app is selected.
             const auto is_current_app_selected = gui.is_nav_button && (current_selected_app == app.path);
-            
             const auto icon_flags = emuenv.cfg.apps_list_grid ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_SpanAllColumns;
-            if (ImGui::Selectable("##icon", selected || is_app_selected, icon_flags, SELECTABLE_APP_SIZE))
-                selected = true;
+            if (ImGui::Selectable("##icon", is_current_app_selected || (selected_app == app.path), icon_flags, SELECTABLE_APP_SIZE)) {
+                selected_app.clear();
+                pre_load_app(gui, emuenv, emuenv.cfg.show_live_area_screen, app.path);
+            }
 
-            if (!gui.configuration_menu.custom_settings_dialog && (ImGui::IsItemHovered() || is_app_selected))
+            if (!gui.configuration_menu.custom_settings_dialog && (ImGui::IsItemHovered() || is_current_app_selected))
                 emuenv.app_path = app.path;
             if (emuenv.app_path == app.path)
                 draw_app_context_menu(gui, emuenv, app.path);
@@ -868,7 +869,6 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
                         ImGui::SetCursorPosX(GRID_ICON_POS);
                     else
                         ImGui::SetCursorPos(ImVec2(POS_ICON.x + (5.f * VIEWPORT_SCALE.x), POS_ICON.y + (5.f * VIEWPORT_SCALE.y)));
-                    
                     const auto POS_MIN = ImGui::GetCursorScreenPos();
                     const ImVec2 POS_MAX(POS_MIN.x + ICON_SIZE.x, POS_MIN.y + ICON_SIZE.y);
                     ImGui::GetWindowDrawList()->AddImageRounded(apps_icon[app.path], POS_MIN, POS_MAX, ImVec2(0, 0), ImVec2(1, 1), IM_COL32_WHITE, ICON_SIZE.x * VIEWPORT_SCALE.x, ImDrawFlags_RoundCornersAll);
@@ -879,7 +879,6 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
                 if (IS_CUSTOM_CONFIG) {
                     if (emuenv.cfg.apps_list_grid)
                         ImGui::SetCursorPosX(GRID_ICON_POS);
-                    
                     ImGui::SetCursorPosY(POS_ICON.y + ICON_SIZE.y - ImGui::GetFontSize() - (7.8f * emuenv.dpi_scale));
                     ImGui::PushStyleColor(ImGuiCol_Text, GUI_COLOR_TEXT_TITLE);
                     ImGui::Button("CC", ImVec2(40.f * VIEWPORT_SCALE.x, 0.f));
@@ -887,7 +886,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
                 }
             } else if (!gui.is_nav_button && (current_selected_app == app.path)) {
                 // When the app is selected but not visible, reset the current selected app index.
-                current_selected_app.clear()
+                current_selected_app.clear();
             }
 
             if (!emuenv.cfg.apps_list_grid)
