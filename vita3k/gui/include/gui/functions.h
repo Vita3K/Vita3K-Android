@@ -27,7 +27,6 @@
 #include <vector>
 
 struct EmuEnvState;
-struct Config;
 
 namespace gui {
 
@@ -46,6 +45,7 @@ void close_and_run_new_app(EmuEnvState &emuenv, const std::string &app_path);
 void close_live_area_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 void close_system_app(GuiState &gui, EmuEnvState &emuenv);
 void delete_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
+void erase_app_notice(GuiState &gui, const std::string &title_id);
 void get_app_info(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 size_t get_app_size(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 App *get_app_index(GuiState &gui, const std::string &app_path);
@@ -102,7 +102,8 @@ void pre_run_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path
 void reset_controller_binding(EmuEnvState &emuenv);
 void save_apps_cache(GuiState &gui, EmuEnvState &emuenv);
 void save_user(GuiState &gui, EmuEnvState &emuenv, const std::string &user_id);
-void set_config(EmuEnvState &emuenv, const std::string &app_path, bool custom = true);
+void select_app(GuiState &gui, const std::string &title_id);
+void set_config(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 void set_shaders_compiled_display(GuiState &gui, EmuEnvState &emuenv);
 void update_app(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path);
 void update_last_time_app_used(GuiState &gui, EmuEnvState &emuenv, const std::string &app);
@@ -110,10 +111,6 @@ void update_live_area_current_open_apps_list(GuiState &gui, EmuEnvState &emuenv,
 void update_notice_info(GuiState &gui, EmuEnvState &emuenv, const std::string &type);
 void update_time_app_used(GuiState &gui, EmuEnvState &emuenv, const std::string &app);
 void save_notice_list(EmuEnvState &emuenv);
-void set_controller_overlay_state(int overlay_mask, bool edit = false, bool reset = false, bool portrait = false);
-void set_controller_overlay_scale(float scale, float joystick);
-void set_controller_overlay_opacity(int opacity);
-int get_overlay_display_mask(const Config &cfg);
 
 void draw_begin(GuiState &gui, EmuEnvState &emuenv);
 void draw_end(GuiState &gui);
@@ -136,9 +133,3 @@ void draw_perf_overlay(GuiState &gui, EmuEnvState &emuenv);
 ImTextureID load_image(GuiState &gui, const uint8_t *data, const int size);
 
 } // namespace gui
-
-// Extensions to ImGui
-namespace ImGui {
-
-void ScrollWhenDragging();
-} // namespace ImGui
