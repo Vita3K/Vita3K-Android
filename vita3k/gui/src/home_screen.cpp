@@ -748,6 +748,11 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     const ImVec2 list_selectable_size(0.f, ICON_SIZE.y + (10.f * VIEWPORT_SCALE.y));
     const ImVec2 SELECTABLE_APP_SIZE = emuenv.cfg.apps_list_grid ? ICON_SIZE : list_selectable_size;
 
+    // grid mode is broken, just disable it for portrait mode
+    if(emuenv.cfg.screenmode_pos == 3 && emuenv.cfg.apps_list_grid){
+        emuenv.cfg.apps_list_grid = !emuenv.cfg.apps_list_grid;
+    }
+    
     if (!emuenv.cfg.apps_list_grid) {
         ImGui::Columns(7, nullptr, true);
         ImGui::SetColumnWidth(0, column_icon_size);
@@ -764,7 +769,11 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::SetColumnWidth(3, GRID_COLUMN_SIZE);
     }
 
-    ImGui::SetWindowFontScale(1.1f);
+    if(emuenv.cfg.screenmode_pos == 3){
+        ImGui::SetWindowFontScale(1.6f);
+    }else{
+        ImGui::SetWindowFontScale(1.1f);
+    }
     ImGui::PushStyleColor(ImGuiCol_Text, GUI_COLOR_TEXT);
 
     std::vector<std::string> visible_apps{};
@@ -937,7 +946,12 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
 
     ImGui::PopStyleColor();
     ImGui::Columns(1);
-    ImGui::SetWindowFontScale(1.f);
+    if(emuenv.cfg.screenmode_pos == 3){
+        ImGui::SetWindowFontScale(1.6f);
+    }else{
+        ImGui::SetWindowFontScale(1.f);
+    }
+    ImGui::ScrollWhenDragging();
     ImGui::EndChild();
 
     // When visible apps list is not empty, set first visible app
