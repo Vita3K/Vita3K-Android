@@ -523,7 +523,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     constexpr ImU32 ARROW_COLOR = 0xFFFFFFFF; // White
     static int scroll_type;
 
-    const ImVec2 VIEWPORT_POS(0, emuenv.viewport_pos.y);
+        const ImVec2 VIEWPORT_POS(0.0, 0.0);
     const ImVec2 VIEWPORT_SIZE = ImGui::GetIO().DisplaySize;
     const ImVec2 VIEWPORT_RES_SCALE(VIEWPORT_SIZE.x / emuenv.res_width_dpi_scale, VIEWPORT_SIZE.y / emuenv.res_height_dpi_scale);
     const ImVec2 VIEWPORT_SCALE(VIEWPORT_RES_SCALE.x * emuenv.dpi_scale, VIEWPORT_RES_SCALE.y * emuenv.dpi_scale);
