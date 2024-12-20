@@ -523,7 +523,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     constexpr ImU32 ARROW_COLOR = 0xFFFFFFFF; // White
     static int scroll_type;
 
-        const ImVec2 VIEWPORT_POS(0.0, 0.0);
+    const ImVec2 VIEWPORT_POS(0.0, 0.0);
     const ImVec2 VIEWPORT_SIZE = ImGui::GetIO().DisplaySize;
     const ImVec2 VIEWPORT_RES_SCALE(VIEWPORT_SIZE.x / emuenv.res_width_dpi_scale, VIEWPORT_SIZE.y / emuenv.res_height_dpi_scale);
     const ImVec2 VIEWPORT_SCALE(VIEWPORT_RES_SCALE.x * emuenv.dpi_scale, VIEWPORT_RES_SCALE.y * emuenv.dpi_scale);
@@ -582,7 +582,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     const ImVec2 ICON_SIZE(emuenv.cfg.apps_list_grid ? ImVec2(128.f * VIEWPORT_SCALE.x, 128.f * VIEWPORT_SCALE.y) : ImVec2(emuenv.cfg.icon_size * VIEWPORT_SCALE.x, emuenv.cfg.icon_size * VIEWPORT_SCALE.x));
 
     // Size of column padding
-    const float column_padding_size = 20.f * VIEWPORT_SCALE.x;
+    const float column_padding_size = 20.0f * VIEWPORT_SCALE.x;
 
     // Size of the icon part
     const float column_icon_size = ICON_SIZE.x + column_padding_size + (5.f * VIEWPORT_SCALE.x);
@@ -730,7 +730,7 @@ void draw_home_screen(GuiState &gui, EmuEnvState &emuenv) {
     auto child_flags = ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
     if (gui.is_nav_button)
         child_flags |= ImGuiWindowFlags_NoMouseInputs;
-    ImGui::SetNextWindowPos(emuenv.cfg.apps_list_grid ? POS_APP_LIST : ImVec2(emuenv.viewport_pos.x, VIEWPORT_POS.y + MARGIN_HEIGHT), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(emuenv.cfg.apps_list_grid ? POS_APP_LIST : ImVec2(VIEWPORT_POS.x, VIEWPORT_POS.y + MARGIN_HEIGHT), ImGuiCond_Always);
     ImGui::BeginChild("##apps_list", SIZE_APP_LIST, ImGuiChildFlags_None, child_flags);
 
     // Get Scroll Pos
