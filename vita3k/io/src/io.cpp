@@ -251,7 +251,9 @@ std::string translate_path(const char *path, VitaIoDevice &device, const IOState
         break;
     }
     case +VitaIoDevice::tty0:
-    case +VitaIoDevice::tty1: {
+        case +VitaIoDevice::tty1:
+    case +VitaIoDevice::tty2:
+    case +VitaIoDevice::tty3: {
         return std::string{};
     }
     default: {
