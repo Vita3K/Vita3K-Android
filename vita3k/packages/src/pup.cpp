@@ -24,7 +24,7 @@
  */
 
 #include <openssl/evp.h>
-#include <packages/exfat.h>
+#include <host/dialog/filesystem.h>
 #include <packages/sce_types.h>
 #include <util/fs.h>
 
@@ -107,12 +107,14 @@ static std::string make_filename(unsigned char *hdr, int64_t filetype) {
 static void extract_pup_files(const fs::path &pup, const fs::path &output) {
     constexpr int SCEUF_HEADER_SIZE = 0x80;
     constexpr int SCEUF_FILEREC_SIZE = 0x20;
-    fs::ifstream infile(pup, std::ios::binary);
+
+    FILE *infile = host::dialog::filesystem::resolve_host_handle(pup);
     char header[SCEUF_HEADER_SIZE];
-    infile.read(header, SCEUF_HEADER_SIZE);
+    fread(header, SCEUF_HEADER_SIZE, 1, infile);
 
     if (strncmp(header, "SCEUF", 5) != 0) {
         LOG_ERROR("Invalid PUP");
+        fclose(infile);
         return;
     }
 
@@ -131,9 +133,9 @@ static void extract_pup_files(const fs::path &pup, const fs::path &output) {
     LOG_INFO("Number Of Files: {}", cnt);
 
     for (uint32_t x = 0; x < cnt; x++) {
-        infile.seekg(SCEUF_HEADER_SIZE + x * SCEUF_FILEREC_SIZE);
+        fseek(infile, SCEUF_HEADER_SIZE + x * SCEUF_FILEREC_SIZE, SEEK_SET);
         char rec[SCEUF_FILEREC_SIZE];
-        infile.read(rec, SCEUF_FILEREC_SIZE);
+        fread(rec, SCEUF_FILEREC_SIZE, 1, infile);
 
         uint64_t filetype = 0;
         uint64_t offset = 0;
@@ -149,21 +151,21 @@ static void extract_pup_files(const fs::path &pup, const fs::path &output) {
         if (PUP_TYPES.contains(filetype)) {
             filename = PUP_TYPES.at(filetype);
         } else {
-            infile.seekg(offset);
+            fseek(infile, offset, SEEK_SET);
             char hdr[HEADER_LENGTH];
-            infile.read(hdr, HEADER_LENGTH);
+            fread(hdr, HEADER_LENGTH, 1, infile);
             filename = make_filename((unsigned char *)hdr, filetype);
         }
 
         fs::ofstream outfile(output / filename, std::ios::binary);
-        infile.seekg(offset);
+        fseek(infile, offset, SEEK_SET);
         std::vector<char> buffer(length);
-        infile.read(&buffer[0], length);
+        fread(buffer.data(), length, 1, infile);
         outfile.write(&buffer[0], length);
 
         outfile.close();
     }
-    infile.close();
+    fclose(infile);
 }
 
 static void decrypt_segments(std::ifstream &infile, const fs::path &outdir, const fs::path &filename, KeyStore &SCE_KEYS) {
@@ -178,17 +180,12 @@ static void decrypt_segments(std::ifstream &infile, const fs::path &outdir, cons
     EVP_CIPHER *cipher = EVP_CIPHER_fetch(nullptr, "AES-128-CTR", nullptr);
     int dec_len = 0;
 
-    // Reset the offset to the beginning of the file
-    infile.seekg(0, std::ios::beg);
-
-    // Read the entire file into a buffer and get the segments
-    const auto input = std::vector<uint8_t>(std::istreambuf_iterator<char>(infile), std::istreambuf_iterator<char>());
-    const auto scesegs = get_segments(input.data(), sce_hdr, SCE_KEYS, sysver, selftype);
+    const auto scesegs = get_segments(infile, sce_hdr, SCE_KEYS, sysver, selftype);
     for (const auto &sceseg : scesegs) {
         fs::ofstream outfile(outdir / fs_utils::path_concat(filename, ".seg02"), std::ios::binary);
         infile.seekg(sceseg.offset);
         std::vector<unsigned char> encrypted_data(sceseg.size);
-        infile.read((char *)encrypted_data.data(), sceseg.size);
+        infile.read((char *)&encrypted_data[0], sceseg.size);
 
         std::vector<unsigned char> decrypted_data(sceseg.size);
         EVP_DecryptInit_ex(cipher_ctx, cipher, nullptr, reinterpret_cast<const unsigned char *>(sceseg.key.c_str()), reinterpret_cast<const unsigned char *>(sceseg.iv.c_str()));
@@ -200,7 +197,7 @@ static void decrypt_segments(std::ifstream &infile, const fs::path &outdir, cons
             const std::string decompressed_data = decompress_segments(decrypted_data, sceseg.size);
             outfile.write(decompressed_data.c_str(), decompressed_data.size());
         } else {
-            outfile.write((char *)decrypted_data.data(), sceseg.size);
+            outfile.write((char *)&decrypted_data[0], sceseg.size);
         }
         outfile.close();
     }
@@ -248,7 +245,6 @@ static void decrypt_pup_packages(const fs::path &src, const fs::path &dest, KeyS
     }
 
     join_files(dest, "os0-", dest / "os0.img");
-    join_files(dest, "pd0-", dest / "pd0.img");
     join_files(dest, "vs0-", dest / "vs0.img");
     join_files(dest, "sa0-", dest / "sa0.img");
 }
@@ -281,13 +277,25 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
     progress_callback(70);
     if (fs::file_size(pup_dec / "os0.img") > 0) {
         extract_fat(pup_dec, "os0.img", pref_path);
+        for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
+            if (fs::is_regular_file(file.path())) {
+                if (is_self(file.path())) {
+                    decrypt_fself(file.path(), SCE_KEYS, 0);
+                }
+            }
+        }
     }
-    if (fs::file_size(pup_dec / "pd0.img") > 0)
-        exfat::extract_exfat(pup_dec, "pd0.img", pref_path);
     if (fs::file_size(pup_dec / "sa0.img") > 0)
         extract_fat(pup_dec, "sa0.img", pref_path);
     if (fs::file_size(pup_dec / "vs0.img") > 0) {
         extract_fat(pup_dec, "vs0.img", pref_path);
+        for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
+            if (fs::is_regular_file(file.path())) {
+                if (is_self(file.path())) {
+                    decrypt_fself(file.path(), SCE_KEYS, nullptr);
+                }
+            }
+        }
     }
     progress_callback(100);
 }
