@@ -35,6 +35,7 @@ struct MotionState {
     bool has_device_motion_support = false;
 
     bool is_sampling = false;
+    bool is_initialized = true;
 
     void init();
 };
