@@ -1,4 +1,4 @@
-﻿// Vita3K emulator project
+// Vita3K emulator project
 // Copyright (C) 2024 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 #include <util/types.h>
 
 enum SceMotionErrorCode : uint32_t {
+    SCE_MOTION_OK = 0x0,
     SCE_MOTION_ERROR_DATA_INVALID = 0x80360200,
     SCE_MOTION_ERROR_READING = 0x80360201,
     SCE_MOTION_ERROR_NON_INIT_ERR = 0x80360202,
