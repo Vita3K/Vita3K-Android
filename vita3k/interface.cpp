@@ -32,7 +32,7 @@
 #include <io/functions.h>
 #include <io/vfs.h>
 #include <kernel/state.h>
-#include <packages/functions.h>
+#include <packages/license.h>
 #include <packages/pkg.h>
 #include <packages/sfo.h>
 #include <renderer/state.h>
