@@ -81,12 +81,12 @@ static int reserve_port(CtrlState &state) {
     for (int i = 0; i < SCE_CTRL_MAX_WIRELESS_NUM; i++) {
         if (state.free_ports[i]) {
             state.free_ports[i] = false;
-            return i + 1;
+            return i;
         }
     }
 
     // No free port found.
-    return 0;
+    return -1;
 }
 
 SceCtrlExternalInputMode get_type_of_controller(const int idx) {
@@ -106,7 +106,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                // }
                 ++controller;
             } else {
-                state.free_ports[controller->second.port - 1] = true;
+                state.free_ports[controller->second.port] = true;
                 controller = state.controllers.erase(controller);
                 state.controllers_num--;
             }
@@ -131,8 +131,15 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
             if (!state.controllers.contains(guid)) {
                 Controller new_controller;
                 const GameControllerPtr controller(SDL_GameControllerOpen(joystick_index), SDL_GameControllerClose);
+                if (controller == nullptr) {
+                    continue;
+                }
                 new_controller.controller = controller;
                 new_controller.port = reserve_port(state);
+                if (new_controller.port == -1) { // Port not available
+                    return;
+                }
+                SDL_GameControllerSetPlayerIndex(controller.get(), new_controller.port);
 
                // if(emuenv.cfg.tiltsens){
                 new_controller.has_accel = SDL_GameControllerHasSensor(controller.get(), SDL_SENSOR_ACCEL);
@@ -154,12 +161,12 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
 
                found_gyro |= new_controller.has_gyro;
                found_accel |= new_controller.has_accel;
-            /*       LOG_INFO("Built-in accel and gyro sensor enabled");
-                }else{
-                   found_gyro = false;
-                   found_accel = false;
-                   LOG_INFO("Built-in accel and gyro sensor disabled in settings!, goto configuration > settings > emulator menu to enable it");
-                } */
+
+               new_controller.name = SDL_GameControllerNameForIndex(joystick_index);
+               if (new_controller.name == nullptr) {
+                   state.free_ports[new_controller.port] = true;
+                   continue;
+               }
 
                 new_controller.has_led = SDL_GameControllerHasLED(controller.get());
                 if (new_controller.has_led) {
@@ -171,8 +178,6 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 }
                 
                 state.controllers.emplace(guid, new_controller);
-                state.controllers_name[joystick_index] = SDL_GameControllerNameForIndex(joystick_index);
-                state.controllers_has_motion_support[joystick_index] = found_gyro && found_accel;
                 state.controllers_num++;
             }
         }
@@ -370,7 +375,8 @@ static void retrieve_ctrl_data(EmuEnvState &emuenv, int port, bool is_v2, bool n
         apply_keyboard(&buttons, axes.data(), is_v2, emuenv);
     }
     for (const auto &[_, controller] : state.controllers) {
-        if (controller.port == port) {
+        if (controller.port + 1 == port) {
+            // sceCtrl ports are 1-based and SDL_GameController index is 0-based. Need to convert.
             apply_controller(emuenv, &buttons, axes.data(), controller.controller.get(), is_v2);
         }
     }
