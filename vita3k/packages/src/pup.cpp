@@ -24,7 +24,6 @@
  */
 
 #include <openssl/evp.h>
-#include <host/dialog/filesystem.h>
 #include <packages/exfat.h>
 #include <packages/sce_types.h>
 #include <util/fs.h>
