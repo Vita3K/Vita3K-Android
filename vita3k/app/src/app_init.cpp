@@ -604,7 +604,10 @@ void switch_state(EmuEnvState &emuenv, const bool pause) {
     else {
 #ifdef ANDROID
         emuenv.display.imgui_render = false;
-        if (emuenv.cfg.enable_gamepad_overlay)
+        // hide virtual controller when controller connected (since virtual controller didn't work when controller connected)
+        if(SDL_NumJoysticks() > 1) 
+            gui::set_controller_overlay_state(0);
+        else if (emuenv.cfg.enable_gamepad_overlay)
             gui::set_controller_overlay_state(gui::get_overlay_display_mask(emuenv.cfg));
 #endif
 
