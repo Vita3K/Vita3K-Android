@@ -184,6 +184,7 @@ enum ScreenshotFormat {
 #define CONFIG_VECTOR(code)                                                                             \
     code(std::vector<short>, "controller-binds", std::vector<short>{}, controller_binds)                \
     code(std::vector<int>, "controller-led-color", std::vector<int>{}, controller_led_color)            \
+    code(std::vector<float>, "controller-gyro-calibration", std::vector<float>{}, controller-gyro-calibration)            \
     code(std::vector<std::string>, "lle-modules", std::vector<std::string>{}, lle_modules)              \
     code(std::vector<uint64_t>, "ime-langs", std::vector<uint64_t>{4}, ime_langs)                       \
     code(std::vector<std::string>, "tracy-advanced-profiling-modules", std::vector<std::string>{}, tracy_advanced_profiling_modules)
