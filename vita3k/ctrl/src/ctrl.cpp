@@ -125,7 +125,8 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
             const char *controller_name = SDL_GameControllerNameForIndex(joystick_index);
             if (controller_name != nullptr && 
                 (std::string_view(controller_name).starts_with("uinput-")
-                || std::string_view(controller_name).starts_with("gf_")))
+                || std::string_view(controller_name).starts_with("gf_")
+                || std::string_view(controller_name).starts_with("sensor")) // maybe other sensor are detected as controller
                 continue;
 #endif
             if (!state.controllers.contains(guid)) {
