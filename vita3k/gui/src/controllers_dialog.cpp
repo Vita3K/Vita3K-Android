@@ -416,15 +416,23 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                     const auto set_calib_gyro = [&](const std::vector<float> &gyro) {
                             config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
                     };
+                    const std::vector<float> default_calib_gyro = { 0, 0, 0 };
                     
                     if(!emuenv.cfg.calibrate_gyro){
-                        set_calib_gyro = { 0, 0, 0 };
+                        set_calib_gyro = default_calib_gyro;
                     }else{     
                         const auto calib_gyro_str = lang["calib_gyro"].c_str();
-                        ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(led_color_str).x / 2.f));
+                        ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(calib_gyro_str).x / 2.f));
                         ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", calib_gyro_str);
                         auto &calib_gyro = emuenv.cfg.controller_gyro_calibration;
-                   
+                        bool gyro_has_calib = !calib_gyro.empty();
+                        if (calib_gyro.empty())
+                            calib_gyro = default_calib_gyro;
+                        else
+                            calib_gyro.clear();
+                        set_calib_gyro(default_calib_gyro);
+                        if(gyro_has_calib){
+                            ImGui::Spacing();
                         if (ImGui::BeginTable("Gyro-Calibration", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
                             ImGui::TableSetupColumn("X");
                             ImGui::TableSetupColumn("Y");
@@ -448,6 +456,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                 ImGui::PopID();
                             }
                             ImGui::EndTable();
+                        }
                         }
                     }
                     ImGui::Spacing();
