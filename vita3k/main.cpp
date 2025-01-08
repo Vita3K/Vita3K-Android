@@ -530,7 +530,13 @@ int main(int argc, char *argv[]) {
     }
     SDL_SetWindowTitle(emuenv.window.get(), fmt::format("{} | {} ({}) | Please wait, loading...", window_title, emuenv.current_app_title, emuenv.io.title_id).c_str());
 
-    if (emuenv.cfg.enable_gamepad_overlay)
+    // hide virtual controller when controller connected
+    // (since virtual controller didn't work when controller connected)
+    int tmp = SDL_NumJoysticks();
+    LOG_TRACE("NUMBER OF JOYSTICK -> SDL_NumJoysticks() = {}", tmp);
+    if(tmp > 1) 
+            gui::set_controller_overlay_state(0);
+    else if (emuenv.cfg.enable_gamepad_overlay)
         gui::set_controller_overlay_state(gui::get_overlay_display_mask(emuenv.cfg));
 
     while (handle_events(emuenv, gui) && (emuenv.frame_count == 0) && !emuenv.load_exec) {
