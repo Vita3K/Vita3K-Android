@@ -412,6 +412,47 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                     ImGui::Spacing();
                     ImGui::Separator();
                     ImGui::Spacing();
+
+                    const auto set_calib_gyro = [&](const std::vector<float> &gyro) {
+                            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+                    };
+                    
+                    if(!emuenv.cfg.calibrate_gyro){
+                        set_calib_gyro = { 0, 0, 0 };
+                    }else{     
+                        const auto calib_gyro_str = lang["calib_gyro"].c_str();
+                        ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(led_color_str).x / 2.f));
+                        ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", calib_gyro_str);
+                        auto &calib_gyro = emuenv.cfg.controller_gyro_calibration;
+                   
+                        if (ImGui::BeginTable("Gyro-Calibration", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
+                            ImGui::TableSetupColumn("X");
+                            ImGui::TableSetupColumn("Y");
+                            ImGui::TableSetupColumn("Z");
+                            ImGui::TableNextRow();
+                            ImGui::TableSetColumnIndex(0);
+                            ImGui::Text("%s", lang["Gyro-X"].c_str());
+                            ImGui::TableSetColumnIndex(1);
+                            ImGui::Text("%s", lang["Gyro-Y"].c_str());
+                            ImGui::TableSetColumnIndex(2);
+                            ImGui::Text("%s", lang["Gyro-Z"].c_str());
+                            ImGui::TableNextRow();
+                            const auto tab_size = (ImGui::GetWindowWidth() / 3.f) - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().FramePadding.x;
+                            for (auto l = 0; l < calib_gyro.size(); l++) {
+                                ImGui::PushID(l);
+                                ImGui::TableSetColumnIndex(l);
+                                ImGui::PushItemWidth(tab_size);
+                                if (ImGui::SliderFloat("##calib_gyro", &calib_gyro[l], -1, 1))
+                                    set_calib_gyro(calib_gyro);
+                                ImGui::PopItemWidth();
+                                ImGui::PopID();
+                            }
+                            ImGui::EndTable();
+                        }
+                    }
+                    ImGui::Spacing();
+                    ImGui::Separator();
+                    ImGui::Spacing();
                     ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (BUTTON_SIZE.x / 2.f));
                     if (ImGui::Button(common["close"].c_str(), BUTTON_SIZE))
                         rebinds_is_open = false;
