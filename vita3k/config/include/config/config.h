@@ -124,6 +124,7 @@ enum ScreenshotFormat {
     code(float, "overlay-scale", 1.0f, overlay_scale)                                                   \
     code(float, "overlay-scale-joystick", 1.0f, overlay_scale_joystick)                                 \
     code(int, "overlay-opacity", 100, overlay_opacity)                                                  \
+    code(bool, "calibrate-gyro", false, calibrate_gyro)                                                 \
     code(int, "keyboard-button-select", 229, keyboard_button_select)                                    \
     code(int, "keyboard-button-start", 40, keyboard_button_start)                                       \
     code(int, "keyboard-button-up", 82, keyboard_button_up)                                             \
