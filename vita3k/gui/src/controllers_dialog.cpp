@@ -413,55 +413,59 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                     ImGui::Separator();
                     ImGui::Spacing();
 
-                    const auto set_calib_gyro = [&](const std::vector<float> &gyro) {
+                    if (ctrl.controllers[guid].has_gyro) {
+                        const auto set_calib_gyro = [&](const std::vector<float> &gyro_sens) {
                             config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
-                    };
-                    const std::vector<float> default_calib_gyro = { 0, 0, 0 };
-                    
-                    if(!emuenv.cfg.calibrate_gyro){
-                        set_calib_gyro = default_calib_gyro;
-                    }else{     
-                        const auto calib_gyro_str = lang["calib_gyro"].c_str();
-                        ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(calib_gyro_str).x / 2.f));
-                        ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", calib_gyro_str);
-                        auto &calib_gyro = emuenv.cfg.controller_gyro_calibration;
-                        bool gyro_has_calib = !calib_gyro.empty();
-                        if (calib_gyro.empty())
-                            calib_gyro = default_calib_gyro;
-                        else
-                            calib_gyro.clear();
-                        set_calib_gyro(default_calib_gyro);
-                        if(gyro_has_calib){
-                            ImGui::Spacing();
-                        if (ImGui::BeginTable("Gyro-Calibration", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
-                            ImGui::TableSetupColumn("X");
-                            ImGui::TableSetupColumn("Y");
-                            ImGui::TableSetupColumn("Z");
-                            ImGui::TableNextRow();
-                            ImGui::TableSetColumnIndex(0);
-                            ImGui::Text("%s", lang["Gyro-X"].c_str());
-                            ImGui::TableSetColumnIndex(1);
-                            ImGui::Text("%s", lang["Gyro-Y"].c_str());
-                            ImGui::TableSetColumnIndex(2);
-                            ImGui::Text("%s", lang["Gyro-Z"].c_str());
-                            ImGui::TableNextRow();
-                            const auto tab_size = (ImGui::GetWindowWidth() / 3.f) - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().FramePadding.x;
-                            for (auto l = 0; l < calib_gyro.size(); l++) {
-                                ImGui::PushID(l);
-                                ImGui::TableSetColumnIndex(l);
-                                ImGui::PushItemWidth(tab_size);
-                                if (ImGui::SliderFloat("##calib_gyro", &calib_gyro[l], -1, 1))
-                                    set_calib_gyro(calib_gyro);
-                                ImGui::PopItemWidth();
-                                ImGui::PopID();
-                            }
-                            ImGui::EndTable();
+                        };
+                        ImGui::Spacing();
+                        ImGui::Separator();
+                        ImGui::Spacing();
+                        const auto gyro_sens_str = lang["gyro_sens"].c_str();
+                        ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(gyro_sens_str).x / 2.f));
+                        ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", gyro_sens_str);
+                        auto &gyro_sensor = emuenv.cfg.controller_gyro_calibration;
+                        bool has_custom_gyro_cal = emuenv.cfg.calibrate_gyro;
+                        if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &calibrate-gyro)) {
+                            const std::vector<float> default_gyro = { 0, 0, 0 };
+                            if (gyro_sensor.empty())
+                                gyro_sensor = default_gyro;
+                            else
+                                gyro_sensor.clear();
+                            set_calib_gyror(default_gyro);
                         }
+                        SetTooltipEx(lang["use_custom_gyro_cal_description"].c_str());
+                        if (has_custom_gyro_cal) {
+                            ImGui::Spacing();
+                            if (ImGui::BeginTable("setPos", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
+                                ImGui::TableSetupColumn("X");
+                                ImGui::TableSetupColumn("Y");
+                                ImGui::TableSetupColumn("Z");
+                                ImGui::TableNextRow();
+                                ImGui::TableSetColumnIndex(0);
+                                ImGui::Text("%s", lang["gyro-x"].c_str());
+                                ImGui::TableSetColumnIndex(1);
+                                ImGui::Text("%s", lang["gyro-y"].c_str());
+                                ImGui::TableSetColumnIndex(2);
+                                ImGui::Text("%s", lang["gyro-z"].c_str());
+                                ImGui::TableNextRow();
+                                const auto tab_size = (ImGui::GetWindowWidth() / 3.f) - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().FramePadding.x;
+                                for (auto l = 0; l < gyro_sensor.size(); l++) {
+                                    ImGui::PushID(l);
+                                    ImGui::TableSetColumnIndex(l);
+                                    ImGui::PushItemWidth(tab_size);
+                                    if (ImGui::SliderInt("##gyro_sensor", &gyro_sensor[l], -1, 1))
+                                        set_calib_gyror(gyro_sensor);
+                                    ImGui::PopItemWidth();
+                                    ImGui::PopID();
+                                }
+                                ImGui::EndTable();
+                            }
                         }
                     }
                     ImGui::Spacing();
                     ImGui::Separator();
                     ImGui::Spacing();
+                    
                     ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (BUTTON_SIZE.x / 2.f));
                     if (ImGui::Button(common["close"].c_str(), BUTTON_SIZE))
                         rebinds_is_open = false;
