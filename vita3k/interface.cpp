@@ -593,13 +593,6 @@ static void take_screenshot(EmuEnvState &emuenv) {
 bool handle_events(EmuEnvState &emuenv, GuiState &gui) {
     refresh_controllers(emuenv.ctrl, emuenv);
 
-    // hide virtual controller when controller connected
-    // (since virtual controller didn't work when controller connected)
-    int tmp = SDL_NumJoysticks();
-    LOG_TRACE("NUMBER OF JOYSTICK -> SDL_NumJoysticks() = {}", tmp);
-    if(tmp > 1) 
-            gui::set_controller_overlay_state(0);
-
     const auto allow_switch_state = !emuenv.io.title_id.empty() && !gui.vita_area.app_close && !gui.vita_area.home_screen && !gui.vita_area.user_management && !gui.configuration_menu.custom_settings_dialog && !gui.configuration_menu.settings_dialog && !gui.controls_menu.controls_dialog && gui::get_sys_apps_state(gui);
 
     const auto ui_navigation = [&emuenv, &gui, allow_switch_state](const uint32_t sce_ctrl_btn) {
