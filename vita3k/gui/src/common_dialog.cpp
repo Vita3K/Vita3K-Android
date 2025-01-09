@@ -31,8 +31,7 @@ static void draw_ime_dialog(DialogState &common_dialog, float FONT_SCALE) {
     ImGui::SetNextWindowSize(ImVec2(0, 0));
     ImGui::Begin("##ime_dialog", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::SetWindowFontScale(FONT_SCALE);
-    ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(common_dialog.ime.title).x / 2.f));
-    ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", common_dialog.ime.title);
+    TextColoredCentered(GUI_COLOR_TEXT_TITLE, common_dialog.ime.title);
     ImGui::Spacing();
     // TODO: setting the bufsize to max_length + 1 is not correct (except when using only 1-byte UTF-8 characters)
     // the reason being that the max_length is the number of characters allowed but the parameter given to ImGui::InputTextMultiline/ImGui::InputText
@@ -81,11 +80,8 @@ static void draw_message_dialog(DialogState &common_dialog, float FONT_SCALE, Im
     ImGui::Begin("##Message Dialog", nullptr, ImGuiWindowFlags_NoDecoration);
     ImGui::SetCursorPosY(WINDOW_SIZE.y / 2 - 40.f * SCALE.y);
     ImGui::BeginGroup();
-    ImGui::PushTextWrapPos(WINDOW_SIZE.x - 50.f * SCALE.x);
     ImGui::SetWindowFontScale(FONT_SCALE);
-    ImGui::SetCursorPosX(WINDOW_SIZE.x / 2 - ImGui::CalcTextSize(common_dialog.msg.message.c_str(), 0, false, WINDOW_SIZE.x - 100.f * SCALE.x).x / 2);
-    ImGui::Text("%s", common_dialog.msg.message.c_str());
-    ImGui::PopTextWrapPos();
+    TextCentered(common_dialog.msg.message.c_str(), 50.f * SCALE.x);
     if (common_dialog.msg.has_progress_bar) {
         ImGui::Spacing();
         const char dummy_buf[32] = "";
@@ -95,8 +91,7 @@ static void draw_message_dialog(DialogState &common_dialog, float FONT_SCALE, Im
         ImGui::ProgressBar(common_dialog.msg.bar_percent / 100.f, PROGRESS_BAR_SIZE, dummy_buf);
         ImGui::PopStyleColor(2);
         std::string progress = std::to_string(static_cast<int>(common_dialog.msg.bar_percent)).append("%");
-        ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - ImGui::CalcTextSize(progress.c_str()).x / 2);
-        ImGui::Text("%s", progress.c_str());
+        TextCentered(progress.c_str());
     }
     ImGui::EndGroup();
     if (common_dialog.msg.btn_num != 0) {
@@ -238,7 +233,7 @@ void browse_save_data_dialog(GuiState &gui, EmuEnvState &emuenv, const uint32_t 
         const auto prev_save_data_slot = save_data_slot_list[std::max(list_index - 1, 0)];
         const auto next_save_data_slot = save_data_slot_list[std::min(list_index + 1, save_data_slot_list_size)];
         const auto is_save_exist = (current_selected_save_data_slot >= 0 && current_selected_save_data_slot < emuenv.common_dialog.savedata.slot_info.size() && emuenv.common_dialog.savedata.slot_info[current_selected_save_data_slot].isExist == 1);
-        
+
         const auto confirm = [&]() {
             switch (save_data_list_type_selected) {
             case CANCEL:
@@ -416,8 +411,7 @@ static void draw_savedata_dialog_list(GuiState &gui, EmuEnvState &emuenv, float 
     ImGui::SetWindowFontScale(1.2f * FONT_SCALE);
     ImGui::SetCursorPos(ImVec2(save_pos.x, save_pos.y + (is_save_exist ? 10.f * SCALE.y : (THUMBNAIL_SIZE.y / 2.f) - (ImGui::GetFontSize() / 2.f))));
     ImGui::BeginGroup();
-    if (!emuenv.common_dialog.savedata.title[loop_index].empty())
-        ImGui::Text("%s", emuenv.common_dialog.savedata.title[loop_index].c_str());
+    ImGui::Text("%s", emuenv.common_dialog.savedata.title[loop_index].c_str());
     ImGui::SetWindowFontScale(1.f * FONT_SCALE);
     const auto sys_date_format = (SceSystemParamDateFormat)emuenv.cfg.sys_date_format;
     switch (emuenv.common_dialog.savedata.list_style) {
@@ -518,25 +512,10 @@ static void draw_savedata_dialog(GuiState &gui, EmuEnvState &emuenv, float FONT_
         else {
             for (std::uint32_t i = 0; i < emuenv.common_dialog.savedata.slot_list_size; i++) {
                 ImGui::PushID(i);
-                switch (emuenv.common_dialog.savedata.display_type) {
-                case SCE_SAVEDATA_DIALOG_TYPE_SAVE:
-                    draw_savedata_dialog_list(gui, emuenv, FONT_SCALE, SCALE, WINDOW_SIZE, THUMBNAIL_SIZE, i, i);
+                if (!emuenv.common_dialog.savedata.title[i].empty()) {
+                    draw_savedata_dialog_list(gui, emuenv, FONT_SCALE, SCALE, WINDOW_SIZE, THUMBNAIL_SIZE, i, existing_saves_count);
+                    existing_saves_count++;
                     save_data_slot_list.push_back(i);
-                    break;
-                case SCE_SAVEDATA_DIALOG_TYPE_LOAD:
-                    if (!emuenv.common_dialog.savedata.title[i].empty()) {
-                        draw_savedata_dialog_list(gui, emuenv, FONT_SCALE, SCALE, WINDOW_SIZE, THUMBNAIL_SIZE, i, existing_saves_count);
-                        existing_saves_count++;
-                        save_data_slot_list.push_back(i);
-                    }
-                    break;
-                case SCE_SAVEDATA_DIALOG_TYPE_DELETE:
-                    if (emuenv.common_dialog.savedata.slot_info[i].isExist == 1) {
-                        draw_savedata_dialog_list(gui, emuenv, FONT_SCALE, SCALE, WINDOW_SIZE, THUMBNAIL_SIZE, i, existing_saves_count);
-                        existing_saves_count++;
-                        save_data_slot_list.push_back(i);
-                    }
-                    break;
                 }
                 ImGui::PopID();
             }
@@ -545,18 +524,13 @@ static void draw_savedata_dialog(GuiState &gui, EmuEnvState &emuenv, float FONT_
             if (!save_data_slot_list_visible.empty())
                 first_visible_save_data_slot = save_data_slot_list_visible.front();
 
-            if (emuenv.common_dialog.savedata.display_type != SCE_SAVEDATA_DIALOG_TYPE_SAVE) {
-                if (existing_saves_count == 0) {
-                    save_data_list_type_selected = CANCEL;
-                    ImGui::SetWindowFontScale(1.56f * FONT_SCALE);
-                    const auto no_save_data = emuenv.common_dialog.lang.save_data.load["no_saved_data"].c_str();
-                    const auto TEXT_SIZE = ImGui::CalcTextSize(no_save_data);
-                    ImGui::SetCursorPos(ImVec2((WINDOW_SIZE.x / 2.f) - (TEXT_SIZE.x / 2.f), 150.f * SCALE.y));
-                    ImGui::Text("%s", no_save_data);
-                }
+            if (existing_saves_count == 0) {
+                save_data_list_type_selected = CANCEL;
+                ImGui::SetWindowFontScale(1.56f * FONT_SCALE);
+                ImGui::SetCursorPosY(150.f * SCALE.y);
+                TextCentered(emuenv.common_dialog.lang.save_data.load["no_saved_data"].c_str());
             }
         }
-        ImGui::ScrollWhenDragging();
         ImGui::EndChild();
         break;
     }
@@ -600,11 +574,8 @@ static void draw_savedata_dialog(GuiState &gui, EmuEnvState &emuenv, float FONT_
         ImGui::SetCursorPosY(ICON_POS.y + THUMBNAIL_SIZE.y + (10.f * SCALE.y));
         ImGui::Separator();
         ImGui::SetWindowFontScale(1.25f * FONT_SCALE);
-        ImGui::PushTextWrapPos(WINDOW_SIZE.x - 50.f * SCALE.x);
-        const auto MSG_SIZE = ImGui::CalcTextSize(emuenv.common_dialog.savedata.msg.c_str(), 0, false, WINDOW_SIZE.x - 100.f);
-        ImGui::SetCursorPos(ImVec2(HALF_WINDOW_SIZE.x - (MSG_SIZE.x / 2), (WINDOW_SIZE.y / 2.f) + (20.f * SCALE.y)));
-        ImGui::Text("%s", emuenv.common_dialog.savedata.msg.c_str());
-        ImGui::PopTextWrapPos();
+        ImGui::SetCursorPosY((WINDOW_SIZE.y / 2.f) + (20.f * SCALE.y));
+        TextCentered(emuenv.common_dialog.savedata.msg.c_str(), 50.f * SCALE.x);
         if (emuenv.common_dialog.savedata.has_progress_bar) {
             ImGui::Spacing();
             const ImVec2 PROGRESS_BAR_SIZE = ImVec2(570.f * SCALE.x, 12.f * SCALE.y);
@@ -616,8 +587,7 @@ static void draw_savedata_dialog(GuiState &gui, EmuEnvState &emuenv, float FONT_
             ImGui::PopStyleColor(2);
             ImGui::PopStyleVar();
             const std::string progress = std::to_string(static_cast<int>(emuenv.common_dialog.savedata.bar_percent)).append("%");
-            ImGui::SetCursorPosX(HALF_WINDOW_SIZE.x - (ImGui::CalcTextSize(progress.c_str()).x / 2.f));
-            ImGui::Text("%s", progress.c_str());
+            TextCentered(progress.c_str());
         }
 
         if (emuenv.common_dialog.savedata.btn_num != 0) {
@@ -645,7 +615,6 @@ static void draw_savedata_dialog(GuiState &gui, EmuEnvState &emuenv, float FONT_
             ImGui::PopStyleVar();
             ImGui::EndGroup();
         }
-        ImGui::ScrollWhenDragging();
         ImGui::EndChild();
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
