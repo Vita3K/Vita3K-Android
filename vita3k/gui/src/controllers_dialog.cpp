@@ -424,8 +424,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                         ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(gyro_sens_str).x / 2.f));
                         ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", gyro_sens_str);
                         auto &gyro_sensor = emuenv.cfg.controller_gyro_calibration;
-                        bool has_custom_gyro_cal = emuenv.cfg.calibrate_gyro;
-                        if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &has_custom_gyro_cal)) {
+                        if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &emuenv.cfg.calibrate_gyro)) {
                             config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
                             const std::vector<float> default_gyro = { 0, 0, 0 };
                             if (gyro_sensor.empty())
@@ -435,7 +434,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                             set_calib_gyro(default_gyro);
                         }
                         SetTooltipEx(lang["use_custom_gyro_cal_description"].c_str());
-                        if (has_custom_gyro_cal) {
+                        if (emuenv.cfg.calibrate_gyro) {
                             ImGui::Spacing();
                             if (ImGui::BeginTable("setPos", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
                                 ImGui::TableSetupColumn("X");
