@@ -54,10 +54,6 @@ int get_overlay_display_mask(const Config& cfg){
 
 #ifdef ANDROID
 void set_controller_overlay_state(int overlay_mask, bool edit, bool reset, bool portrait) {
-    SDL_JoystickUpdate(); // check if controller is connected / disconnected
-    if(SDL_NumJoysticks() > 1)
-        overlay_mask = 0; // hide overlay when controller connected
-    
     // retrieve the JNI environment.
     JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
 
