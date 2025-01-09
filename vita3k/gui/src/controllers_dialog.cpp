@@ -453,7 +453,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                     ImGui::PushID(l);
                                     ImGui::TableSetColumnIndex(l);
                                     ImGui::PushItemWidth(tab_size);
-                                    if (ImGui::SliderInt("##gyro_sensor", &gyro_sensor[l], -1, 1))
+                                    if (ImGui::SliderFloat("##gyro_sensor", &gyro_sensor[l], -1, 1))
                                         set_calib_gyro(gyro_sensor);
                                     ImGui::PopItemWidth();
                                     ImGui::PopID();
