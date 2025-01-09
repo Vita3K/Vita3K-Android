@@ -919,6 +919,32 @@ void SetTooltipEx(const char *tooltip) {
     }
 }
 
+void TextColoredCentered(const ImVec4 &col, const char *text) {
+    ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize(text).x) * 0.5f);
+    ImGui::TextColored(col, "%s", text);
+}
+
+void TextCentered(const char *text) {
+    ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize(text).x) * 0.5f);
+    ImGui::Text("%s", text);
+}
+
+void TextColoredCentered(const ImVec4 &col, const char *text, float wrap_width) {
+    const auto window_width = ImGui::GetWindowWidth();
+    ImGui::PushTextWrapPos(window_width - wrap_width);
+    ImGui::SetCursorPosX((window_width - ImGui::CalcTextSize(text, nullptr, false, window_width - 2.f * wrap_width).x) * 0.5f);
+    ImGui::TextColored(col, "%s", text);
+    ImGui::PopTextWrapPos();
+}
+
+void TextCentered(const char *text, float wrap_width) {
+    const auto window_width = ImGui::GetWindowWidth();
+    ImGui::PushTextWrapPos(window_width - wrap_width);
+    ImGui::SetCursorPosX((window_width - ImGui::CalcTextSize(text, nullptr, false, window_width - 2.f * wrap_width).x) * 0.5f);
+    ImGui::Text("%s", text);
+    ImGui::PopTextWrapPos();
+}
+
 } // namespace gui
 
 namespace ImGui {
