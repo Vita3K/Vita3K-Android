@@ -431,7 +431,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                 gyro_sensor = default_gyro;
                             else
                                 gyro_sensor.clear();
-                            set_calib_gyror(default_gyro);
+                            set_calib_gyro(default_gyro);
                         }
                         SetTooltipEx(lang["use_custom_gyro_cal_description"].c_str());
                         if (has_custom_gyro_cal) {
@@ -454,7 +454,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                     ImGui::TableSetColumnIndex(l);
                                     ImGui::PushItemWidth(tab_size);
                                     if (ImGui::SliderInt("##gyro_sensor", &gyro_sensor[l], -1, 1))
-                                        set_calib_gyror(gyro_sensor);
+                                        set_calib_gyro(gyro_sensor);
                                     ImGui::PopItemWidth();
                                     ImGui::PopID();
                                 }
