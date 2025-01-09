@@ -426,6 +426,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                         auto &gyro_sensor = emuenv.cfg.controller_gyro_calibration;
                         bool has_custom_gyro_cal = emuenv.cfg.calibrate_gyro;
                         if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &has_custom_gyro_cal)) {
+                            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
                             const std::vector<float> default_gyro = { 0, 0, 0 };
                             if (gyro_sensor.empty())
                                 gyro_sensor = default_gyro;
@@ -453,7 +454,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                     ImGui::PushID(l);
                                     ImGui::TableSetColumnIndex(l);
                                     ImGui::PushItemWidth(tab_size);
-                                    if (ImGui::SliderFloat("##gyro_sensor", &gyro_sensor[l], -1, 1))
+                                    if (ImGui::InputFloat("##gyro_sensor", &gyro_sensor[l], -1, 1))
                                         set_calib_gyro(gyro_sensor);
                                     ImGui::PopItemWidth();
                                     ImGui::PopID();
