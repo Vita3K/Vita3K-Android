@@ -615,6 +615,7 @@ static void draw_savedata_dialog(GuiState &gui, EmuEnvState &emuenv, float FONT_
             ImGui::PopStyleVar();
             ImGui::EndGroup();
         }
+        ImGui::ScrollWhenDragging();
         ImGui::EndChild();
         ImGui::PopStyleColor();
         ImGui::PopStyleVar();
