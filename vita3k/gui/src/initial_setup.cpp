@@ -80,6 +80,8 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
     const auto completed_setup = lang["completed_setup"].c_str();
 
     const auto is_default_path = emuenv.cfg.pref_path == emuenv.default_path;
+    const auto FW_PREINST_PATH{ emuenv.pref_path / "pd0" };
+    const auto FW_PREINST_INSTALLED = fs::exists(FW_PREINST_PATH) && !fs::is_empty(FW_PREINST_PATH);
     const auto FW_PATH{ emuenv.pref_path / "vs0" };
     const auto FW_INSTALLED = fs::exists(FW_PATH) && !fs::is_empty(FW_PATH);
     const auto FW_FONT_PATH{ emuenv.pref_path / "sa0" };
