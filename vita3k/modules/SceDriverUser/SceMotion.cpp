@@ -87,9 +87,9 @@ EXPORT(int, sceMotionGetSensorState, SceMotionSensorState *sensorState, int numR
         sensorState->accelerometer = get_acceleration(emuenv.motion);
         sensorState->gyro = get_gyroscope(emuenv.motion);
         if(emuenv.cfg.calibrate_gyro){
-           sensorState->gyro.x = emuenv.cfg.controller_gyro_calibration[0];
-           sensorState->gyro.y = emuenv.cfg.controller_gyro_calibration[1];
-           sensorState->gyro.z = emuenv.cfg.controller_gyro_calibration[2];
+           sensorState->gyro.x = sensorState->gyro.x + emuenv.cfg.controller_gyro_calibration[0];
+           sensorState->gyro.y = sensorState->gyro.y + emuenv.cfg.controller_gyro_calibration[1];
+           sensorState->gyro.z = sensorState->gyro.z + emuenv.cfg.controller_gyro_calibration[2];
         }
         if(emuenv.cfg.invert_gyro){
            sensorState->gyro.x = sensorState->gyro.x * -1;
