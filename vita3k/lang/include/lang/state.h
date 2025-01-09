@@ -268,6 +268,12 @@ struct LangState {
         { "red", "Red" },
         { "green", "Green" },
         { "blue", "Blue" },
+        { "gyro_sens", "Gyro Sensor Calibration" },
+        { "use_custom_gyro_cal", "Change gyroscope offset" },
+        { "use_custom_gyro_cal_description", "Check this box to change offset your gyroscope controller (if drifted)" },
+        { "gyro-x", "X position" },
+        { "gyro-y", "Y position" },
+        { "gyro-z", "Z position" },
         { "reset_controller_binding", "Reset Controller Binding" }
     };
     std::map<std::string, std::string> controls = {
