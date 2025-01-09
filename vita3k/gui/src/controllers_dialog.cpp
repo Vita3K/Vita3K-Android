@@ -425,7 +425,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                         ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", gyro_sens_str);
                         auto &gyro_sensor = emuenv.cfg.controller_gyro_calibration;
                         bool has_custom_gyro_cal = emuenv.cfg.calibrate_gyro;
-                        if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &calibrate-gyro)) {
+                        if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &has_custom_gyro_cal)) {
                             const std::vector<float> default_gyro = { 0, 0, 0 };
                             if (gyro_sensor.empty())
                                 gyro_sensor = default_gyro;
