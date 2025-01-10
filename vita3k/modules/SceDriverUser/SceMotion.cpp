@@ -86,7 +86,7 @@ EXPORT(int, sceMotionGetSensorState, SceMotionSensorState *sensorState, int numR
         std::lock_guard<std::mutex> guard(emuenv.motion.mutex);
         sensorState->accelerometer = get_acceleration(emuenv.motion);
         sensorState->gyro = get_gyroscope(emuenv.motion);
-        if(emuenv.cfg.calibrate_gyro && (emuenv.ctrl.controllers_num > 0)){
+        if(emuenv.cfg.calibrate_gyro && (emuenv.ctrl.has_led)){
            sensorState->gyro.x = sensorState->gyro.x + emuenv.cfg.controller_gyro_calibration[0];
            sensorState->gyro.y = sensorState->gyro.y + emuenv.cfg.controller_gyro_calibration[1];
            sensorState->gyro.z = sensorState->gyro.z + emuenv.cfg.controller_gyro_calibration[2];
@@ -136,7 +136,7 @@ EXPORT(int, sceMotionGetState, SceMotionState *motionState) {
 
         motionState->acceleration = get_acceleration(emuenv.motion);
         motionState->angularVelocity = get_gyroscope(emuenv.motion);
-        if(emuenv.cfg.calibrate_gyro && (emuenv.ctrl.controllers_num > 0)){
+        if(emuenv.cfg.calibrate_gyro && (emuenv.ctrl.has_led)){
            motionState->angularVelocity.x = motionState->angularVelocity.x + emuenv.cfg.controller_gyro_calibration[0];
            motionState->angularVelocity.y = motionState->angularVelocity.y + emuenv.cfg.controller_gyro_calibration[1];
            motionState->angularVelocity.z = motionState->angularVelocity.z + emuenv.cfg.controller_gyro_calibration[2];
