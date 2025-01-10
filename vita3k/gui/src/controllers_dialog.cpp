@@ -434,32 +434,19 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                             set_calib_gyro(default_gyro);
                         }
                         SetTooltipEx(lang["use_custom_gyro_cal_description"].c_str());
+                        static std::vector<float> gyro_set;
+                        if (gyro_set.empty())
+                                gyro_set = { 0, 0, 0 };
                         if (emuenv.cfg.calibrate_gyro) {
                             ImGui::Spacing();
-                            if (ImGui::BeginTable("setPos", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
-                                ImGui::TableSetupColumn("X");
-                                ImGui::TableSetupColumn("Y");
-                                ImGui::TableSetupColumn("Z");
-                                ImGui::TableNextRow();
-                                ImGui::TableSetColumnIndex(0);
-                                ImGui::Text("%s", lang["gyro-x"].c_str());
-                                ImGui::TableSetColumnIndex(1);
-                                ImGui::Text("%s", lang["gyro-y"].c_str());
-                                ImGui::TableSetColumnIndex(2);
-                                ImGui::Text("%s", lang["gyro-z"].c_str());
-                                ImGui::TableNextRow();
-                                const auto tab_size = (ImGui::GetWindowWidth() / 3.f) - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().FramePadding.x;
-                                for (auto l = 0; l < gyro_sensor.size(); l++) {
-                                    ImGui::PushID(l);
-                                    ImGui::TableSetColumnIndex(l);
-                                    ImGui::PushItemWidth(tab_size);
-                                    if (ImGui::SliderFloat("##gyro_sensor", &gyro_sensor[l], -1, 1))
-                                        set_calib_gyro(gyro_sensor);
-                                    ImGui::PopItemWidth();
-                                    ImGui::PopID();
-                                }
-                                ImGui::EndTable();
-                            }
+                            ImGui::InputFloat(lang["gyro-x"].c_str(), gyro_set[0], -1, 1);
+                            ImGui::Spacing();
+                            ImGui::InputFloat(lang["gyro-x"].c_str(), gyro_set[1], -1, 1);
+                            ImGui::Spacing();
+                            ImGui::InputFloat(lang["gyro-x"].c_str(), gyro_set[2], -1, 1);
+                            ImGui::Spacing();
+                            if (ImGui::Button(common["apply"].c_str(), BUTTON_SIZE))
+                               set_calib_gyro(gyro_set);
                         }
                     }
                     ImGui::Spacing();
