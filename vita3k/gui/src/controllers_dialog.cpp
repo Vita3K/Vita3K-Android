@@ -439,11 +439,11 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                 gyro_set = { 0, 0, 0 };
                         if (emuenv.cfg.calibrate_gyro) {
                             ImGui::Spacing();
-                            ImGui::InputFloat(lang["gyro-x"].c_str(), gyro_set[0], -1, 1);
+                            ImGui::InputFloat(lang["gyro-x"].c_str(), &gyro_set[0], -1, 1, "%.3f");
                             ImGui::Spacing();
-                            ImGui::InputFloat(lang["gyro-x"].c_str(), gyro_set[1], -1, 1);
+                            ImGui::InputFloat(lang["gyro-x"].c_str(), &gyro_set[1], -1, 1, "%.3f");
                             ImGui::Spacing();
-                            ImGui::InputFloat(lang["gyro-x"].c_str(), gyro_set[2], -1, 1);
+                            ImGui::InputFloat(lang["gyro-x"].c_str(), &gyro_set[2], -1, 1, "%.3f");
                             ImGui::Spacing();
                             if (ImGui::Button(common["apply"].c_str(), BUTTON_SIZE)){
                                gyro_sensor = gyro_set;
