@@ -78,13 +78,11 @@ public class Emulator extends SDLActivity
         return mSurface;
     }
 
-    /*
     @Override
     protected void setupLayout(ViewGroup layout){
         super.setupLayout(layout);
         layout.addView(getmOverlay());
     }
-    */
     
     private final String APP_RESTART_PARAMETERS = "AppStartParameters";
 
