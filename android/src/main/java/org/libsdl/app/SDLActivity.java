@@ -274,6 +274,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         };
     }
 
+    protected void setupLayout(ViewGroup layout){
+        layout.addView(mSurface);
+    }
+        
     // Load the .so
     public void loadLibraries() {
        for (String lib : getLibraries()) {
