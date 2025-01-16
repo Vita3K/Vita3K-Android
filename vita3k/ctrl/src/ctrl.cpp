@@ -100,10 +100,8 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
     bool found_accel = false;
     for (ControllerList::iterator controller = state.controllers.begin(); controller != state.controllers.end();) {
             if (SDL_GameControllerGetAttached(controller->second.controller.get())) {
-               // if(emuenv.cfg.tiltsens){
                    found_accel |= controller->second.has_accel;
                    found_gyro |= controller->second.has_gyro;
-               // }
                 ++controller;
             } else {
                 state.free_ports[controller->second.port] = true;
@@ -129,10 +127,14 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
                 continue;
 
-            if(SDL_JoystickIsVirtual(joystick_index))
+            LOG_WARN("GET JOYSTICK INDEX: {}", joystick_index);
+            if(SDL_JoystickIsVirtual(joystick_index)){
                 state.is_virtual_joystick = true;
-            else
+                LOG_WARN("is_virtual_joystick = TRUE!");
+            }else{
                 state.is_virtual_joystick = false;
+                LOG_WARN("is_virtual_joystick = FALSE!");
+            }
 #endif
             if (!state.controllers.contains(guid)) {
                 Controller new_controller;
@@ -146,8 +148,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                     return;
                 }
                 SDL_GameControllerSetPlayerIndex(controller.get(), new_controller.port);
-
-               // if(emuenv.cfg.tiltsens){
+                
                 new_controller.has_accel = SDL_GameControllerHasSensor(controller.get(), SDL_SENSOR_ACCEL);
                 new_controller.has_gyro = SDL_GameControllerHasSensor(controller.get(), SDL_SENSOR_GYRO);
 
