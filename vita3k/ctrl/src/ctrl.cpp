@@ -127,7 +127,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
                 continue;
 
-            LOG_WARN("GET JOYSTICK INDEX: {}", joystick_index);
+/*            LOG_WARN("GET JOYSTICK INDEX: {}", joystick_index);
             if(SDL_JoystickIsVirtual(joystick_index)){
                 state.is_virtual_joystick = true;
                 LOG_WARN("is_virtual_joystick = TRUE!");
@@ -135,6 +135,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 state.is_virtual_joystick = false;
                 LOG_WARN("is_virtual_joystick = FALSE!");
             }
+*/
 #endif
             if (!state.controllers.contains(guid)) {
                 Controller new_controller;
