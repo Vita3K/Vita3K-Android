@@ -130,7 +130,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 continue;
 
             if(SDL_JoystickIsVirtual(joystick_index))
-                is_virtual_joystick = true;
+                state.is_virtual_joystick = true;
 #endif
             if (!state.controllers.contains(guid)) {
                 Controller new_controller;
