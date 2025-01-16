@@ -128,7 +128,10 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 continue;
             
             if(joystick_index > 0){
-                gui::set_controller_overlay_state(0);
+                if (virtual_joystick_id == 1) {
+                    SDL_JoystickClose(virtual_joystick);
+                    SDL_JoystickDetachVirtual(virtual_joystick_id);
+                }
                 state.is_virtual_joystick = false;
             }else{
                 state.is_virtual_joystick = true;
