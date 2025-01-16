@@ -58,6 +58,7 @@ struct CtrlState {
     std::mutex mutex;
     ControllerList controllers;
     int controllers_num = 0;
+    boil is_virtual_joystick = false;
     bool has_motion_support = false;
     bool free_ports[SCE_CTRL_MAX_WIRELESS_NUM] = { true, true, true, true };
     SceCtrlPadInputMode input_mode = SCE_CTRL_MODE_DIGITAL;
