@@ -127,8 +127,9 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
                 continue;
 
+            int tmp = static_cast<int>(guid);
             LOG_CRITICAL("ctrl -> refresh_controllers -> joystick_index = {}", joystick_index);
-            LOG_CRITICAL("ctrl -> refresh_controllers -> guid = {}", guid.c_str());
+            LOG_CRITICAL("ctrl -> refresh_controllers -> guid = {}", tmp);
             LOG_CRITICAL("ctrl -> refresh_controllers -> controller_name = {}", std::string_view(controller_name));
 #endif
 
