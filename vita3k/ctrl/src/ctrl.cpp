@@ -127,7 +127,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
                 continue;
             
-            if(joystick_index > 0){
+            if(!SDL_JoystickIsVirtual(joystick_index)){
                 if (virtual_joystick_id == -1) {
 
                 }else{
