@@ -530,7 +530,7 @@ int main(int argc, char *argv[]) {
     SDL_SetWindowTitle(emuenv.window.get(), fmt::format("{} | {} ({}) | Please wait, loading...", window_title, emuenv.current_app_title, emuenv.io.title_id).c_str());
 
     
-    if (emuenv.cfg.enable_gamepad_overlay && emuenv.ctrl.is_virtual_joystick)
+    if (emuenv.cfg.enable_gamepad_overlay && emuenv.ctrl->is_virtual_joystick)
         gui::set_controller_overlay_state(gui::get_overlay_display_mask(emuenv.cfg));
 
     while (handle_events(emuenv, gui) && (emuenv.frame_count == 0) && !emuenv.load_exec) {
