@@ -184,7 +184,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 if(SDL_JoystickIsVirtual(joystick_index)){
                     virtual_controller = true;
                 }else{
-                    svirtual_controller = false;
+                    virtual_controller = false;
                 }
 #endif
                 
