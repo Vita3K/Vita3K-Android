@@ -98,6 +98,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
     // Remove disconnected controllers
     bool found_gyro = false;
     bool found_accel = false;
+    bool virtual_controller = false;
     for (ControllerList::iterator controller = state.controllers.begin(); controller != state.controllers.end();) {
             if (SDL_GameControllerGetAttached(controller->second.controller.get())) {
                    found_accel |= controller->second.has_accel;
@@ -178,17 +179,20 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 
                 state.controllers.emplace(guid, new_controller);
                 state.controllers_num++;
+
+#ifdef ANDROID
+                if(SDL_JoystickIsVirtual(joystick_index)){
+                    virtual_controller = true;
+                }else{
+                    svirtual_controller = false;
+                }
+#endif
+                
             }
         }
     }
 
-#ifdef ANDROID
-    if(SDL_JoystickIsVirtual(joystick_index)){
-        state.is_virtual_joystick = true;
-    }else{
-        state.is_virtual_joystick = false;
-    }
-#endif
+    state.is_virtual_joystick = virtual_controller;
     
     state.has_motion_support = found_gyro && found_accel;
 }
