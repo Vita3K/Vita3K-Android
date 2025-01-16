@@ -372,15 +372,9 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                         auto &gyro_sensor = emuenv.cfg.controller_gyro_calibration;
                         if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &emuenv.cfg.calibrate_gyro)) {
                             config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
-                            const std::vector<float> default_gyro = { 0, 0, 0 };
-                            if (gyro_sensor.empty())
-                                gyro_sensor = default_gyro;
-                            else
-                                gyro_sensor.clear();
-                            set_calib_gyro(default_gyro);
                         }
                         SetTooltipEx(lang["use_custom_gyro_cal_description"].c_str());
-                        static std::vector<float> gyro_set;
+                        static std::vector<float> gyro_set = gyro_sensor;
                         if (gyro_set.empty())
                                 gyro_set = { 0, 0, 0 };
                         if (emuenv.cfg.calibrate_gyro) {
