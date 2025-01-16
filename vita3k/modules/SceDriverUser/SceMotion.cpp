@@ -86,6 +86,10 @@ EXPORT(int, sceMotionGetSensorState, SceMotionSensorState *sensorState, int numR
         std::lock_guard<std::mutex> guard(emuenv.motion.mutex);
         sensorState->accelerometer = get_acceleration(emuenv.motion);
         sensorState->gyro = get_gyroscope(emuenv.motion);
+
+        LOG_WARN("CTRL JOYSTICK INDEX: {}", emuenv.ctrl.controllers_num);
+        LOG_WARN("CTRL is_virtual_joystick = {}", emuenv.ctrl.is_virtual_joystick);
+        
         if(emuenv.cfg.calibrate_gyro && !emuenv.ctrl.is_virtual_joystick){
            sensorState->gyro.x = sensorState->gyro.x + emuenv.cfg.controller_gyro_calibration[0];
            sensorState->gyro.y = sensorState->gyro.y + emuenv.cfg.controller_gyro_calibration[1];
