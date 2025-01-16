@@ -58,10 +58,8 @@ import java.util.Locale;
     SDL Activity
 */
 public class SDLActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
-
     private static final String TAG = "SDL";
-    
-    /*
+/*
     private static final int SDL_MAJOR_VERSION = 2;
     private static final int SDL_MINOR_VERSION = 31;
     private static final int SDL_MICRO_VERSION = 0;
@@ -92,7 +90,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 | InputDevice.SOURCE_CLASS_POSITION
                 | InputDevice.SOURCE_CLASS_TRACKBALL);
 
-        if (s2 != 0) cls += "Some_Unknown";
+        if (s2 != 0) cls += "Some_Unkown";
 
         s2 = s_copy & InputDevice.SOURCE_ANY; // keep source only, no class;
 
@@ -166,14 +164,14 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (s == FLAG_TAINTED) src += " FLAG_TAINTED";
         s2 &= ~FLAG_TAINTED;
 
-        if (s2 != 0) src += " Some_Unknown";
+        if (s2 != 0) src += " Some_Unkown";
 
         Log.v(TAG, prefix + "int=" + s_copy + " CLASS={" + cls + " } source(s):" + src);
     }
 */
 
     public static boolean mIsResumedCalled, mHasFocus;
-
+   
     // Cursor types
     // private static final int SDL_SYSTEM_CURSOR_NONE = -1;
     private static final int SDL_SYSTEM_CURSOR_ARROW = 0;
@@ -277,7 +275,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     protected void setupLayout(ViewGroup layout){
         layout.addView(mSurface);
     }
-        
+
     // Load the .so
     public void loadLibraries() {
        for (String lib : getLibraries()) {
@@ -319,10 +317,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
     // Setup
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    /*    Log.v(TAG, "Device: " + Build.DEVICE);
+        Log.v(TAG, "Device: " + Build.DEVICE);
         Log.v(TAG, "Model: " + Build.MODEL);
         Log.v(TAG, "onCreate()");
-    */
         super.onCreate(savedInstanceState);
 
         try {
@@ -330,6 +327,8 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         } catch (Exception e) {
             Log.v(TAG, "modify thread properties failed " + e.toString());
         }
+
+        SDL.setContext(this);
 
         // Load shared libraries
         String errorMsgBrokenLib = "";
@@ -347,6 +346,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         }
 
         /*
+        * disable detect wrong version SDL since i need test and update frequenly
         if (!mBrokenLibraries) {
             String expected_version = String.valueOf(SDL_MAJOR_VERSION) + "." +
                                       String.valueOf(SDL_MINOR_VERSION) + "." +
@@ -355,10 +355,10 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             if (!version.equals(expected_version)) {
                 mBrokenLibraries = true;
                 errorMsgBrokenLib = "SDL C/Java version mismatch (expected " + expected_version + ", got " + version + ")";
-            }
+            } 
         }
-        */
-        
+        */ 
+
         if (mBrokenLibraries) {
             mSingleton = this;
             AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
@@ -399,7 +399,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         mSurface = createSDLSurface(this);
 
         mLayout = new RelativeLayout(this);
-        mLayout.addView(mSurface);
+        setupLayout(mLayout);
 
         // Get our current screen orientation and pass it down.
         mCurrentOrientation = SDLActivity.getCurrentOrientation();
@@ -753,30 +753,31 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 }
                 break;
             case COMMAND_CHANGE_WINDOW_STYLE:
-                    if (context instanceof Activity) {
-                        Window window = ((Activity) context).getWindow();
-                        if (window != null) {
-                            if ((msg.obj instanceof Integer) && ((Integer) msg.obj != 0)) {
-                                int flags = View.SYSTEM_UI_FLAG_FULLSCREEN |
-                                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
-                                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
-                                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-                                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.INVISIBLE;
-                                window.getDecorView().setSystemUiVisibility(flags);
-                                window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                                window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-                                SDLActivity.mFullscreenModeActive = true;
-                            } else {
-                                int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_VISIBLE;
-                                window.getDecorView().setSystemUiVisibility(flags);
-                                window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-                                window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                                SDLActivity.mFullscreenModeActive = false;
-                            }
-                            window.getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                if (context instanceof Activity) {
+                    Window window = ((Activity) context).getWindow();
+                    if (window != null) {
+                        if ((msg.obj instanceof Integer) && ((Integer) msg.obj != 0)) {
+                            int flags = View.SYSTEM_UI_FLAG_FULLSCREEN |
+                                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION |
+                                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+                                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+                                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+                                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.INVISIBLE;
+                            window.getDecorView().setSystemUiVisibility(flags);
+                            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                            SDLActivity.mFullscreenModeActive = true;
+                        } else {
+                            int flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_VISIBLE;
+                            window.getDecorView().setSystemUiVisibility(flags);
+                            window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                            SDLActivity.mFullscreenModeActive = false;
                         }
-                }
+                    }
+                    } else {
+                        Log.e(TAG, "error handling message, getContext() returned no Activity");
+                    }
                 break;
             case COMMAND_TEXTEDIT_HIDE:
                 if (mTextEdit != null) {
@@ -824,7 +825,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         msg.arg1 = command;
         msg.obj = data;
         boolean result = commandHandler.sendMessage(msg);
-
+        
         if (command == COMMAND_CHANGE_WINDOW_STYLE) {
             // Ensure we don't return until the resize has actually happened,
             // or 500ms have passed.
@@ -874,7 +875,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                 }
             }
         }
-        
 
         return result;
     }
@@ -1026,23 +1026,18 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static boolean shouldMinimizeOnFocusLoss() {
-/*
-        if (Build.VERSION.SDK_INT >= 24) {
-            if (mSingleton == null) {
-                return true;
-            }
-
-            if (mSingleton.isInMultiWindowMode()) {
-                return false;
-            }
-
-            if (mSingleton.isInPictureInPictureMode()) {
-                return false;
-            }
+        if (mSingleton == null) {
+            return true;
         }
 
-        return true;
-*/
+        if (mSingleton.isInMultiWindowMode()) {
+            return false;
+        }
+
+        if (mSingleton.isInPictureInPictureMode()) {
+            return false;
+        }
+
         return false;
     }
 
@@ -1069,14 +1064,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean supportsRelativeMouse()
     {
-        // DeX mode in Samsung Experience 9.0 and earlier doesn't support relative mice properly under
-        // Android 7 APIs, and simply returns no data under Android 8 APIs.
-        //
-        // This is fixed in Samsung Experience 9.5, which corresponds to Android 8.1.0, and
-        // thus SDK version 27.  If we are in DeX mode and not API 27 or higher, as a result,
-        // we should stick to relative mode.
-        //
-
         return SDLActivity.getMotionListener().supportsRelativeMouse();
     }
 
@@ -1085,6 +1072,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     public static boolean setRelativeMouseEnabled(boolean enabled)
     {
+        if (enabled && !supportsRelativeMouse()) {
+            return false;
+        }
 
         return SDLActivity.getMotionListener().setRelativeMouseEnabled(enabled);
     }
@@ -1356,6 +1346,15 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (SDLActivity.mSurface == null) {
             return null;
         }
+        
+        Surface targetSurface = SDLActivity.mSurface.getNativeSurface();
+        // https://github.com/android/games-samples/blob/f78c6fcfb175d92ca1450daf2640c97d02ed0f9f/unity/power_efficiency_demo/Assets/Plugins/Android/VkQualityTestActivity.java
+        // https://developer.android.com/media/optimize/performance/frame-rate
+        if (Build.VERSION.SDK_INT >= 30) {
+            targetSurface.setFrameRate(60, Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE, Surface.CHANGE_FRAME_RATE_ALWAYS); // force 60fps
+            return targetSurface;
+        }
+        
         return SDLActivity.mSurface.getNativeSurface();
     }
 
@@ -1665,7 +1664,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static boolean setCustomCursor(int cursorID) {
-
         try {
             mSurface.setPointerIcon(mCursors.get(cursorID));
         } catch (Exception e) {
@@ -1729,7 +1727,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      * This method is called by SDL using JNI.
      */
     public static void requestPermission(String permission, int requestCode) {
-
         Activity activity = (Activity)getContext();
         if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             activity.requestPermissions(new String[]{permission}, requestCode);
