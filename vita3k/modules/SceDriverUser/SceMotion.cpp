@@ -21,6 +21,9 @@
 #include <motion/functions.h>
 #include <motion/motion.h>
 
+#include <util/log.h>
+#include <util/string_utils.h>
+
 #include <util/tracy.h>
 TRACY_MODULE_NAME(SceMotion);
 
@@ -90,7 +93,7 @@ EXPORT(int, sceMotionGetSensorState, SceMotionSensorState *sensorState, int numR
         LOG_WARN("CTRL JOYSTICK INDEX: {}", emuenv.ctrl.controllers_num);
         LOG_WARN("CTRL is_virtual_joystick = {}", emuenv.ctrl.is_virtual_joystick);
         
-        if(emuenv.cfg.calibrate_gyro && !emuenv.ctrl.is_virtual_joystick){
+        if(emuenv.cfg.calibrate_gyro && (emuenv.ctrl.controllers_num != 0 && !emuenv.ctrl.is_virtual_joystick)){
            sensorState->gyro.x = sensorState->gyro.x + emuenv.cfg.controller_gyro_calibration[0];
            sensorState->gyro.y = sensorState->gyro.y + emuenv.cfg.controller_gyro_calibration[1];
            sensorState->gyro.z = sensorState->gyro.z + emuenv.cfg.controller_gyro_calibration[2];
@@ -140,7 +143,7 @@ EXPORT(int, sceMotionGetState, SceMotionState *motionState) {
 
         motionState->acceleration = get_acceleration(emuenv.motion);
         motionState->angularVelocity = get_gyroscope(emuenv.motion);
-        if(emuenv.cfg.calibrate_gyro && !emuenv.ctrl.is_virtual_joystick){
+        if(emuenv.cfg.calibrate_gyro && (emuenv.ctrl.controllers_num != 0 && !emuenv.ctrl.is_virtual_joystick)){
            motionState->angularVelocity.x = motionState->angularVelocity.x + emuenv.cfg.controller_gyro_calibration[0];
            motionState->angularVelocity.y = motionState->angularVelocity.y + emuenv.cfg.controller_gyro_calibration[1];
            motionState->angularVelocity.z = motionState->angularVelocity.z + emuenv.cfg.controller_gyro_calibration[2];
