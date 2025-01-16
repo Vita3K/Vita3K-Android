@@ -358,6 +358,48 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                         }
                         ImGui::EndTable();
                     }
+                    
+                    if (ctrl.controllers[guid].has_gyro) {
+                        const auto set_calib_gyro = [&](const std::vector<float> &gyro_sens) {
+                            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+                        };
+                        ImGui::Spacing();
+                        ImGui::Separator();
+                        ImGui::Spacing();
+                        const auto gyro_sens_str = lang["gyro_sens"].c_str();
+                        ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(gyro_sens_str).x / 2.f));
+                        ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", gyro_sens_str);
+                        auto &gyro_sensor = emuenv.cfg.controller_gyro_calibration;
+                        if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &emuenv.cfg.calibrate_gyro)) {
+                            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+                            const std::vector<float> default_gyro = { 0, 0, 0 };
+                            if (gyro_sensor.empty())
+                                gyro_sensor = default_gyro;
+                            else
+                                gyro_sensor.clear();
+                            set_calib_gyro(default_gyro);
+                        }
+                        SetTooltipEx(lang["use_custom_gyro_cal_description"].c_str());
+                        static std::vector<float> gyro_set;
+                        if (gyro_set.empty())
+                                gyro_set = { 0, 0, 0 };
+                        if (emuenv.cfg.calibrate_gyro) {
+                            ImGui::Spacing();
+                            ImGui::InputFloat(lang["gyro-x"].c_str(), &gyro_set[0], -1, 1, "%.3f");
+                            ImGui::Spacing();
+                            ImGui::InputFloat(lang["gyro-y"].c_str(), &gyro_set[1], -1, 1, "%.3f");
+                            ImGui::Spacing();
+                            ImGui::InputFloat(lang["gyro-z"].c_str(), &gyro_set[2], -1, 1, "%.3f");
+                            ImGui::Spacing();
+                            if (ImGui::Button(common["save"].c_str(), BUTTON_SIZE)){
+                               gyro_sensor = gyro_set;
+                               set_calib_gyro(gyro_sensor);
+                            }
+                        }
+                    }
+                    ImGui::Spacing();
+                    ImGui::Separator();
+                    ImGui::Spacing();
 
                     if (ctrl.controllers[guid].has_led) {
                         const auto set_led_color = [&](const std::vector<int> &led) {
@@ -406,48 +448,6 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                     ImGui::PopID();
                                 }
                                 ImGui::EndTable();
-                            }
-                        }
-                    }
-                    ImGui::Spacing();
-                    ImGui::Separator();
-                    ImGui::Spacing();
-
-                    if (ctrl.controllers[guid].has_gyro) {
-                        const auto set_calib_gyro = [&](const std::vector<float> &gyro_sens) {
-                            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
-                        };
-                        ImGui::Spacing();
-                        ImGui::Separator();
-                        ImGui::Spacing();
-                        const auto gyro_sens_str = lang["gyro_sens"].c_str();
-                        ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(gyro_sens_str).x / 2.f));
-                        ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", gyro_sens_str);
-                        auto &gyro_sensor = emuenv.cfg.controller_gyro_calibration;
-                        if (ImGui::Checkbox(lang["use_custom_gyro_cal"].c_str(), &emuenv.cfg.calibrate_gyro)) {
-                            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
-                            const std::vector<float> default_gyro = { 0, 0, 0 };
-                            if (gyro_sensor.empty())
-                                gyro_sensor = default_gyro;
-                            else
-                                gyro_sensor.clear();
-                            set_calib_gyro(default_gyro);
-                        }
-                        SetTooltipEx(lang["use_custom_gyro_cal_description"].c_str());
-                        static std::vector<float> gyro_set;
-                        if (gyro_set.empty())
-                                gyro_set = { 0, 0, 0 };
-                        if (emuenv.cfg.calibrate_gyro) {
-                            ImGui::Spacing();
-                            ImGui::InputFloat(lang["gyro-x"].c_str(), &gyro_set[0], -1, 1, "%.3f");
-                            ImGui::Spacing();
-                            ImGui::InputFloat(lang["gyro-y"].c_str(), &gyro_set[1], -1, 1, "%.3f");
-                            ImGui::Spacing();
-                            ImGui::InputFloat(lang["gyro-z"].c_str(), &gyro_set[2], -1, 1, "%.3f");
-                            ImGui::Spacing();
-                            if (ImGui::Button(common["save"].c_str(), BUTTON_SIZE)){
-                               gyro_sensor = gyro_set;
-                               set_calib_gyro(gyro_sensor);
                             }
                         }
                     }
