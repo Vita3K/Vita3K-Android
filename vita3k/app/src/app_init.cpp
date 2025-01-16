@@ -604,7 +604,7 @@ void switch_state(EmuEnvState &emuenv, const bool pause) {
     else {
 #ifdef ANDROID
         emuenv.display.imgui_render = false;
-        if (emuenv.cfg.enable_gamepad_overlay)
+        if (emuenv.cfg.enable_gamepad_overlay && emuenv.ctrl.is_virtual_joystick)
             gui::set_controller_overlay_state(gui::get_overlay_display_mask(emuenv.cfg));
 #endif
 
