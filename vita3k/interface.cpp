@@ -591,12 +591,7 @@ static void take_screenshot(EmuEnvState &emuenv) {
 }
 
 bool handle_events(EmuEnvState &emuenv, GuiState &gui) {
-    refresh_controllers(emuenv.ctrl, emuenv);
-
-    LOG_CRITICAL("refresh_controllers -> joystick_number = {}", emuenv.ctrl.controllers_num);
-    LOG_CRITICAL("refresh_controllers -> is_virtual_joystick = {}", emuenv.ctrl.is_virtual_joystick);
-    LOG_CRITICAL("refresh_controllers -> joystick_has_motion = {}", emuenv.ctrl.has_motion_support);
-    
+    refresh_controllers(emuenv.ctrl, emuenv);    
 
     const auto allow_switch_state = !emuenv.io.title_id.empty() && !gui.vita_area.app_close && !gui.vita_area.home_screen && !gui.vita_area.user_management && !gui.configuration_menu.custom_settings_dialog && !gui.configuration_menu.settings_dialog && !gui.controls_menu.controls_dialog && gui::get_sys_apps_state(gui);
 
