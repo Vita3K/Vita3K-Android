@@ -127,8 +127,12 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
                 continue;
             
-            if(joystick_index > 0)
+            if(joystick_index > 0){
                 gui::set_controller_overlay_state(0);
+                state.is_virtual_joystick = false;
+            }else{
+                state.is_virtual_joystick = true;
+            }
 #endif
 
             if (!state.controllers.contains(guid)) {
