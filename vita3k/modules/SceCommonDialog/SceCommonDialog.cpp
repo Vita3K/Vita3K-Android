@@ -824,7 +824,7 @@ static void check_save_file(const uint32_t index, EmuEnvState &emuenv, const cha
     if (fd < 0) {
         auto empty_param = emuenv.common_dialog.savedata.list_empty_param[index];
         if (empty_param) {
-            emuenv.common_dialog.savedata.title[index] = empty_param->title.get(emuenv.mem) ? empty_param->title.get(emuenv.mem) : emuenv.common_dialog.lang.save_data.save["new_saved_data"];
+            emuenv.common_dialog.savedata.title[index] = empty_param->title ? empty_param->title.get(emuenv.mem) : emuenv.common_dialog.lang.save_data.save["new_saved_data"];
             const auto iconPath = empty_param->iconPath.get(emuenv.mem);
             SceUChar8 *iconBuf = empty_param->iconBuf.cast<SceUChar8>().get(emuenv.mem);
             const auto iconBufSize = empty_param->iconBufSize;
@@ -1106,15 +1106,14 @@ EXPORT(int, sceSaveDataDialogContinue, const Ptr<SceSaveDataDialogParam> param) 
     case SCE_SAVEDATA_DIALOG_MODE_LIST:
         emuenv.common_dialog.savedata.mode_to_display = SCE_SAVEDATA_DIALOG_MODE_LIST;
         list_param = p->listParam.get(emuenv.mem);
-        if (list_param->slotListSize > 0) {
+        if (list_param->slotListSize > 0)
             emuenv.common_dialog.savedata.slot_list_size = list_param->slotListSize;
-            slot_list.resize(emuenv.common_dialog.savedata.slot_list_size);
-            for (std::uint32_t i = 0; i < emuenv.common_dialog.savedata.slot_list_size; i++) {
-                slot_list[i] = list_param->slotList.get(emuenv.mem)[i];
-                emuenv.common_dialog.savedata.slot_id[i] = slot_list[i].id;
-                emuenv.common_dialog.savedata.list_empty_param[i] = slot_list[i].emptyParam.get(emuenv.mem);
-                check_save_file(i, emuenv, export_name);
-            }
+        slot_list.resize(list_param->slotListSize);
+        for (std::uint32_t i = 0; i < list_param->slotListSize; i++) {
+            slot_list[i] = list_param->slotList.get(emuenv.mem)[i];
+            emuenv.common_dialog.savedata.slot_id[i] = slot_list[i].id;
+            emuenv.common_dialog.savedata.list_empty_param[i] = slot_list[i].emptyParam.get(emuenv.mem);
+            check_save_file(i, emuenv, export_name);
         }
         break;
     }
