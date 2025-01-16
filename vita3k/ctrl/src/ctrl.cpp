@@ -128,7 +128,7 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 continue;
 
             LOG_CRITICAL("ctrl -> refresh_controllers -> joystick_index = {}", joystick_index);
-            LOG_CRITICAL("ctrl -> refresh_controllers -> guid = {}", guid);
+            LOG_CRITICAL("ctrl -> refresh_controllers -> guid = {}", guid.c_str());
             LOG_CRITICAL("ctrl -> refresh_controllers -> controller_name = {}", std::string_view(controller_name));
 #endif
 
