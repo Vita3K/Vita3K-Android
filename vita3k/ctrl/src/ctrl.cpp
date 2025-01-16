@@ -126,6 +126,8 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 || std::string_view(controller_name).starts_with("gf_")
                 || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
                 continue;
+
+            LOG_CRITICAL("ctrl -> refresh_controllers -> virtual_joystick_id = {}" , virtual_joystick_id);
 #endif
 
             if (!state.controllers.contains(guid)) {
