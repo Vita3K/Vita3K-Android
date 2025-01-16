@@ -34,6 +34,7 @@ struct DialogLangState {
         { "an_error_occurred", "An error occurred.\nError code: {}" },
         { "cancel", "Cancel" },
         { "close", "Close" },
+        { "save", "Save" },
         { "delete", "Delete" },
         { "file_corrupted", "The file is corrupt." },
         { "microphone_disabled", "Enable the microphone." },
