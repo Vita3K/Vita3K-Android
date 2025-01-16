@@ -455,9 +455,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (mHIDDeviceManager != null) {
             mHIDDeviceManager.setFrozen(true);
         }
-        if (!mHasMultiWindow) {
-            pauseNativeThread();
-        }
     }
 
     @Override
@@ -468,27 +465,20 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         if (mHIDDeviceManager != null) {
             mHIDDeviceManager.setFrozen(false);
         }
-        if (!mHasMultiWindow) {
-            resumeNativeThread();
-        }
     }
 
     @Override
     protected void onStop() {
         Log.v(TAG, "onStop()");
         super.onStop();
-        if (mHasMultiWindow) {
-            pauseNativeThread();
-        }
+        pauseNativeThread();
     }
 
     @Override
     protected void onStart() {
         Log.v(TAG, "onStart()");
         super.onStart();
-        if (mHasMultiWindow) {
-            resumeNativeThread();
-        }
+        resumeNativeThread();
     }
 
     public static int getCurrentOrientation() {
@@ -540,10 +530,6 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         } else {
            nativeFocusChanged(false);
-           if (!mHasMultiWindow) {
-               mNextNativeState = NativeState.PAUSED;
-               SDLActivity.handleNativeState();
-           }
         }
     }
 
