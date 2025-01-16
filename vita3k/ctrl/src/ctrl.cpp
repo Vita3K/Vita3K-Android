@@ -128,9 +128,13 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
                 continue;
             
             if(joystick_index > 0){
-                if (virtual_joystick_id == 1) {
+                if (virtual_joystick_id == -1) {
+
+                }else{
                     SDL_JoystickClose(virtual_joystick);
                     SDL_JoystickDetachVirtual(virtual_joystick_id);
+                    virtual_joystick = nullptr;
+                    virtual_joystick_id = -1;
                 }
                 state.is_virtual_joystick = false;
             }else{
