@@ -100,12 +100,12 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     }
 
     LOG_TRACE("get pkg size");
-    if (pkg_path < byte_swap(pkg_header.total_size)) {
+    if (pkg_size < byte_swap(pkg_header.total_size)) {
         LOG_ERROR("The pkg file is too small");
         return false;
     }
 
-    if (pkg_path < byte_swap(pkg_header.data_offset) + byte_swap(pkg_header.file_count) * 32) {
+    if (pkg_size < byte_swap(pkg_header.data_offset) + byte_swap(pkg_header.file_count) * 32) {
         LOG_ERROR("The pkg file is too small");
         return false;
     }
