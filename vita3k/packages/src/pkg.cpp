@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@
 
 #include <io/functions.h>
 
+#include <host/dialog/filesystem.h>
+
 #include <config/state.h>
 #include <emuenv/state.h>
 #include <packages/functions.h>
@@ -42,7 +44,7 @@
 // Credits to mmozeiko https://github.com/mmozeiko/pkg2zip
 
 static void ctr_init(uint8_t *counter, uint8_t *iv, uint64_t n) {
-    for (int i = 15; i >= 0; i--) {
+    for (auto i = 15; i >= 0; i--) {
         n = n + iv[i];
         counter[i] = (uint8_t)n;
         n >>= 8;
@@ -76,26 +78,34 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
 }
 
 bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_zRIF, const std::function<void(float)> &progress_callback) {
-    fs::ifstream infile(pkg_path, std::ios::binary);
+    FILE *infile = host::dialog::filesystem::resolve_host_handle(pkg_path);
+    fseek(infile, 0, SEEK_END);
+    const uint64_t pkg_size = ftell(infile);
     PkgHeader pkg_header;
     PkgExtHeader ext_header;
-    infile.read(reinterpret_cast<char *>(&pkg_header), sizeof(PkgHeader));
-    infile.seekg(sizeof(PkgHeader));
-    infile.read(reinterpret_cast<char *>(&ext_header), sizeof(PkgExtHeader));
-
+    fseek(infile, 0, SEEK_SET);
+    fread(reinterpret_cast<void *>(&pkg_header), sizeof(PkgHeader), 1, infile);
+    fseek(infile, sizeof(PkgHeader), SEEK_SET);
+    fread(reinterpret_cast<char *>(&ext_header), sizeof(PkgExtHeader), 1, infile);
+    
     progress_callback(0);
-
-    if (byte_swap(pkg_header.magic) != 0x7F504b47 && byte_swap(ext_header.magic) != 0x7F657874) {
+    auto pkg_magic = byte_swap(pkg_header.magic);
+    auto header_magic = byte_swap(ext_header.magic);
+    LOG_TRACE("pkg_magic = {}, expected = 0x7F504b47", log_hex(pkg_magic));
+    LOG_TRACE("header_magic = {}, expected = 0x7F657874", log_hex(header_magic));
+  //  if (byte_swap(pkg_header.magic) != 0x7F504b47 && byte_swap(ext_header.magic) != 0x7F657874) {
+    if (pkg_magic != 0x7F504b47 && header_magic != 0x7F657874) {
         LOG_ERROR("Not a valid pkg file!");
         return false;
     }
 
-    if (fs::file_size(pkg_path) < byte_swap(pkg_header.total_size)) {
+    LOG_TRACE("get pkg size:")
+    if (pkg_path < byte_swap(pkg_header.total_size)) {
         LOG_ERROR("The pkg file is too small");
         return false;
     }
 
-    if (fs::file_size(pkg_path) < byte_swap(pkg_header.data_offset) + byte_swap(pkg_header.file_count) * 32) {
+    if (pkg_path < byte_swap(pkg_header.data_offset) + byte_swap(pkg_header.file_count) * 32) {
         LOG_ERROR("The pkg file is too small");
         return false;
     }
@@ -106,11 +116,12 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     uint32_t sfo_size = 0;
     uint32_t items_offset = 0;
 
+    LOG_TRACE("PKG READ TYPE");
     for (uint32_t i = 0; i < byte_swap(pkg_header.info_count); i++) {
         uint32_t block[4];
-        infile.seekg(info_offset);
-        infile.read((char *)block, sizeof(block));
-
+        fseek(infile, info_offset, SEEK_SET);
+        fread(block, sizeof(block), 1, infile);
+        
         auto type = byte_swap(block[0]);
         auto size = byte_swap(block[1]);
 
@@ -134,6 +145,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     PkgType type;
 
+    LOG_TRACE("PKG READ CONTENT TYPE");
     switch (content_type) {
     case 0x15:
         type = PkgType::PKG_TYPE_VITA_APP;
@@ -152,6 +164,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     auto key_type = byte_swap(ext_header.data_type2) & 7;
 
+    LOG_TRACE("PKG READ KEY");
     uint8_t main_key[16];
     const uint8_t *pkg_vita_key = nullptr;
     switch (key_type) {
@@ -187,10 +200,11 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     EVP_EncryptUpdate(cipher_ctx, main_key, &dec_len, pkg_header.pkg_data_iv, 0x10);
     EVP_EncryptFinal_ex(cipher_ctx, main_key + dec_len, &dec_len);
 
+    LOG_TRACE("PKG SFO BUFFER");
     std::vector<uint8_t> sfo_buffer(sfo_size);
     SfoFile sfo_file;
-    infile.seekg(sfo_offset);
-    infile.read((char *)&sfo_buffer[0], sfo_size);
+    fseek(infile, sfo_offset, SEEK_SET);
+    fread(sfo_buffer.data(), sfo_buffer.size(), 1, infile);
     sfo::load(sfo_file, sfo_buffer);
     sfo::get_param_info(emuenv.app_info, sfo_buffer, emuenv.cfg.sys_lang);
 
@@ -203,6 +217,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     auto path{ emuenv.pref_path / "ux0" };
 
+    LOG_TRACE("PKG EXTRACT PATH");
     switch (type) {
     case PkgType::PKG_TYPE_VITA_APP:
         path /= fs::path("app") / emuenv.app_info.app_title_id;
@@ -234,15 +249,15 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         EVP_DecryptFinal_ex(cipher_ctx, data + dec_len, &dec_len);
     };
 
+LOG_TRACE("PKG DENCRYPT");
     for (uint32_t i = 0; i < byte_swap(pkg_header.file_count); i++) {
         PkgEntry entry;
         uint64_t file_offset = items_offset + i * 32;
-        infile.seekg(byte_swap(pkg_header.data_offset) + file_offset, std::ios_base::beg);
-        infile.read(reinterpret_cast<char *>(&entry), sizeof(PkgEntry));
-
+        fseek(infile, byte_swap(pkg_header.data_offset) + file_offset, SEEK_SET);
+        fread(&entry, sizeof(PkgEntry), 1, infile);
         decrypt_aes_ctr(file_offset / 16, reinterpret_cast<unsigned char *>(&entry), sizeof(PkgEntry));
 
-        if (fs::file_size(pkg_path) < byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset) + byte_swap(entry.name_size) || fs::file_size(pkg_path) < byte_swap(pkg_header.data_offset) + byte_swap(entry.data_offset) + byte_swap(entry.data_size)) {
+        if (pkg_path < byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset) + byte_swap(entry.name_size) || pkg_path < byte_swap(pkg_header.data_offset) + byte_swap(entry.data_offset) + byte_swap(entry.data_size)) {
             LOG_ERROR("The pkg file size is too small, possibly corrupted");
             evp_cleanup();
             return false;
@@ -250,9 +265,8 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         const auto file_count = (float)byte_swap(pkg_header.file_count);
         progress_callback(i / file_count * 100.f * 0.6f);
         std::vector<unsigned char> name(byte_swap(entry.name_size));
-        infile.seekg(byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset));
-        infile.read((char *)&name[0], byte_swap(entry.name_size));
-
+        fseek(infile, byte_swap(pkg_header.data_offset) + byte_swap(entry.name_offset), SEEK_SET);
+        fread(name.data(), byte_swap(entry.name_size), 1, infile);
         decrypt_aes_ctr(byte_swap(entry.name_offset) / 16, name.data(), byte_swap(entry.name_size));
 
         auto string_name = std::string(name.begin(), name.end());
@@ -271,12 +285,11 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
             EVP_DecryptInit_ex(cipher_ctx, cipher_CTR, nullptr, main_key, counter);
             EVP_CIPHER_CTX_set_padding(cipher_ctx, 0);
 
+            fseek(infile, byte_swap(pkg_header.data_offset) + offset, SEEK_SET);
             std::vector<uint8_t> buffer(0x10000);
             while (data_size != 0) {
-                int size = data_size < buffer.size() ? data_size : buffer.size();
-                infile.seekg(byte_swap(pkg_header.data_offset) + offset);
-                infile.read(reinterpret_cast<char *>(buffer.data()), size);
-
+                size_t size = data_size < buffer.size() ? data_size : buffer.size();
+                fread(buffer.data(), size, 1, infile);
                 EVP_DecryptUpdate(cipher_ctx, buffer.data(), &dec_len, buffer.data(), size);
 
                 outfile.write(reinterpret_cast<char *>(buffer.data()), dec_len);
@@ -289,8 +302,9 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
             outfile.close();
         }
     }
-    infile.close();
+    fclose(infile);
 
+    LOG_TRACE("PKG CLEAN UP");
     evp_cleanup();
     fs::path title_id_src = path;
     fs::path title_id_dst = fs_utils::path_concat(path, "_dec");

@@ -1,5 +1,4 @@
 # THIS IS NOT MAIN REPO VITA3K!
-if you find issue go to main repo, not in here
 
 # Minimum system requirement
 - Vulkan 1.1 (All SoC) / OpenGLES 3.2 (Adreno only)

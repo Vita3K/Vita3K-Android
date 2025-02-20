@@ -462,7 +462,8 @@ CPUContext DynarmicCPU::save_context() {
     CPUContext ctx;
     ctx.cpu_registers = jit->Regs();
     static_assert(sizeof(ctx.fpu_registers) == sizeof(jit->ExtRegs()));
-    memcpy(ctx.fpu_registers.data(), jit->ExtRegs().data(), sizeof(ctx.fpu_registers));
+    // memcpy(ctx.fpu_registers.data(), jit->ExtRegs().data(), sizeof(ctx.fpu_registers));
+    memmove(ctx.fpu_registers.data(), jit->ExtRegs().data(), sizeof(ctx.fpu_registers));
     ctx.fpscr = jit->Fpscr();
     ctx.cpsr = jit->Cpsr();
 

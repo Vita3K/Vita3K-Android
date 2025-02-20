@@ -158,7 +158,7 @@ static spv::Id get_type_basic(spv::Builder &b, const Input &input) {
 
     // clang-format on
     default: {
-        LOG_ERROR("Unsupported parameter type {} used in shader.", log_hex(fmt::underlying(input.type)));
+        LOG_ERROR("Unsupported parameter type 0x{:0X} used in shader.", fmt::underlying(input.type));
         return get_type_fallback(b);
     }
     }
@@ -1995,14 +1995,14 @@ static std::string convert_spirv_to_glsl(const std::string &shader_name, SpirvCo
     spirv_cross::CompilerGLSL::Options options;
 
 #ifdef ANDROID
-    options.fragment.default_float_precision = options.Highp; // original Highp
+    options.fragment.default_float_precision = options.Highp;
 //    options.fragment.default_int_precision = options.Mediump;
     
-    options.version = 300;
+    options.version = 320;
     options.es = true;
     options.enable_row_major_load_workaround = false; // spirv.hpp say when true it reduce performance in some android devices
     options.vertex.fixup_clipspace = false;
-    options.enable_420pack_extension = false; // because opengles and default value is true
+ //   options.enable_420pack_extension = false; // because opengles and default value is true
 #else
     options.version = 430;
     options.es = false;

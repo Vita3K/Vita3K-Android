@@ -27,17 +27,20 @@ extern "C" {
 
 void copy_yuv_data_from_frame(AVFrame *frame, uint8_t *dest, const uint32_t width, const uint32_t height, bool is_p3) {
     for (uint32_t i = 0; i < height; i++) {
-        memcpy(dest, &frame->data[0][frame->linesize[0] * i], width);
+        // memcpy(dest, &frame->data[0][frame->linesize[0] * i], width);
+        memmove(dest, &frame->data[0][frame->linesize[0] * i], width);
         dest += width;
     }
 
     if (is_p3) {
         for (uint32_t i = 0; i < height / 2; i++) {
-            memcpy(dest, &frame->data[1][frame->linesize[1] * i], width / 2);
+           // memcpy(dest, &frame->data[1][frame->linesize[1] * i], width / 2);
+            memmove(dest, &frame->data[1][frame->linesize[1] * i], width / 2);
             dest += width / 2;
         }
         for (uint32_t i = 0; i < height / 2; i++) {
-            memcpy(dest, &frame->data[2][frame->linesize[2] * i], width / 2);
+          //  memcpy(dest, &frame->data[2][frame->linesize[2] * i], width / 2);
+            memmove(dest, &frame->data[2][frame->linesize[2] * i], width / 2);
             dest += width / 2;
         }
     } else {
@@ -70,7 +73,8 @@ bool H264DecoderState::send(const uint8_t *data, uint32_t size) {
     int error = 0;
 
     std::vector<uint8_t> au_frame(size + AV_INPUT_BUFFER_PADDING_SIZE);
-    memcpy(au_frame.data(), data, size);
+    // memcpy(au_frame.data(), data, size);
+    memmove(au_frame.data(), data, size);
 
     AVPacket *packet = av_packet_alloc();
     if (!packet) {

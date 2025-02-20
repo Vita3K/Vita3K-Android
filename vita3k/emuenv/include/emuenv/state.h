@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ public:
     std::unique_ptr<CPUProtocolBase> cpu_protocol{};
     SceUID main_thread_id{};
     size_t frame_count = 0;
-    uint32_t sdl_ticks = 0;
+    uint16_t sdl_ticks = 0;
     uint16_t fps = 0;
     uint16_t avg_fps = 0;
     uint16_t min_fps = 0;
@@ -156,9 +156,12 @@ public:
     WindowPtr window = WindowPtr(nullptr, nullptr);
     renderer::Backend backend_renderer{};
     RendererPtr renderer{};
-    IVector2 drawable_size = { 0, 0 };
     FVector2 viewport_pos = { 0, 0 };
     FVector2 viewport_size = { 0, 0 };
+
+    IVector2 drawable_size = { 0, 0 };
+    IVector2 window_size = { 0, 0 }; // Logical size of the window
+
     MemState &mem;
     CtrlState &ctrl;
     TouchState &touch;
@@ -187,6 +190,7 @@ public:
 #ifdef ANDROID
     libadreno_var &libadreno; 
 #endif
+
     EmuEnvState();
     // declaring a destructor is necessary to forward declare unique_ptrs
     ~EmuEnvState();

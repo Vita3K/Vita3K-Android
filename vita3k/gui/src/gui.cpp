@@ -248,8 +248,12 @@ static void init_font(GuiState &gui, EmuEnvState &emuenv) {
 
         // Set up default font path
         fs::path default_font_path = emuenv.static_assets_path / "data/fonts";
+#ifdef ANDROID
+	// use default fonts from android instead (reduce apk size)
+	const std::vector<uint8_t> font_mplus = fs_utils::read_asset_raw(default_font_path / "DroidSans.ttf");
+#else
         const std::vector<uint8_t> font_mplus = fs_utils::read_asset_raw(default_font_path / "mplus-1mn-bold.ttf");
-
+#endif
         // Check existence of default font file
         if (!font_mplus.empty()) {
             // when calling AddFontFromMemoryTTF, we tranfer ownership to imgui and it is up to it to free the data

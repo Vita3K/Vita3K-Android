@@ -387,7 +387,8 @@ void add_external_mapping(MemState &mem, Address addr, uint32_t size, uint8_t *a
     uint8_t *original_address = &mem.memory[addr];
     for (int block = 0; block < size / KiB(4); block++) {
         // this is not thread write safe, but hopefully not other thread is busy copying while this happens
-        memcpy(addr_ptr + block * KiB(4), original_address + block * KiB(4), KiB(4));
+       // memcpy(addr_ptr + block * KiB(4), original_address + block * KiB(4), KiB(4));
+        memmove(addr_ptr + block * KiB(4), original_address + block * KiB(4), KiB(4));
         mem.page_table[addr / KiB(4) + block] = page_table_entry;
     }
 
@@ -444,7 +445,8 @@ void remove_external_mapping(MemState &mem, uint8_t *addr_ptr, uint32_t size) {
         // copy back and reset the page table
         for (int block = 0; block < mapping.size / KiB(4); block++) {
             // this is not thread write safe, but hopefully not other thread is busy copying while this happens
-            memcpy(&mem.memory[mapping.address] + block * KiB(4), addr_ptr + block * KiB(4), KiB(4));
+            // memcpy(&mem.memory[mapping.address] + block * KiB(4), addr_ptr + block * KiB(4), KiB(4));
+            memmove(&mem.memory[mapping.address] + block * KiB(4), addr_ptr + block * KiB(4), KiB(4));
             mem.page_table[mapping.address / KiB(4) + block] = mem.memory.get();
         }
     }

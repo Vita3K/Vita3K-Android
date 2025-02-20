@@ -27,9 +27,9 @@
     <integer name="TRIGGER_L3_X">380</integer>
     <integer name="TRIGGER_L3_Y">-45</integer>
     <integer name="TRIGGER_R2_X">750</integer>
-    <integer name="TRIGGER_R2_Y">-45</integer>
+    <integer name="TRIGGER_R2_Y">-35</integer>
     <integer name="TRIGGER_R3_X">600</integer>
-    <integer name="TRIGGER_R3_Y">-45</integer>
+    <integer name="TRIGGER_R3_Y">-35</integer>
     <integer name="BUTTON_TOUCH_SWITCH_X">460</integer>
     <integer name="BUTTON_TOUCH_SWITCH_Y">-45</integer>
     <integer name="BUTTON_HIDE_X">460</integer>
