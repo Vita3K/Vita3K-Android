@@ -44,7 +44,7 @@
 // Credits to mmozeiko https://github.com/mmozeiko/pkg2zip
 
 static void ctr_init(uint8_t *counter, uint8_t *iv, uint64_t n) {
-    for (auto i = 15; i >= 0; i--) {
+    for (uint8_t i = 15; i >= 0; i--) {
         n = n + iv[i];
         counter[i] = (uint8_t)n;
         n >>= 8;
@@ -91,15 +91,15 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     progress_callback(0);
     auto pkg_magic = byte_swap(pkg_header.magic);
     auto header_magic = byte_swap(ext_header.magic);
-    LOG_TRACE("pkg_magic = {}, expected = 0x7F504b47", log_hex(pkg_magic));
-    LOG_TRACE("header_magic = {}, expected = 0x7F657874", log_hex(header_magic));
+    LOG_TRACE("pkg_magic = {}, expected = 0x7F504b47", pkg_magic);
+    LOG_TRACE("header_magic = {}, expected = 0x7F657874", header_magic);
   //  if (byte_swap(pkg_header.magic) != 0x7F504b47 && byte_swap(ext_header.magic) != 0x7F657874) {
     if (pkg_magic != 0x7F504b47 && header_magic != 0x7F657874) {
         LOG_ERROR("Not a valid pkg file!");
         return false;
     }
 
-    LOG_TRACE("get pkg size:")
+    LOG_TRACE("get pkg size");
     if (pkg_path < byte_swap(pkg_header.total_size)) {
         LOG_ERROR("The pkg file is too small");
         return false;
