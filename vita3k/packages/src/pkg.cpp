@@ -44,7 +44,7 @@
 // Credits to mmozeiko https://github.com/mmozeiko/pkg2zip
 
 static void ctr_init(uint8_t *counter, uint8_t *iv, uint64_t n) {
-    for (uint8_t i = 15; i >= 0; i--) {
+    for (int8_t i = 15; i >= 0; i--) {
         n = n + iv[i];
         counter[i] = (uint8_t)n;
         n >>= 8;
@@ -125,6 +125,13 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         auto type = byte_swap(block[0]);
         auto size = byte_swap(block[1]);
 
+        LOG_TRACE("content_type = {}\n
+                   sfo_offset = {}\n
+                   sfo_size = {}\n
+                   items_offset = {}\n
+                   type = {}\n
+                   size = {}", content_type, sfo_offset, sfo_size, items_offset, type, size);
+        
         switch (type) {
         case 2:
             content_type = byte_swap(block[2]);
@@ -145,7 +152,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     PkgType type;
 
-    LOG_TRACE("PKG READ CONTENT TYPE");
+    LOG_TRACE("PKG READ CONTENT TYPE, content_type = {}", content_type);
     switch (content_type) {
     case 0x15:
         type = PkgType::PKG_TYPE_VITA_APP;
@@ -217,7 +224,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     auto path{ emuenv.pref_path / "ux0" };
 
-    LOG_TRACE("PKG EXTRACT PATH");
+    LOG_TRACE("PKG EXTRACT PATH, type = {}", type);
     switch (type) {
     case PkgType::PKG_TYPE_VITA_APP:
         path /= fs::path("app") / emuenv.app_info.app_title_id;
@@ -237,6 +244,9 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         path /= fs::path("theme") / emuenv.app_info.app_content_id;
         emuenv.app_info.app_category = "theme";
         emuenv.app_info.app_title += " (Theme)";
+        break;
+    default:
+        LOG_ERROR("PkgType::INVALID_TYPE");
         break;
     }
 
