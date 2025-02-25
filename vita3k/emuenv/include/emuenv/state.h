@@ -145,7 +145,7 @@ public:
     std::unique_ptr<CPUProtocolBase> cpu_protocol{};
     SceUID main_thread_id{};
     size_t frame_count = 0;
-    uint16_t sdl_ticks = 0;
+    uint32_t sdl_ticks = 0;
     uint16_t fps = 0;
     uint16_t avg_fps = 0;
     uint16_t min_fps = 0;
