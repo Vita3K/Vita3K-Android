@@ -219,23 +219,27 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     auto path{ emuenv.pref_path / "ux0" };
 
-    LOG_TRACE("PKG EXTRACT PATH, type = {}", type);
+    LOG_TRACE("PKG EXTRACT PATH");
     switch (type) {
     case PkgType::PKG_TYPE_VITA_APP:
+        LOG_TRACE("VITA APP PATH");
         path /= fs::path("app") / emuenv.app_info.app_title_id;
         if (fs::exists(path))
             fs::remove_all(path);
         emuenv.app_info.app_title += " (App)";
         break;
     case PkgType::PKG_TYPE_VITA_DLC:
+        LOG_TRACE("VITA DLC PATH");
         path /= fs::path("addcont") / emuenv.app_info.app_title_id / emuenv.app_info.app_content_id;
         emuenv.app_info.app_title += " (DLC)";
         break;
     case PkgType::PKG_TYPE_VITA_PATCH:
+        LOG_TRACE("VITA PATCH PATH");
         path /= fs::path("patch") / emuenv.app_info.app_title_id;
         emuenv.app_info.app_title += " (Update)";
         break;
     case PkgType::PKG_TYPE_VITA_THEME:
+        LOG_TRACE("VITA THEME PATH");
         path /= fs::path("theme") / emuenv.app_info.app_content_id;
         emuenv.app_info.app_category = "theme";
         emuenv.app_info.app_title += " (Theme)";
