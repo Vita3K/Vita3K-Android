@@ -125,12 +125,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         auto type = byte_swap(block[0]);
         auto size = byte_swap(block[1]);
 
-        LOG_TRACE("content_type = {}\n
-                   sfo_offset = {}\n
-                   sfo_size = {}\n
-                   items_offset = {}\n
-                   type = {}\n
-                   size = {}", content_type, sfo_offset, sfo_size, items_offset, type, size);
+        LOG_TRACE("content_type = {}\nsfo_offset = {}\nsfo_size = {}\nitems_offset = {}\ntype = {}\nsize = {}", content_type, sfo_offset, sfo_size, items_offset, type, size);
         
         switch (type) {
         case 2:
