@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -103,7 +103,8 @@ int ThreadState::init(const char *name, Ptr<const void> entry_point, int init_pr
     write_tpidruro(*cpu, user_tls_ptr.address());
     if (kernel.tls_address) {
         assert(kernel.tls_psize <= kernel.tls_msize);
-        memcpy(user_tls_ptr.get(mem), kernel.tls_address.get(mem), kernel.tls_psize);
+        // memcpy(user_tls_ptr.get(mem), kernel.tls_address.get(mem), kernel.tls_psize);
+        memmove(user_tls_ptr.get(mem), kernel.tls_address.get(mem), kernel.tls_psize);
     }
 
     CPUContext ctx;
@@ -142,6 +143,7 @@ int ThreadState::start(SceSize arglen, const Ptr<void> argp, bool run_entry_call
     // Copy data to stack
     if (argp && arglen > 0) {
         const Address data_addr = stack_alloc(*cpu, align(arglen, 8));
+        // memcpy(Ptr<uint8_t>(data_addr).get(mem), argp.get(mem), arglen);
         memcpy(Ptr<uint8_t>(data_addr).get(mem), argp.get(mem), arglen);
         write_reg(*cpu, 1, data_addr);
     } else {
@@ -312,7 +314,8 @@ void ThreadState::push_arguments(const std::vector<uint32_t> &args) {
         // TODO align to 16 bytes
         const size_t remain_size = args.size() - 4;
         sp -= 4 * remain_size;
-        memcpy(Ptr<uint32_t>(sp).get(mem), &args[4], remain_size * 4);
+        // memcpy(Ptr<uint32_t>(sp).get(mem), &args[4], remain_size * 4);
+        memmove(Ptr<uint32_t>(sp).get(mem), &args[4], remain_size * 4);
     }
     write_sp(*cpu, sp);
 }
