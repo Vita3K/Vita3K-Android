@@ -89,17 +89,11 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     fread(reinterpret_cast<char *>(&ext_header), sizeof(PkgExtHeader), 1, infile);
     
     progress_callback(0);
-    auto pkg_magic = byte_swap(pkg_header.magic);
-    auto header_magic = byte_swap(ext_header.magic);
-    LOG_TRACE("pkg_magic = {}, expected = 0x7F504b47", pkg_magic);
-    LOG_TRACE("header_magic = {}, expected = 0x7F657874", header_magic);
-  //  if (byte_swap(pkg_header.magic) != 0x7F504b47 && byte_swap(ext_header.magic) != 0x7F657874) {
-    if (pkg_magic != 0x7F504b47 && header_magic != 0x7F657874) {
+    if (byte_swap(pkg_header.magic) != 0x7F504b47 && byte_swap(ext_header.magic) != 0x7F657874) {
         LOG_ERROR("Not a valid pkg file!");
         return false;
     }
 
-    LOG_TRACE("get pkg size");
     if (pkg_size < byte_swap(pkg_header.total_size)) {
         LOG_ERROR("The pkg file is too small");
         return false;
@@ -116,7 +110,6 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     uint32_t sfo_size = 0;
     uint32_t items_offset = 0;
 
-    LOG_TRACE("PKG READ TYPE");
     for (uint32_t i = 0; i < byte_swap(pkg_header.info_count); i++) {
         uint32_t block[4];
         fseek(infile, info_offset, SEEK_SET);
@@ -125,8 +118,6 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         auto type = byte_swap(block[0]);
         auto size = byte_swap(block[1]);
 
-        LOG_TRACE("content_type = {}\nsfo_offset = {}\nsfo_size = {}\nitems_offset = {}\ntype = {}\nsize = {}", content_type, sfo_offset, sfo_size, items_offset, type, size);
-        
         switch (type) {
         case 2:
             content_type = byte_swap(block[2]);
@@ -147,7 +138,6 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     PkgType type;
 
-    LOG_TRACE("PKG READ CONTENT TYPE, content_type = {}", content_type);
     switch (content_type) {
     case 0x15:
         type = PkgType::PKG_TYPE_VITA_APP;
@@ -166,7 +156,6 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     auto key_type = byte_swap(ext_header.data_type2) & 7;
 
-    LOG_TRACE("PKG READ KEY");
     uint8_t main_key[16];
     const uint8_t *pkg_vita_key = nullptr;
     switch (key_type) {
@@ -202,7 +191,6 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
     EVP_EncryptUpdate(cipher_ctx, main_key, &dec_len, pkg_header.pkg_data_iv, 0x10);
     EVP_EncryptFinal_ex(cipher_ctx, main_key + dec_len, &dec_len);
 
-    LOG_TRACE("PKG SFO BUFFER");
     std::vector<uint8_t> sfo_buffer(sfo_size);
     SfoFile sfo_file;
     fseek(infile, sfo_offset, SEEK_SET);
@@ -219,27 +207,22 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
     auto path{ emuenv.pref_path / "ux0" };
 
-    LOG_TRACE("PKG EXTRACT PATH");
     switch (type) {
     case PkgType::PKG_TYPE_VITA_APP:
-        LOG_TRACE("VITA APP PATH");
         path /= fs::path("app") / emuenv.app_info.app_title_id;
         if (fs::exists(path))
             fs::remove_all(path);
         emuenv.app_info.app_title += " (App)";
         break;
     case PkgType::PKG_TYPE_VITA_DLC:
-        LOG_TRACE("VITA DLC PATH");
         path /= fs::path("addcont") / emuenv.app_info.app_title_id / emuenv.app_info.app_content_id;
         emuenv.app_info.app_title += " (DLC)";
         break;
     case PkgType::PKG_TYPE_VITA_PATCH:
-        LOG_TRACE("VITA PATCH PATH");
         path /= fs::path("patch") / emuenv.app_info.app_title_id;
         emuenv.app_info.app_title += " (Update)";
         break;
     case PkgType::PKG_TYPE_VITA_THEME:
-        LOG_TRACE("VITA THEME PATH");
         path /= fs::path("theme") / emuenv.app_info.app_content_id;
         emuenv.app_info.app_category = "theme";
         emuenv.app_info.app_title += " (Theme)";
@@ -258,7 +241,6 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         EVP_DecryptFinal_ex(cipher_ctx, data + dec_len, &dec_len);
     };
 
-LOG_TRACE("PKG DENCRYPT");
     for (uint32_t i = 0; i < byte_swap(pkg_header.file_count); i++) {
         PkgEntry entry;
         uint64_t file_offset = items_offset + i * 32;
@@ -313,7 +295,6 @@ LOG_TRACE("PKG DENCRYPT");
     }
     fclose(infile);
 
-    LOG_TRACE("PKG CLEAN UP");
     evp_cleanup();
     fs::path title_id_src = path;
     fs::path title_id_dst = fs_utils::path_concat(path, "_dec");
