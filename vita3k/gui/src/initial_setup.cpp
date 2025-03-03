@@ -76,6 +76,7 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
     const ImVec2 BIG_BUTTON_POS((WINDOW_SIZE.x / 2.f) - (BIG_BUTTON_SIZE.x / 2.f), WINDOW_SIZE.y - BIG_BUTTON_SIZE.y - (20.f * SCALE.y));
 
     auto &lang = gui.lang.initial_setup;
+    auto &emulator = gui.lang.emulator;
     auto &common = emuenv.common_dialog.lang.common;
 
     const auto is_default_path = emuenv.cfg.pref_path == emuenv.default_path;
@@ -211,6 +212,12 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
             ImGui::SetWindowFontScale(RES_SCALE.x);
             draw_firmware_install_dialog(gui, emuenv);
         }
+        // Dencrypt box
+        ImGui::Checkbox(emulator["dencrypt_installs"].c_str(), &emuenv.cfg.dencrypt_installs){
+            set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
+            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+        }
+        SetTooltipEx(emulator["dencrypt_installs_description"].c_str());
         break;
     case SELECT_INTERFACE_SETTINGS:
         title_str = lang["select_interface_settings"];
