@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -670,6 +670,8 @@ struct LangState {
             { "screenmode_right", "Lock to landscape right" },
             { "screenmode_up", "Lock to portrait" },
             { "screenmode_up_description", "WIP, GUI still buggy" },
+            { "dencrypt-installs", "Dencrypt installation"},
+            { "dencrypt-installs_description", "Dencrypt all files installed package included eboot and libs for compability with older build (otherwise all installed content will no longer work in old builds" },
             { "custom_config_settings", "Custom Config Settings" },
             { "clear_custom_config", "Clear Custom Config" }
         };
