@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -352,7 +352,8 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.app_ver > rhs.app_ver;
             }
-            break;
+            default:
+                break;
         case CATEGORY:
             switch (sorted) {
             case ASCENDANT:
@@ -360,7 +361,8 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.category > rhs.category;
             }
-            break;
+            default:
+                break;
         case COMPAT:
             switch (sorted) {
             case ASCENDANT:
@@ -368,7 +370,8 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.compat > rhs.compat;
             }
-            break;
+            default:
+                break;
         case LAST_TIME:
             switch (sorted) {
             case ASCENDANT:
@@ -376,7 +379,8 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.last_time < rhs.last_time;
             }
-            break;
+            default:
+                break;
         case TITLE:
             switch (sorted) {
             case ASCENDANT:
@@ -384,7 +388,8 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return string_utils::toupper(lhs.title) > string_utils::toupper(rhs.title);
             }
-            break;
+            default:
+                break;
         case TITLE_ID:
             switch (sorted) {
             case ASCENDANT:
@@ -392,7 +397,8 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.title_id > rhs.title_id;
             }
-            break;
+            default:
+                break;
         }
         return false;
     });
