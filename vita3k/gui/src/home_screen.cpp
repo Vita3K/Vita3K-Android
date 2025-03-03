@@ -324,8 +324,8 @@ static bool app_filter(const std::string &app) {
             return true;
         break;
     }
-
-    return false;
+    default:
+       return false;
 }
 
 static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &type) {
@@ -352,8 +352,7 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.app_ver > rhs.app_ver;
             }
-            default:
-                break;
+            break;
         case CATEGORY:
             switch (sorted) {
             case ASCENDANT:
@@ -361,8 +360,7 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.category > rhs.category;
             }
-            default:
-                break;
+            break;
         case COMPAT:
             switch (sorted) {
             case ASCENDANT:
@@ -370,8 +368,7 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.compat > rhs.compat;
             }
-            default:
-                break;
+            break;
         case LAST_TIME:
             switch (sorted) {
             case ASCENDANT:
@@ -379,8 +376,7 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.last_time < rhs.last_time;
             }
-            default:
-                break;
+            break;
         case TITLE:
             switch (sorted) {
             case ASCENDANT:
@@ -388,8 +384,7 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return string_utils::toupper(lhs.title) > string_utils::toupper(rhs.title);
             }
-            default:
-                break;
+            break;
         case TITLE_ID:
             switch (sorted) {
             case ASCENDANT:
@@ -397,10 +392,10 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
             case DESCENDANT:
                 return lhs.title_id > rhs.title_id;
             }
-            default:
-                break;
+            break;
         }
-        return false;
+        default:
+           return false;
     });
 }
 
