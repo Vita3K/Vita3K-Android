@@ -213,7 +213,7 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
             draw_firmware_install_dialog(gui, emuenv);
         }
         // Dencrypt box
-        ImGui::Checkbox(emulator["dencrypt_installs"].c_str(), &emuenv.cfg.dencrypt_installs){
+        if(ImGui::Checkbox(emulator["dencrypt_installs"].c_str(), &emuenv.cfg.dencrypt_installs)){
             set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
             config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
         }
