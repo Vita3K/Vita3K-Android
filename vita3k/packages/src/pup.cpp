@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -283,6 +283,16 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
     progress_callback(70);
     if (fs::file_size(pup_dec / "os0.img") > 0) {
         extract_fat(pup_dec, "os0.img", pref_path);
+
+        if(emuenv.cfg.dencrypt_installs){
+           for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
+               if (fs::is_regular_file(file.path())) {
+                   if (is_self(file.path())) {
+                       decrypt_fself(file.path(), SCE_KEYS, 0);
+                   }
+               }
+           }
+        }
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0)
         exfat::extract_exfat(pup_dec, "pd0.img", pref_path);
@@ -290,6 +300,16 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         extract_fat(pup_dec, "sa0.img", pref_path);
     if (fs::file_size(pup_dec / "vs0.img") > 0) {
         extract_fat(pup_dec, "vs0.img", pref_path);
+
+        if(emuenv.cfg.dencrypt_installs){
+           for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
+               if (fs::is_regular_file(file.path())) {
+                   if (is_self(file.path())) {
+                       decrypt_fself(file.path(), SCE_KEYS, nullptr);
+                   }
+               }
+           }
+        }
     }
     progress_callback(100);
 }
