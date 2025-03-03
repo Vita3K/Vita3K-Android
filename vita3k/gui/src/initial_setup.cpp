@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -76,7 +76,7 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
     const ImVec2 BIG_BUTTON_POS((WINDOW_SIZE.x / 2.f) - (BIG_BUTTON_SIZE.x / 2.f), WINDOW_SIZE.y - BIG_BUTTON_SIZE.y - (20.f * SCALE.y));
 
     auto &lang = gui.lang.initial_setup;
-    auto &emulator = gui.lang.emulator;
+    auto &emulator = gui.lang.settings_dialog;
     auto &common = emuenv.common_dialog.lang.common;
 
     const auto is_default_path = emuenv.cfg.pref_path == emuenv.default_path;
