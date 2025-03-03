@@ -57,7 +57,7 @@ int execute(std::string &zrif, fs::path &title_src, fs::path &title_dst, F00DEnc
     return execute(zrif, title_src_str, title_dst_str, type, f00d_arg);
 }
 
-bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, const fs::path &title_path) {
+bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, const fs::path &title_path, ) {
     fs::path title_id_src = title_path;
     fs::path title_id_dst = fs_utils::path_concat(title_path, "_dec");
     fs::ifstream binfile(drmlicpath, std::ios::in | std::ios::binary | std::ios::ate);
@@ -74,6 +74,19 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
     fs::remove_all(title_id_src);
     fs::rename(title_id_dst, title_id_src);
 
+    if(emuenv.cfg.dencrypt_installs){
+        KeyStore SCE_KEYS;
+        register_keys(SCE_KEYS, 1);
+        std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zRIF);
+
+        for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+            if (is_self(file.path())) {
+               decrypt_fself(file.path(), SCE_KEYS, temp_klicensee.data());
+               LOG_INFO("Decrypted {} with klicensee {}", file.path(), byte_array_to_string(temp_klicensee.data(), 16));
+            }
+        }
+    }
+        
     return true;
 }
 
@@ -317,6 +330,15 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         fs::remove_all(title_id_src);
         fs::rename(title_id_dst, title_id_src);
 
+        if(emuenv.cfg.dencrypt_installs){
+           for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+               if (is_self(file.path())) {
+                   decrypt_fself(file.path(), SCE_KEYS, temp_klicensee.data());
+                   LOG_INFO("Decrypted {} with klicensee {}", file.path(), byte_array_to_string(temp_klicensee.data(), 16));
+               }
+           }
+        }
+        
         break;
     case PkgType::PKG_TYPE_VITA_DLC:
 
