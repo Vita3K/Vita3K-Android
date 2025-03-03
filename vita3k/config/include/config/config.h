@@ -161,7 +161,7 @@ enum ScreenshotFormat {
     code(bool, "display-info-message", true, display_info_message)                                      \
     code(bool, "show-welcome", true, show_welcome)                                                      \
     code(bool, "check-for-updates", false, check_for_updates)                                           \
-    code(bool, "dencrypt-installs", true, dencrypt-installs)                                            \
+    code(bool, "dencrypt-installs", true, dencrypt_installs)                                            \
     code(bool, "asia-font-support", false, asia_font_support)                                           \
     code(bool, "shader-cache", true, shader_cache)                                                      \
     code(bool, "spirv-shader", false, spirv_shader)                                                     \
