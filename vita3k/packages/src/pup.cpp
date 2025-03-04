@@ -284,14 +284,15 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
     if (fs::file_size(pup_dec / "os0.img") > 0) {
         extract_fat(pup_dec, "os0.img", pref_path);
 
+        // dencrypt key
         if(emuenv.cfg.dencrypt_installs){
-           for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
-               if (fs::is_regular_file(file.path())) {
-                   if (is_self(file.path())) {
-                       decrypt_fself(file.path(), SCE_KEYS, 0);
-                   }
-               }
-           }
+           vfs::FileBuffer file_dec;
+
+               decrypt_fself(std::move(file_dec), SCE_KEYS);
+           if (file_dec.empty()) 
+               LOG_ERROR("Failed to decrypt module file {}", file_dec);
+           else
+               LOG_INFO("Decrypted {}", file_dec.path());
         }
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0)
@@ -301,14 +302,15 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
     if (fs::file_size(pup_dec / "vs0.img") > 0) {
         extract_fat(pup_dec, "vs0.img", pref_path);
 
+        // dencrypt key
         if(emuenv.cfg.dencrypt_installs){
-           for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
-               if (fs::is_regular_file(file.path())) {
-                   if (is_self(file.path())) {
-                       decrypt_fself(file.path(), SCE_KEYS, nullptr);
-                   }
-               }
-           }
+           vfs::FileBuffer file_dec;
+
+               decrypt_fself(std::move(file_dec), SCE_KEYS);
+           if (file_dec.empty()) 
+               LOG_ERROR("Failed to decrypt module file {}", file_dec);
+           else
+               LOG_INFO("Decrypted {}", file_dec.path());
         }
     }
     progress_callback(100);
