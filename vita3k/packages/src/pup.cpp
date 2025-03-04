@@ -289,32 +289,41 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
-           vfs::FileBuffer file_dec;
-            
-           if (is_self(file.path())) {
-              LOG_TRACE("BEGIN DENCRYPT os0 with 0 key");
-              decrypt_fself(std::move(file_dec), 0);
-              if (file_dec.empty()) 
-                 LOG_ERROR("Failed to decrypt os0 partition");
-              else
-                 LOG_INFO("Decrypted os0 partition");
-           }
+            for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
+                if (fs::is_regular_file(file.path())) {
+                    vfs::FileBuffer file_dec;
+                    
+                    if (is_self(file.path())) {
+                        LOG_TRACE("BEGIN DENCRYPT os0 with 0 key");
+                        decrypt_fself(std::move(file_dec), 0);
+                        if (file_dec.empty()) 
+                            LOG_ERROR("Failed to decrypt {}", file.path().c_str());
+                        else
+                            LOG_INFO("Decrypted {}", file.path().c_str());
+                    }
+                 }
+            }
         }
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0){
         exfat::extract_exfat(pup_dec, "pd0.img", pref_path);
+        
         // dencrypt key
         if(is_dencrypt){
-           vfs::FileBuffer file_dec;
-
-           if (is_self(file.path())) {
-              LOG_TRACE("BEGIN DENCRYPT pd0 with 0 key");
-              decrypt_fself(std::move(file_dec), 0);
-              if (file_dec.empty()) 
-                 LOG_ERROR("Failed to decrypt pd0 partition");
-              else
-                 LOG_INFO("Decrypted pd0 partition");
-           }
+            for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
+                if (fs::is_regular_file(file.path())) {
+                    vfs::FileBuffer file_dec;
+                    
+                    if (is_self(file.path())) {
+                        LOG_TRACE("BEGIN DENCRYPT pd0 with 0 key");
+                        decrypt_fself(std::move(file_dec), 0);
+                        if (file_dec.empty()) 
+                            LOG_ERROR("Failed to decrypt {}", file.path().c_str());
+                        else
+                            LOG_INFO("Decrypted {}", file.path().c_str());
+                    }
+                 }
+            }
         }
     }
     if (fs::file_size(pup_dec / "sa0.img") > 0)
@@ -324,16 +333,20 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
-           vfs::FileBuffer file_dec;
-            
-           if (is_self(file.path())) {
-               LOG_TRACE("BEGIN DENCRYPT vs0 with 0 key");
-               decrypt_fself(std::move(file_dec), 0);
-               if (file_dec.empty()) 
-                   LOG_ERROR("Failed to decrypt vs0 partition");
-               else
-                   LOG_INFO("Decrypted vs0 partition");
-           }
+            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
+                if (fs::is_regular_file(file.path())) {
+                    vfs::FileBuffer file_dec;
+                    
+                    if (is_self(file.path())) {
+                        LOG_TRACE("BEGIN DENCRYPT vs0 with 0 key");
+                        decrypt_fself(std::move(file_dec), 0);
+                        if (file_dec.empty()) 
+                            LOG_ERROR("Failed to decrypt {}", file.path().c_str());
+                        else
+                            LOG_INFO("Decrypted {}", file.path().c_str());
+                    }
+                 }
+            }
         }
     }
     progress_callback(100);
