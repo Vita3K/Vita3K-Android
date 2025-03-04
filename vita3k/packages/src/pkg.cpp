@@ -75,15 +75,18 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
     fs::rename(title_id_dst, title_id_src);
     
     if(emuenv.cfg.dencrypt_installs){
-       vfs::FileBuffer file_dec;
+       for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+           vfs::FileBuffer file_dec;
 
-       if (is_self(file.path())) {
-           decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
-           if (file_dec.empty()) 
-               LOG_ERROR("Failed to decrypt file {}", title_id_dst.c_str());
-           else
-               LOG_INFO("Decrypted {}", title_id_dst.c_str());
-       }
+           if (is_self(file.path())) {
+               LOG_INFO("begin dencrypt {}", file.path().c_str());
+               decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
+               if (file_dec.empty()) 
+                   LOG_ERROR("Failed to decrypt file {}", title_id_dst.c_str());
+               else
+                   LOG_INFO("Decrypted {}", title_id_dst.c_str());
+            }
+        }
     }
         
     return true;
@@ -330,15 +333,18 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         fs::rename(title_id_dst, title_id_src);
 
         if(emuenv.cfg.dencrypt_installs){
-           vfs::FileBuffer file_dec;
+           for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+                vfs::FileBuffer file_dec;
 
-           if (is_self(file.path())) {
-               decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
-               if (file_dec.empty()) 
-                   LOG_ERROR("Failed to decrypt file {}", title_id_dst.c_str());
-               else
-                   LOG_INFO("Decrypted {}", title_id_dst.c_str());
-           }
+                if (is_self(file.path())) {
+                    LOG_INFO("begin dencrypt {}", file.path().c_str());
+                    decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
+                    if (file_dec.empty()) 
+                        LOG_ERROR("Failed to decrypt file {}", title_id_dst.c_str());
+                    else
+                        LOG_INFO("Decrypted {}", title_id_dst.c_str());
+                }
+            }
         }
         
         break;
