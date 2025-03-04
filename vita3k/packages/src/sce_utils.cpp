@@ -833,6 +833,12 @@ std::tuple<uint64_t, SelfType> get_key_type(std::ifstream &file, const SceHeader
     }
 }
 
+bool is_self(const fs::path &file_path) {
+    const auto extension = file_path.filename().extension();
+    const auto is_self = ((extension == ".suprx") || (extension == ".skprx") || (extension == ".self"));
+    return (is_self || (file_path.filename() == "eboot.bin"));
+}
+
 std::vector<uint8_t> decrypt_fself(const std::vector<uint8_t> fself, const uint8_t *klic) {
     const SCE_header &self_header = *reinterpret_cast<const SCE_header *>(fself.data());
     const segment_info *const seg_infos = reinterpret_cast<const segment_info *>(&fself[self_header.section_info_offset]);
