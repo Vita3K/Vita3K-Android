@@ -1194,7 +1194,6 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
             ImGui::RadioButton("0 degrees", &emuenv.cfg.tiltpos, 0);
             ImGui::RadioButton("90 degrees", &emuenv.cfg.tiltpos, 1);
             ImGui::RadioButton("-90 degrees", &emuenv.cfg.tiltpos, -1);
-            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
         }
 
         ImGui::Spacing();
@@ -1208,8 +1207,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::RadioButton(lang.emulator["screenmode_right"].c_str(), &emuenv.cfg.screenmode_pos, 2);
         ImGui::RadioButton(lang.emulator["screenmode_up"].c_str(), &emuenv.cfg.screenmode_pos, 3);
         SetTooltipEx(lang.emulator["screenmode_up_description"].c_str());
-        config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
-
+        
         ImGui::Spacing();
         ImGui::Separator();
         
