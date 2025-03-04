@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
             }
             if (cfg.pup_path.has_value()) {
                 LOG_INFO("Installing firmware file {}", *cfg.pup_path);
-                install_pup(cfg.get_pref_path(), *cfg.pup_path, [](uint32_t progress) {
+                install_pup(cfg.get_pref_path(), *cfg.pup_path, [](uint32_t progress, cfg.dencrypt_installs) {
                     LOG_INFO("Firmware installation progress: {}%", progress);
                 });
             }
