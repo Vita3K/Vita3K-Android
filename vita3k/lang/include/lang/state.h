@@ -670,8 +670,8 @@ struct LangState {
             { "screenmode_right", "Lock to landscape right" },
             { "screenmode_up", "Lock to portrait" },
             { "screenmode_up_description", "WIP, GUI still buggy" },
-            { "dencrypt-installs", "Dencrypt installation"},
-            { "dencrypt-installs_description", "Dencrypt all files installed package included eboot and libs for compability with older build (otherwise all installed content will no longer work in old builds" },
+            { "dencrypt_installs", "Dencrypt installation"},
+            { "dencrypt_installs_description", "Dencrypt all files installed package included eboot and libs for compability with older build (otherwise all installed content will no longer work in old builds" },
             { "custom_config_settings", "Custom Config Settings" },
             { "clear_custom_config", "Clear Custom Config" }
         };
