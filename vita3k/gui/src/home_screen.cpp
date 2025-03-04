@@ -323,8 +323,9 @@ static bool app_filter(const std::string &app) {
         if (!filter_app({ "PCS", "NPXS" }))
             return true;
         break;
-    }
     default:
+        break;
+    }
        return false;
 }
 
@@ -393,8 +394,9 @@ static void sort_app_list(GuiState &gui, EmuEnvState &emuenv, const SortType &ty
                 return lhs.title_id > rhs.title_id;
             }
             break;
-        }
         default:
+            break;
+        }
            return false;
     });
 }
