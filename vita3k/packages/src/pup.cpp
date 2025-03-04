@@ -289,7 +289,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
 
-            decrypt_fself(std::move(file_dec), SCE_KEYS);
+            decrypt_fself(std::move(file_dec), nullptr);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
@@ -302,7 +302,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
 
-               decrypt_fself(std::move(file_dec), SCE_KEYS);
+               decrypt_fself(std::move(file_dec), nullptr);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
@@ -318,7 +318,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
 
-               decrypt_fself(std::move(file_dec), SCE_KEYS);
+               decrypt_fself(std::move(file_dec), nullptr);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
