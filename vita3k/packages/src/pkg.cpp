@@ -81,7 +81,7 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
-               LOG_INFO("Decrypted {}", file_dec.path());
+               LOG_INFO("Decrypted {}", file_dec);
           // }
     }
         
@@ -335,7 +335,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
-               LOG_INFO("Decrypted {}", file_dec.path());
+               LOG_INFO("Decrypted {}", file_dec);
           // }
         }
         
