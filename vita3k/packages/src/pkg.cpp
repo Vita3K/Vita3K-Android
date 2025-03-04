@@ -57,7 +57,7 @@ int execute(std::string &zrif, fs::path &title_src, fs::path &title_dst, F00DEnc
     return execute(zrif, title_src_str, title_dst_str, type, f00d_arg);
 }
 
-bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, const fs::path &title_path, ) {
+bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, const fs::path &title_path) {
     fs::path title_id_src = title_path;
     fs::path title_id_dst = fs_utils::path_concat(title_path, "_dec");
     fs::ifstream binfile(drmlicpath, std::ios::in | std::ios::binary | std::ios::ate);
@@ -76,13 +76,12 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
     
     if(emuenv.cfg.dencrypt_installs){
            vfs::FileBuffer file_dec;
-      //     for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
-               decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
+
+            decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt file {}", title_id_dst.c_str());
            else
                LOG_INFO("Decrypted {}", title_id_dst.c_str());
-          // }
     }
         
     return true;
