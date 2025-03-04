@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -75,7 +75,7 @@ void draw_firmware_install_dialog(GuiState &gui, EmuEnvState &emuenv) {
 
         if (result == host::dialog::filesystem::Result::SUCCESS) {
             std::thread installation([&emuenv]() {
-                install_pup(emuenv.pref_path, pup_path, progress_callback);
+                install_pup(emuenv.pref_path, pup_path, progress_callback, emuenv.cfg.dencrypt_installs);
                 std::lock_guard<std::mutex> lock(install_mutex);
                 finished_installing = true;
                 get_firmware_version(emuenv);
