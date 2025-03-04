@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
             }
             if (cfg.pup_path.has_value()) {
                 LOG_INFO("Installing firmware file {}", *cfg.pup_path);
-                install_pup(cfg.get_pref_path(), *cfg.pup_path, [](uint32_t progress, cfg.dencrypt_installs) {
+                install_pup(cfg.get_pref_path(), *cfg.pup_path, [](uint32_t progress), cfg.dencrypt_installs) {
                     LOG_INFO("Firmware installation progress: {}%", progress);
                 });
             }
