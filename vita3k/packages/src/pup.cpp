@@ -296,8 +296,19 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
                LOG_INFO("Decrypted {}", file_dec.path());
         }
     }
-    if (fs::file_size(pup_dec / "pd0.img") > 0)
+    if (fs::file_size(pup_dec / "pd0.img") > 0){
         exfat::extract_exfat(pup_dec, "pd0.img", pref_path);
+        // dencrypt key
+        if(is_dencrypt){
+           vfs::FileBuffer file_dec;
+
+               decrypt_fself(std::move(file_dec), SCE_KEYS);
+           if (file_dec.empty()) 
+               LOG_ERROR("Failed to decrypt module file {}", file_dec);
+           else
+               LOG_INFO("Decrypted {}", file_dec.path());
+        }
+    }
     if (fs::file_size(pup_dec / "sa0.img") > 0)
         extract_fat(pup_dec, "sa0.img", pref_path);
     if (fs::file_size(pup_dec / "vs0.img") > 0) {
