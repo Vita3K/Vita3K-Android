@@ -75,15 +75,9 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
     fs::rename(title_id_dst, title_id_src);
 
     if(emuenv.cfg.dencrypt_installs){
-        KeyStore SCE_KEYS;
-        register_keys(SCE_KEYS, 1);
-        std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zRIF);
-
         for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
-            if (is_self(file.path())) {
-               decrypt_fself(file.path(), SCE_KEYS, temp_klicensee.data());
-               LOG_INFO("Decrypted {} with klicensee {}", file.path(), byte_array_to_string(temp_klicensee.data(), 16));
-            }
+            decrypt_fself(file.path(), emuenv.license.rif[emuenv.io.title_id].key);
+            LOG_INFO("Decrypted {} with klicensee {}", file.path(), byte_array_to_string(emuenv.license.rif[emuenv.io.title_id].key, 16));
         }
     }
         
