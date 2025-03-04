@@ -289,11 +289,11 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
 
-               decrypt_fself(std::move(file_dec), SCE_KEYS);
+            decrypt_fself(std::move(file_dec), SCE_KEYS);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
-               LOG_INFO("Decrypted {}", file_dec.path());
+               LOG_INFO("Decrypted {}", file_dec);
         }
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0){
@@ -306,7 +306,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
-               LOG_INFO("Decrypted {}", file_dec.path());
+               LOG_INFO("Decrypted {}", file_dec);
         }
     }
     if (fs::file_size(pup_dec / "sa0.img") > 0)
@@ -322,7 +322,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt module file {}", file_dec);
            else
-               LOG_INFO("Decrypted {}", file_dec.path());
+               LOG_INFO("Decrypted {}", file_dec);
         }
     }
     progress_callback(100);
