@@ -255,7 +255,7 @@ static void decrypt_pup_packages(const fs::path &src, const fs::path &dest, KeyS
     join_files(dest, "sa0-", dest / "sa0.img");
 }
 
-void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std::function<void(uint32_t)> &progress_callback) {
+void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std::function<void(uint32_t)> &progress_callback, const bool is_dencrypt) {
     fs::path pup_dec_root = pref_path / "PUP_DEC";
     if (fs::exists(pup_dec_root)) {
         LOG_WARN("Path already exists, deleting it and reinstalling");
@@ -285,7 +285,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         extract_fat(pup_dec, "os0.img", pref_path);
 
         // dencrypt key
-        if(emuenv.cfg.dencrypt_installs){
+        if(is_dencrypt){
            vfs::FileBuffer file_dec;
 
                decrypt_fself(std::move(file_dec), SCE_KEYS);
@@ -303,7 +303,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         extract_fat(pup_dec, "vs0.img", pref_path);
 
         // dencrypt key
-        if(emuenv.cfg.dencrypt_installs){
+        if(is_dencrypt){
            vfs::FileBuffer file_dec;
 
                decrypt_fself(std::move(file_dec), SCE_KEYS);
