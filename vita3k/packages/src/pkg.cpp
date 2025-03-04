@@ -73,12 +73,16 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
 
     fs::remove_all(title_id_src);
     fs::rename(title_id_dst, title_id_src);
-
+    
     if(emuenv.cfg.dencrypt_installs){
-        for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
-            decrypt_fself(file.path(), emuenv.license.rif[emuenv.io.title_id].key);
-            LOG_INFO("Decrypted {} with klicensee {}", file.path(), byte_array_to_string(emuenv.license.rif[emuenv.io.title_id].key, 16));
-        }
+           vfs::FileBuffer file_dec;
+      //     for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+               decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
+           if (file_dec.empty()) 
+               LOG_ERROR("Failed to decrypt module file {}", file_dec);
+           else
+               LOG_INFO("Decrypted {}", file_dec.path());
+          // }
     }
         
     return true;
@@ -325,12 +329,14 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         fs::rename(title_id_dst, title_id_src);
 
         if(emuenv.cfg.dencrypt_installs){
-           for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
-               if (is_self(file.path())) {
-                   decrypt_fself(file.path(), SCE_KEYS, temp_klicensee.data());
-                   LOG_INFO("Decrypted {} with klicensee {}", file.path(), byte_array_to_string(temp_klicensee.data(), 16));
-               }
-           }
+           vfs::FileBuffer file_dec;
+      //     for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+               decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
+           if (file_dec.empty()) 
+               LOG_ERROR("Failed to decrypt module file {}", file_dec);
+           else
+               LOG_INFO("Decrypted {}", file_dec.path());
+          // }
         }
         
         break;
