@@ -290,8 +290,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
-            LOG_TRACE("BEGIN DENCRYPT os0");
-           decrypt_fself(std::move(file_dec), nullptr);
+            LOG_TRACE("BEGIN DENCRYPT os0 with 0 key");
+           decrypt_fself(std::move(file_dec), 0);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt os0 partition");
            else
@@ -303,8 +303,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
-            LOG_TRACE("BEGIN DENCRYPT pd0");
-           decrypt_fself(std::move(file_dec), nullptr);
+            LOG_TRACE("BEGIN DENCRYPT pd0 with 0 key");
+           decrypt_fself(std::move(file_dec), 0);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt pd0 partition");
            else
@@ -319,8 +319,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
-            LOG_TRACE("BEGIN DENCRYPT vs0");
-           decrypt_fself(std::move(file_dec), nullptr);
+            LOG_TRACE("BEGIN DENCRYPT vs0 with 0 key");
+           decrypt_fself(std::move(file_dec), 0);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt vs0 partition");
            else
