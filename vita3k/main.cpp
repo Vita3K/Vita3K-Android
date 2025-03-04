@@ -233,9 +233,9 @@ int main(int argc, char *argv[]) {
             }
             if (cfg.pup_path.has_value()) {
                 LOG_INFO("Installing firmware file {}", *cfg.pup_path);
-                install_pup(cfg.get_pref_path(), *cfg.pup_path, [](uint32_t progress), cfg.dencrypt_installs) {
+                install_pup(cfg.get_pref_path(), *cfg.pup_path, [](uint32_t progress) {
                     LOG_INFO("Firmware installation progress: {}%", progress);
-                });
+                }, cfg.dencrypt_installs);
             }
             if (cfg.pkg_path.has_value() && cfg.pkg_zrif.has_value()) {
                 LOG_INFO("Installing pkg from {} ", *cfg.pkg_path);
