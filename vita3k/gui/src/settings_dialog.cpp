@@ -1213,11 +1213,8 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::Spacing();
         ImGui::Separator();
         
-        // Dencrypt install
-        if(ImGui::Checkbox(lang.emulator["dencrypt_installs"].c_str(), &emuenv.cfg.dencrypt_installs)){
-            set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
-            config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
-        }
+        // Dencrypt all executable and libs when install
+        ImGui::Checkbox(lang.emulator["dencrypt_installs"].c_str(), &emuenv.cfg.dencrypt_installs);
         SetTooltipEx(lang.emulator["dencrypt_installs_description"].c_str());
 
         ImGui::Spacing();
