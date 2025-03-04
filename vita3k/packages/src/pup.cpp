@@ -28,7 +28,9 @@
 #include <host/dialog/filesystem.h>
 #include <packages/exfat.h>
 #include <packages/sce_types.h>
+#include <util/bytes.h>
 #include <util/fs.h>
+#include <util/log.h>
 
 #include <algorithm>
 #include <fstream>
@@ -288,7 +290,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
-
+            LOG_TRACE("BEGIN DENCRYPT os0");
            decrypt_fself(std::move(file_dec), nullptr);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt os0 partition");
@@ -301,7 +303,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
-
+            LOG_TRACE("BEGIN DENCRYPT pd0");
            decrypt_fself(std::move(file_dec), nullptr);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt pd0 partition");
@@ -317,7 +319,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            vfs::FileBuffer file_dec;
-
+            LOG_TRACE("BEGIN DENCRYPT vs0");
            decrypt_fself(std::move(file_dec), nullptr);
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt vs0 partition");
