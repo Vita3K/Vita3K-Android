@@ -293,7 +293,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt os0 partition");
            else
-               LOG_INFO("Decrypted os0 partition", file_dec);
+               LOG_INFO("Decrypted os0 partition");
         }
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0){
@@ -306,7 +306,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt pd0 partition");
            else
-               LOG_INFO("Decrypted pd0 partition", file_dec);
+               LOG_INFO("Decrypted pd0 partition");
         }
     }
     if (fs::file_size(pup_dec / "sa0.img") > 0)
@@ -322,7 +322,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            if (file_dec.empty()) 
                LOG_ERROR("Failed to decrypt vs0 partition");
            else
-               LOG_INFO("Decrypted vs0 partition", file_dec);
+               LOG_INFO("Decrypted vs0 partition");
         }
     }
     progress_callback(100);
