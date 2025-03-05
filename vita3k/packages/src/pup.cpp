@@ -271,7 +271,7 @@ void dencrypt_pup_files(const VitaIoDevice &device, const fs::path &pref_path, c
         std::string tmp(file_dec.begin(), file_dec.end());
         LOG_TRACE("file_dec = {}", tmp);
         if (!vfs_read){
-            LOG_ERROR("Failed to read executable file {}", file_path);
+            LOG_ERROR("Failed to read executable file {}", tmp);
         }else{
             LOG_TRACE("Begin dencrypt");
             decrypt_fself(std::move(file_dec), 0);
