@@ -258,6 +258,31 @@ static void decrypt_pup_packages(const fs::path &src, const fs::path &dest, KeyS
     join_files(dest, "sa0-", dest / "sa0.img");
 }
 
+
+void dencrypt_pup_files(const std::string &file_path, const fs::path &pref_path, const fs::path translated_module_path){
+    vfs::FileBuffer file_dec;
+    bool vfs_read;
+    LOG_TRACE("preparing dencrypt_pup_files");
+    VitaIoDevice device = device::get_device(file_path);
+
+    LOG_TRACE("begin vfs read file");
+    vfs_read = vfs::read_file(device, file_dec, pref_path, translated_module_path);
+    if (!vfs_read){
+        LOG_ERROR("Failed to read file {}", file_path);
+    }else{
+        if (is_self(pref_path)) {
+            LOG_TRACE("Begin dencrypt");
+            decrypt_fself(std::move(file_dec), 0);
+            if (pref_path.empty()) 
+                LOG_ERROR("Failed to decrypt {}", pref_path.c_str());
+            else
+                LOG_INFO("Decrypted {}", pref_path.c_str());
+        }else{
+            LOG_TRACE("unpacking {}", pref_path.c_str());
+        }
+    }     
+}
+
 void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std::function<void(uint32_t)> &progress_callback, const bool is_dencrypt) {
     fs::path pup_dec_root = pref_path / "PUP_DEC";
     if (fs::exists(pup_dec_root)) {
@@ -289,8 +314,14 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
+            
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
                 if (fs::is_regular_file(file.path())) {
+                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "os0");
+                }
+            }
+
+                    /*
                     vfs::FileBuffer file_dec;
                     
                     if (is_self(file.path())) {
@@ -303,6 +334,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
                     }
                  }
             }
+            */
         }
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0){
@@ -310,6 +342,13 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         
         // dencrypt key
         if(is_dencrypt){
+            for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
+                if (fs::is_regular_file(file.path())) {
+                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "pd0");
+                }
+            }
+            
+            /*
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
                 if (fs::is_regular_file(file.path())) {
                     vfs::FileBuffer file_dec;
@@ -324,6 +363,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
                     }
                  }
             }
+            */
         }
     }
     if (fs::file_size(pup_dec / "sa0.img") > 0)
@@ -333,6 +373,13 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
+            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
+                if (fs::is_regular_file(file.path())) {
+                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "vs0");
+                }
+            }
+
+            /*
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
                 if (fs::is_regular_file(file.path())) {
                     vfs::FileBuffer file_dec;
@@ -347,6 +394,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
                     }
                  }
             }
+            */
         }
     }
     progress_callback(100);
