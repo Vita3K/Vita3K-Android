@@ -23,7 +23,10 @@
  * contain firmware updates
  */
 
+#include <io/device.h>
+#include <io/state.h>
 #include <io/vfs.h>
+
 #include <openssl/evp.h>
 #include <host/dialog/filesystem.h>
 #include <packages/exfat.h>
