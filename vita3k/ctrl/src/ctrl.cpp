@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -124,8 +124,8 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
             if (controller_name != nullptr && 
                 (std::string_view(controller_name).starts_with("uinput-")
                 || std::string_view(controller_name).starts_with("gf_")
-                || std::string_view(controller_name).contains("wakeup") // keyboard_wakeup_service
-                || std::string_view(controller_name).contains("sensor"))) // maybe other sensor are detected as controller
+                || std::string_view(controller_name).ends_with("sensor") 
+                || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
                 continue;
             
             if(!SDL_JoystickIsVirtual(joystick_index)){
