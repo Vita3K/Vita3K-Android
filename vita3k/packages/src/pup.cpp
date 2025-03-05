@@ -319,9 +319,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         if(is_dencrypt){
             
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
-                if (fs::is_regular_file(file.path())) {
-                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "os0");
-                }
+                if (fs::is_regular_file(file.path()))
+                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "os0"));
             }
 
                     /*
@@ -346,9 +345,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
-                if (fs::is_regular_file(file.path())) {
-                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "pd0");
-                }
+                if (fs::is_regular_file(file.path())) 
+                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "pd0"));
             }
             
             /*
@@ -377,9 +375,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
-                if (fs::is_regular_file(file.path())) {
-                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "vs0");
-                }
+                if (fs::is_regular_file(file.path())) 
+                    dencrypt_pup_files(file.path(), pref_path, fs::path(pref_path / "vs0"));
             }
 
             /*
