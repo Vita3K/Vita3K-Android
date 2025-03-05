@@ -239,11 +239,11 @@ SceUID load_module(EmuEnvState &emuenv, const std::string &module_path) {
 
     if (device == VitaIoDevice::app0){
         std::string tmp(module_buffer.begin(), module_buffer.end());
-        LOG_TRACE("LOAD MODULE READ APP FILE:\nGET INFO: module_buffer = {}\nemuenv.pref_path = {}\nemuenv.io.app_path = {}\ntranslated_module_path = {}", tmp, emuenv.pref_path, emuenv.io.app_path,translated_module_path); 
+        LOG_TRACE("LOAD MODULE READ APP FILE:\nGET INFO: module_buffer = {}\nemuenv.pref_path = {}\nemuenv.io.app_path = {}\ntranslated_module_path = {}", tmp, emuenv.pref_path.c_str(), emuenv.io.app_path.c_str(),translated_module_path); 
         res = vfs::read_app_file(module_buffer, emuenv.pref_path, emuenv.io.app_path, translated_module_path);
     }else{
         std::string tmp(module_buffer.begin(), module_buffer.end());
-        LOG_TRACE("LOAD MODULE READ FILE:\nGET INFO: device = {}\nmodule_buffer = {}\nemuenv.pref_path = {}\ntranslated_module_path = {}",device,tmp,emuenv.pref_path,translated_module_path);
+        LOG_TRACE("LOAD MODULE READ FILE:\nGET INFO: device = {}\nmodule_buffer = {}\nemuenv.pref_path = {}\ntranslated_module_path = {}",device,tmp,emuenv.pref_path.c_str(),translated_module_path);
         res = vfs::read_file(device, module_buffer, emuenv.pref_path, translated_module_path);
     }
     if (!res) {
