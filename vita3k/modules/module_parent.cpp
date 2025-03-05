@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -237,10 +237,13 @@ SceUID load_module(EmuEnvState &emuenv, const std::string &module_path) {
         }
     }
 
-    if (device == VitaIoDevice::app0)
+    if (device == VitaIoDevice::app0){
+        LOG_TRACE("LOAD MODULE READ APP FILE:\nGET INFO: module_buffer = {}\nemuenv.pref_path = {}\nemuenv.io.app_path = {}\ntranslated_module_path = {}", module_buffer.c_str(), emuenv.pref_path, emuenv.io.app_path,translated_module_path); 
         res = vfs::read_app_file(module_buffer, emuenv.pref_path, emuenv.io.app_path, translated_module_path);
-    else
+    }else{
+        LOG_TRACE("LOAD MODULE READ FILE:\nGET INFO: device = {}\nmodule_buffer = {}\nemuenv.pref_path = {}\ntranslated_module_path = {}",device,module_buffer,emuenv.pref_path,translated_module_path);
         res = vfs::read_file(device, module_buffer, emuenv.pref_path, translated_module_path);
+    }
     if (!res) {
         LOG_ERROR("Failed to read module file {}", module_path);
         return SCE_ERROR_ERRNO_ENOENT;
@@ -251,6 +254,8 @@ SceUID load_module(EmuEnvState &emuenv, const std::string &module_path) {
     if (module_buffer.empty()) {
         LOG_ERROR("Failed to decrypt module file {}", module_path);
         return SCE_ERROR_ERRNO_ENOENT;
+    }else if(!module_buffer.empty()){
+        LOG_TRACE("LOAD MODULE : DENCRYPT module = {}", module_path);
     }
     
     // Only load patches for eboot.bin modules
