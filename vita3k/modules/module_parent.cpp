@@ -246,7 +246,7 @@ SceUID load_module(EmuEnvState &emuenv, const std::string &module_path) {
         res = vfs::read_app_file(module_buffer, emuenv.pref_path, emuenv.io.app_path, translated_module_path);
     }else{
         std::string tmp(module_buffer.begin(), module_buffer.end());
-        LOG_TRACE("LOAD MODULE READ FILE:\nGET INFO: device = {}", device_for_icase);
+        LOG_TRACE("LOAD MODULE READ FILE:\nGET INFO:");
         LOG_TRACE("module_buffer = {}", tmp);
         LOG_TRACE("emuenv.pref_path = {}", emuenv.pref_path.c_str());
         LOG_TRACE("translated_module_path = {}", translated_module_path);
