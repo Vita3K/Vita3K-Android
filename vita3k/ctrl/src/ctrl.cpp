@@ -124,7 +124,8 @@ void refresh_controllers(CtrlState &state, EmuEnvState &emuenv) {
             if (controller_name != nullptr && 
                 (std::string_view(controller_name).starts_with("uinput-")
                 || std::string_view(controller_name).starts_with("gf_")
-                || std::string_view(controller_name).starts_with("sensor"))) // maybe other sensor are detected as controller
+                || std::string_view(controller_name).contains("wakeup") // keyboard_wakeup_service
+                || std::string_view(controller_name).contains("sensor"))) // maybe other sensor are detected as controller
                 continue;
             
             if(!SDL_JoystickIsVirtual(joystick_index)){
