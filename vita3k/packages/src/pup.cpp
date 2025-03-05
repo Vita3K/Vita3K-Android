@@ -265,24 +265,18 @@ static void decrypt_pup_packages(const fs::path &src, const fs::path &dest, KeyS
 void dencrypt_pup_files(const VitaIoDevice &device, const fs::path &pref_path, const fs::path &translated_module_path){
     vfs::FileBuffer file_dec;
     bool vfs_read;
-    
-    if (is_self(pref_path)) {
+
         vfs_read = vfs::read_file(device, file_dec, pref_path, translated_module_path);
-        std::string tmp(file_dec.begin(), file_dec.end());
-        LOG_TRACE("file_dec = {}", tmp);
         if (!vfs_read){
-            LOG_ERROR("Failed to read executable file {}", tmp);
+            LOG_ERROR("Failed to read executable file {}", translated_module_path.c_str());
         }else{
             LOG_TRACE("Begin dencrypt");
             decrypt_fself(std::move(file_dec), 0);
             if (pref_path.empty()) 
-                LOG_ERROR("Failed to decrypt {}", pref_path.c_str());
+                LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
             else
-                LOG_INFO("Decrypted {}", pref_path.c_str());
+                LOG_INFO("Decrypted {}", translated_module_path.c_str());
         }
-    }else{
-        LOG_TRACE("unpacking {}", pref_path.c_str());
-    }     
 }
 
 void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std::function<void(uint32_t)> &progress_callback, const bool is_dencrypt) {
@@ -316,12 +310,12 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
-            progress_callback(80);
-            dencrypt_pup_files(VitaIoDevice::os0, pref_path, fs::path(pref_path / "os0"));
-           /* for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
-                if (fs::is_regular_file(file.path()))
-                    dencrypt_pup_files(file.path().c_str(), pref_path, fs::path(pref_path / "os0"));
+            progress_callback(85);
+            for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
+                if (is_self(file.path())) 
+                    dencrypt_pup_files(VitaIoDevice::os0, pref_path, file.path());
             }
+            /*
 
                     
                     vfs::FileBuffer file_dec;
@@ -344,15 +338,14 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         
         // dencrypt key
         if(is_dencrypt){
-            progress_callback(80);
-            dencrypt_pup_files(VitaIoDevice::pd0, pref_path, fs::path(pref_path / "pd0"));
-            /*
+            progress_callback(90);
+            
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
-                if (fs::is_regular_file(file.path())) 
-                    dencrypt_pup_files(file.path().c_str(), pref_path, fs::path(pref_path / "pd0"));
+                if (is_self(file.path())) 
+                    dencrypt_pup_files(VitaIoDevice::pd0, pref_path, file.path());
             }
             
-            
+            /*
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
                 if (fs::is_regular_file(file.path())) {
                     vfs::FileBuffer file_dec;
@@ -377,9 +370,11 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
-            progress_callback(80);
-            dencrypt_pup_files(VitaIoDevice::vs0, pref_path, fs::path(pref_path / "vs0"));
-
+            progress_callback(95);
+            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
+                if (is_self(file.path())) 
+                    dencrypt_pup_files(VitaIoDevice::vs0, pref_path, file.path());
+            }
             /*
             for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
                 if (fs::is_regular_file(file.path())) 
