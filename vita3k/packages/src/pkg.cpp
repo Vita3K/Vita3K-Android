@@ -57,6 +57,43 @@ int execute(std::string &zrif, fs::path &title_src, fs::path &title_dst, F00DEnc
     return execute(zrif, title_src_str, title_dst_str, type, f00d_arg);
 }
 
+void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_module_path, const fs::path &out_file, const std::string &key){
+    vfs::FileBuffer file_dec;
+    bool vfs_read;
+
+    fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
+    if (!f){
+        LOG_ERROR("Failed to open {}", translated_module_path);
+        return;
+    }
+
+    f.unsetf(fs::ifstream::skipws);
+    file_dec.reserve(fs::file_size(translated_module_path));
+    file_dec.insert(file_dec.begin(), std::istream_iterator<uint8_t>(f), std::istream_iterator<uint8_t>());
+    f.close();
+    
+            LOG_TRACE("Begin dencrypt");
+            std::string tmp(file_dec.begin(), file_dec.end());
+            LOG_TRACE("====START====\nfile_dec data:\n=========\n{}\n====END====", tmp);    
+            
+            if (file_dec.empty()) 
+                LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
+            else{
+                LOG_TRACE("Dencrypting...");
+                decrypt_fself(std::move(file_dec), key);
+                LOG_INFO("Decrypted {}", translated_module_path.c_str());
+                fs::ofstream d{ translated_module_path, fs::ofstream::binary };
+                if (!d){
+                    LOG_ERROR("Failed to replace {}", out_file);
+                }else{
+                    
+                    d.write((char *) file_dec.data(), file_dec.size());
+                    d.close();
+                    LOG_TRACE("WRITE OK!");
+                }
+            }
+}
+
 bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, const fs::path &title_path) {
     fs::path title_id_src = title_path;
     fs::path title_id_dst = fs_utils::path_concat(title_path, "_dec");
@@ -75,18 +112,16 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
     fs::rename(title_id_dst, title_id_src);
     
     if(emuenv.cfg.dencrypt_installs){
-       for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
-           vfs::FileBuffer file_dec;
-
-           if (is_self(file.path())) {
-               LOG_INFO("begin dencrypt {}", file.path().c_str());
-               decrypt_fself(std::move(file_dec), emuenv.license.rif[emuenv.io.title_id].key);
-               if (file_dec.empty()) 
-                   LOG_ERROR("Failed to decrypt file {}", title_id_dst.c_str());
-               else
-                   LOG_INFO("Decrypted {}", title_id_dst.c_str());
+       if(is_dencrypt){
+            
+            for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+                if (is_self(file.path())) {
+                    LOG_TRACE("Begin dencrypt");
+                    auto np = file.path();
+                    dencrypt_elf_files(pref_path, file.path(), np, emuenv.license.rif[emuenv.io.title_id].key);
+                    np.replace_extension(np.extension().string() + ".fself");
+                }
             }
-        }
     }
         
     return true;
