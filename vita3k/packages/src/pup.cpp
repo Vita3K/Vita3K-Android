@@ -266,7 +266,7 @@ void dencrypt_pup_files(const fs::path &pref_path, const fs::path &translated_mo
     vfs::FileBuffer file_dec;
     bool vfs_read;
 
-    fs::ifstream f{ translated_module_path.native().c_str(), fs::ifstream::binary };
+    fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
     if (!f){
         LOG_ERROR("Failed to open {}", translated_module_path);
         return;
@@ -278,6 +278,8 @@ void dencrypt_pup_files(const fs::path &pref_path, const fs::path &translated_mo
     f.close();
     
             LOG_TRACE("Begin dencrypt");
+            std::string tmp(file_dec.begin(), file_dec.end());
+            LOG_TRACE("====START====\nfile_dec data:\n=========\n{}\n====END====", tmp);    
             decrypt_fself(std::move(file_dec), 0);
             if (pref_path.empty()) 
                 LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
