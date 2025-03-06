@@ -287,10 +287,9 @@ void dencrypt_pup_files(const fs::path &pref_path, const fs::path &translated_mo
                 if (!d){
                     LOG_ERROR("Failed to replace {}", out_file);
                 }else{
-                    char *a = file_dec.data();
-                    const unsigned  char *b= reinterpret_cast<unsigned char *>(a);
-
-                    d.write(b, file_dec.size());
+                    const char *a = file_dec.data();
+                    
+                    d.write(&a, file_dec.size());
                     d.close();
                     LOG_TRACE("WRITE OK!");
                 }
