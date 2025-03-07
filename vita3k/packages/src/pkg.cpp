@@ -41,6 +41,8 @@
 #include <util/bytes.h>
 #include <util/log.h>
 
+#include <cstring>
+
 // Credits to mmozeiko https://github.com/mmozeiko/pkg2zip
 
 static void ctr_init(uint8_t *counter, uint8_t *iv, uint64_t n) {
