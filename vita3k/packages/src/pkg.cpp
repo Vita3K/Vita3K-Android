@@ -78,9 +78,9 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
           /*  std::string tkey;
             strcpy(key, tkey);
             LOG_TRACE("====START====\nkey data:\n=========\n{}\n====END====", tkey);    
-          */  std::string tmp(file_dec.begin(), file_dec.end());
+            std::string tmp(file_dec.begin(), file_dec.end());
             LOG_TRACE("====START====\nfile_dec data:\n=========\n{}\n====END====", tmp);    
-            
+            */
             if (file_dec.empty()) 
                 LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
             else{
@@ -126,6 +126,7 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
                     LOG_TRACE("np = {}", np.c_str());
                     dencrypt_elf_files(emuenv.pref_path, file.path(), np, emuenv.license.rif[emuenv.io.title_id].key);
                     np.replace_extension(np.extension().string() + ".fself");
+                    fs::rename(np, title_id_src);
                 }
             }
     }
