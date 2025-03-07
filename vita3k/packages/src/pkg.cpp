@@ -73,8 +73,7 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
     f.close();
     
             LOG_TRACE("Begin dencrypt");
-            std::string tkey(key.begin(), key.end());
-            LOG_TRACE("====START====\nkey data:\n=========\n{}\n====END====", tkey);    
+            LOG_TRACE("====START====\nkey data:\n=========\n{}\n====END====", key);    
             std::string tmp(file_dec.begin(), file_dec.end());
             LOG_TRACE("====START====\nfile_dec data:\n=========\n{}\n====END====", tmp);    
             
