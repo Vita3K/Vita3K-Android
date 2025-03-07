@@ -91,7 +91,7 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
                     LOG_ERROR("Failed to open output {}", out_file);
                 }else{
                     std::string tmp(file_dec.begin(), file_dec.end());
-                    d.write(tmp, tmp.size());
+                    d.write(tmp.c_str(), tmp.size());
                     d.close();
                     LOG_TRACE("WRITE OK!\n");
                 }
