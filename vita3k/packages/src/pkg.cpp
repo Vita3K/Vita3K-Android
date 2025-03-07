@@ -83,17 +83,17 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
             if (file_dec.empty()) 
                 LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
             else{
-                LOG_TRACE("Dencrypting...");
+                LOG_TRACE("\nDencrypting...");
                 file_dec = decrypt_fself(std::move(file_dec), key);
                 LOG_INFO("Decrypted {}", translated_module_path.c_str());
                 fs::ofstream d{ translated_module_path, fs::ofstream::binary };
                 if (!d){
                     LOG_ERROR("Failed to open output {}", out_file);
                 }else{
-                    unsigned int dec = file_dec.size();
-                    d.write(reinterpret_cast<char*>(&dec), sizeof(dec));
+                    std::string tmp(file_dec.begin(), file_dec.end());
+                    d.write(tmp, tmp.size());
                     d.close();
-                    LOG_TRACE("WRITE OK!");
+                    LOG_TRACE("WRITE OK!\n");
                 }
             }
 }
