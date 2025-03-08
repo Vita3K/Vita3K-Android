@@ -303,7 +303,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            progress_callback(95);
-           zkey = "pupfw";
+           zkey = "pup";
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
                 if (is_self(file.path()))
                     dencrypt_elf_files(pref_path, file.path(), zkey);
