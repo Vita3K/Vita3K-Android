@@ -29,6 +29,7 @@
 #include <packages/sce_types.h>
 #include <util/string_utils.h>
 
+#include <rif2zrif.h>
 #include <self.h>
 
 #include <fstream>
