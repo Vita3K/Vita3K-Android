@@ -218,6 +218,9 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
             config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
         }
         SetTooltipEx(emulator["dencrypt_installs_description"].c_str());
+#ifdef ANDROID
+        ImGui::ScrollWhenDragging();
+#endif
         break;
     case SELECT_INTERFACE_SETTINGS:
         title_str = lang["select_interface_settings"];
