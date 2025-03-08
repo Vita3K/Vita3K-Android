@@ -261,42 +261,6 @@ static void decrypt_pup_packages(const fs::path &src, const fs::path &dest, KeyS
     join_files(dest, "sa0-", dest / "sa0.img");
 }
 
-
-void dencrypt_pup_files(const fs::path &pref_path, const fs::path &translated_module_path, const fs::path &out_file){
-    vfs::FileBuffer file_dec;
-    bool vfs_read;
-
-    fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
-    if (!f){
-        LOG_ERROR("Failed to open {}", translated_module_path);
-        return;
-    }
-
-    f.unsetf(fs::ifstream::skipws);
-    file_dec.reserve(fs::file_size(translated_module_path));
-    file_dec.insert(file_dec.begin(), std::istream_iterator<uint8_t>(f), std::istream_iterator<uint8_t>());
-    f.close();
-    
-            LOG_TRACE("Begin dencrypt");
-            std::string tmp(file_dec.begin(), file_dec.end());
-            LOG_TRACE("====START====\nfile_dec data:\n=========\n{}\n====END====", tmp);    
-            decrypt_fself(std::move(file_dec), 0);
-            if (pref_path.empty()) 
-                LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
-            else{
-                LOG_INFO("Decrypted {}", translated_module_path.c_str());
-                fs::ofstream d{ translated_module_path, fs::ofstream::binary };
-                if (!d){
-                    LOG_ERROR("Failed to replace {}", out_file);
-                }else{
-                    
-                    d.write((char *) file_dec.data(), file_dec.size());
-                    d.close();
-                    LOG_TRACE("WRITE OK!");
-                }
-            }
-}
-
 void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std::function<void(uint32_t)> &progress_callback, const bool is_dencrypt) {
     fs::path pup_dec_root = pref_path / "PUP_DEC";
     if (fs::exists(pup_dec_root)) {
@@ -328,30 +292,11 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
-            progress_callback(85);
-            for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
-                if (is_self(file.path())) {
-                    auto np = file.path();
-                    dencrypt_pup_files(pref_path, file.path(), np);
-                    np.replace_extension(np.extension().string() + ".fself");
-                }
-            }
-            /*
-
-                    
-                    vfs::FileBuffer file_dec;
-                    
-                    if (is_self(file.path())) {
-                        LOG_TRACE("BEGIN DENCRYPT os0 with 0 key");
-                        decrypt_fself(std::move(file_dec), 0);
-                        if (file_dec.empty()) 
-                            LOG_ERROR("Failed to decrypt {}", file.path().c_str());
-                        else
-                            LOG_INFO("Decrypted {}", file.path().c_str());
-                    }
-                 }
-            }
-            */
+           progress_callback(95);
+           for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
+                if (is_self(file.path()))
+                    dencrypt_elf_files(emuenv.pref_path, file.path(), 0);
+           }
         }
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0){
@@ -359,34 +304,14 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         
         // dencrypt key
         if(is_dencrypt){
-            progress_callback(90);
-            
-            for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
-                if (is_self(file.path())) {
-                    auto np = file.path();
-                    dencrypt_pup_files(pref_path, file.path(), np);
-                    np.replace_extension(np.extension().string() + ".fself");
-                }
-            }
-            
-            /*
-            for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
-                if (fs::is_regular_file(file.path())) {
-                    vfs::FileBuffer file_dec;
-                    
-                    if (is_self(file.path())) {
-                        LOG_TRACE("BEGIN DENCRYPT pd0 with 0 key");
-                        decrypt_fself(std::move(file_dec), 0);
-                        if (file_dec.empty()) 
-                            LOG_ERROR("Failed to decrypt {}", file.path().c_str());
-                        else
-                            LOG_INFO("Decrypted {}", file.path().c_str());
-                    }
-                 }
-            }
-            */
+           progress_callback(95);
+           for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
+                if (is_self(file.path()))
+                    dencrypt_elf_files(emuenv.pref_path, file.path(), 0);
+           }
         }
     }
+
     if (fs::file_size(pup_dec / "sa0.img") > 0)
         extract_fat(pup_dec, "sa0.img", pref_path);
     if (fs::file_size(pup_dec / "vs0.img") > 0) {
@@ -394,36 +319,11 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
-            progress_callback(95);
-            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
-                if (is_self(file.path())) {
-                    auto np = file.path();
-                    dencrypt_pup_files(pref_path, file.path(), np);
-                    np.replace_extension(np.extension().string() + ".fself");
-                }
-            }
-            /*
-            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
-                if (fs::is_regular_file(file.path())) 
-                    dencrypt_pup_files(file.path().c_str(), pref_path, fs::path(pref_path / "vs0"));
-            }
-
-            
-            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
-                if (fs::is_regular_file(file.path())) {
-                    vfs::FileBuffer file_dec;
-                    
-                    if (is_self(file.path())) {
-                        LOG_TRACE("BEGIN DENCRYPT vs0 with 0 key");
-                        decrypt_fself(std::move(file_dec), 0);
-                        if (file_dec.empty()) 
-                            LOG_ERROR("Failed to decrypt {}", file.path().c_str());
-                        else
-                            LOG_INFO("Decrypted {}", file.path().c_str());
-                    }
-                 }
-            }
-            */
+           progress_callback(95);
+           for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
+                if (is_self(file.path()))
+                    dencrypt_elf_files(emuenv.pref_path, file.path(), 0);
+           }
         }
     }
     progress_callback(100);
