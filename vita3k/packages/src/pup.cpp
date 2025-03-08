@@ -259,7 +259,7 @@ static void decrypt_pup_packages(const fs::path &src, const fs::path &dest, KeyS
 
 void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std::function<void(uint32_t)> &progress_callback, const bool is_dencrypt) {
     fs::path pup_dec_root = pref_path / "PUP_DEC";
-    std::string zkey = "pup";
+    std::string zkey;
     if (fs::exists(pup_dec_root)) {
         LOG_WARN("Path already exists, deleting it and reinstalling");
         fs::remove_all(pup_dec_root);
@@ -290,6 +290,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            progress_callback(95);
+           zkey = "pup";
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
                 if (is_self(file.path()))
                     dencrypt_elf_files(pref_path, file.path(), zkey);
@@ -302,6 +303,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
         // dencrypt key
         if(is_dencrypt){
            progress_callback(95);
+           zkey = "pupfw";
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
                 if (is_self(file.path()))
                     dencrypt_elf_files(pref_path, file.path(), zkey);
@@ -316,6 +318,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
 
         // dencrypt key
         if(is_dencrypt){
+           progress_callback(95);
+           zkey = "pupfw";
            progress_callback(95);
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
                 if (is_self(file.path()))
