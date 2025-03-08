@@ -74,13 +74,6 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
     file_dec.insert(file_dec.begin(), std::istream_iterator<uint8_t>(f), std::istream_iterator<uint8_t>());
     f.close();
     
-           /* LOG_TRACE("Begin dencrypt");
-            std::string tkey;
-            strcpy(key, tkey);
-            LOG_TRACE("====START====\nkey data:\n=========\n{}\n====END====", tkey);    
-            std::string tmp(file_dec.begin(), file_dec.end());
-            LOG_TRACE("====START====\nfile_dec data:\n=========\n{}\n====END====", tmp);    
-            */
     if (file_dec.empty()) 
         LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
     else{
@@ -92,7 +85,7 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
             LOG_INFO("Decrypted {}", translated_module_path.c_str());
             fs::ofstream d{ translated_module_path, fs::ofstream::binary };
             if (!d){
-                LOG_ERROR("Failed to open output {}", out_file);
+                LOG_ERROR("Failed to open output {}", translated_module_path);
             }else{
                 std::string tmp(file_dec.begin(), file_dec.end());
                 d.write(tmp.c_str(), tmp.size());
