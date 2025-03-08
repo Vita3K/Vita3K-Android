@@ -291,7 +291,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            progress_callback(95);
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "os0")) {
                 if (is_self(file.path()))
-                    dencrypt_elf_files(pref_path, file.path(), string("pup"));
+                    dencrypt_elf_files(pref_path, file.path(), std::string("pup"));
            }
         }
     }
@@ -303,7 +303,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            progress_callback(95);
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
                 if (is_self(file.path()))
-                    dencrypt_elf_files(pref_path, file.path(), string("pup"));
+                    dencrypt_elf_files(pref_path, file.path(), std::string("pup"));
            }
         }
     }
@@ -318,7 +318,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
            progress_callback(95);
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
                 if (is_self(file.path()))
-                    dencrypt_elf_files(pref_path, file.path(), string("pup"));
+                    dencrypt_elf_files(pref_path, file.path(), std::string("pup"));
            }
         }
     }
