@@ -287,7 +287,7 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
     if (fs::file_size(pup_dec / "os0.img") > 0) {
         extract_fat(pup_dec, "os0.img", pref_path);
 
-        // dencrypt key
+        // dencrypt system library
         if(is_dencrypt){
            progress_callback(95);
            zkey = "pup";
@@ -299,16 +299,9 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
     }
     if (fs::file_size(pup_dec / "pd0.img") > 0){
         exfat::extract_exfat(pup_dec, "pd0.img", pref_path);
-        
-        // dencrypt key
-        if(is_dencrypt){
-           progress_callback(95);
-           zkey = "pup";
-           for (const auto &file : fs::recursive_directory_iterator(pref_path / "pd0")) {
-                if (is_self(file.path()))
-                    dencrypt_elf_files(pref_path, file.path(), zkey);
-           }
-        }
+        // wellcome park not yet support dencrypt
+        // since old builds can't boot vita os
+        // so i'm just ignore it
     }
 
     if (fs::file_size(pup_dec / "sa0.img") > 0)
@@ -316,9 +309,8 @@ void install_pup(const fs::path &pref_path, const fs::path &pup_path, const std:
     if (fs::file_size(pup_dec / "vs0.img") > 0) {
         extract_fat(pup_dec, "vs0.img", pref_path);
 
-        // dencrypt key
+        // dencrypt system app
         if(is_dencrypt){
-           progress_callback(95);
            zkey = "pupfw";
            progress_callback(95);
            for (const auto &file : fs::recursive_directory_iterator(pref_path / "vs0")) {
