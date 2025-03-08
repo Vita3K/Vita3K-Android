@@ -238,19 +238,8 @@ SceUID load_module(EmuEnvState &emuenv, const std::string &module_path) {
     }
 
     if (device == VitaIoDevice::app0){
-        std::string tmp(module_buffer.begin(), module_buffer.end());
-        LOG_TRACE("LOAD MODULE READ APP FILE:\nGET INFO: module_buffer = {}",tmp);
-        LOG_TRACE("emuenv.pref_path = {}", emuenv.pref_path.c_str());
-        LOG_TRACE("emuenv.io.app_path = {}", emuenv.io.app_path.c_str());
-        LOG_TRACE("translated_module_path = {}",translated_module_path);
         res = vfs::read_app_file(module_buffer, emuenv.pref_path, emuenv.io.app_path, translated_module_path);
     }else{
-        std::string tmp(module_buffer.begin(), module_buffer.end());
-        LOG_TRACE("LOAD MODULE READ FILE:\nGET INFO:");
-        LOG_TRACE("module_buffer = {}", tmp);
-        LOG_TRACE("emuenv.pref_path = {}", emuenv.pref_path.c_str());
-        LOG_TRACE("translated_module_path = {}", translated_module_path);
-        
         res = vfs::read_file(device, module_buffer, emuenv.pref_path, translated_module_path);
     }
     if (!res) {
@@ -260,14 +249,9 @@ SceUID load_module(EmuEnvState &emuenv, const std::string &module_path) {
 
     // Decrypt module file if necessary
     module_buffer = decrypt_fself(std::move(module_buffer), emuenv.license.rif[emuenv.io.title_id].key);
-    
     if (module_buffer.empty()) {
         LOG_ERROR("Failed to decrypt module file {}", module_path);
         return SCE_ERROR_ERRNO_ENOENT;
-    }else if(!module_buffer.empty()){
-        LOG_TRACE("LOAD MODULE : DENCRYPT module = {}", module_path);
-        std::string tmp(module_buffer.begin(), module_buffer.end());
-        LOG_TRACE("MODULE BUFFER INSIDE = {}", tmp);
     }
     
     // Only load patches for eboot.bin modules
