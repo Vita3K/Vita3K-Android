@@ -114,10 +114,10 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
     fs::rename(title_id_dst, title_id_src);
     
     if(emuenv.cfg.dencrypt_installs){
-            for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
-                if (is_self(file.path())) {
-                    dencrypt_elf_files(emuenv.pref_path, file.path(), zRIF);
-            }
+        for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
+            if (is_self(file.path()))
+                dencrypt_elf_files(emuenv.pref_path, file.path(), zRIF);
+        }
     }
         
     return true;
@@ -365,7 +365,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
 
         if(emuenv.cfg.dencrypt_installs){
             for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
-                if (is_self(file.path())) {
+                if (is_self(file.path()))
                     dencrypt_elf_files(emuenv.pref_path, file.path(), zRIF);
             }
         }
