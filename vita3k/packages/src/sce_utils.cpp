@@ -839,6 +839,41 @@ bool is_self(const fs::path &file_path) {
     return (is_self || (file_path.filename() == "eboot.bin"));
 }
 
+void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_module_path, std::string &zkey){
+    vfs::FileBuffer file_dec;
+    std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zkey);
+    
+    fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
+    if (!f){
+        LOG_ERROR("Failed to open {}", translated_module_path);
+        return;
+    }
+    
+    f.unsetf(fs::ifstream::skipws);
+    file_dec.reserve(fs::file_size(translated_module_path));
+    file_dec.insert(file_dec.begin(), std::istream_iterator<uint8_t>(f), std::istream_iterator<uint8_t>());
+    f.close();
+    
+    if (file_dec.empty()) 
+        LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
+    else{
+        file_dec = decrypt_fself(std::move(file_dec), temp_klicensee.data());
+        if (file_dec.empty()) {
+            LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
+        }else{
+            LOG_INFO("Decrypted {}", translated_module_path.c_str());
+            fs::ofstream d{ translated_module_path, fs::ofstream::binary };
+            if (!d){
+                LOG_ERROR("Failed to open output {}", translated_module_path);
+            }else{
+                std::string tmp(file_dec.begin(), file_dec.end());
+                d.write(tmp.c_str(), tmp.size());
+                d.close();
+            }
+        }
+    }
+}
+
 std::vector<uint8_t> decrypt_fself(const std::vector<uint8_t> fself, const uint8_t *klic) {
     const SCE_header &self_header = *reinterpret_cast<const SCE_header *>(fself.data());
     const segment_info *const seg_infos = reinterpret_cast<const segment_info *>(&fself[self_header.section_info_offset]);
