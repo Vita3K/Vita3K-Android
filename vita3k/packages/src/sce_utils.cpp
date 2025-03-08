@@ -845,7 +845,12 @@ bool is_self(const fs::path &file_path) {
 
 void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_module_path, std::string &zkey){
     vfs::FileBuffer file_dec;
-    std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zkey);
+    
+    std::vector<uint8_t> temp_klicensee;
+    if(zkey.c_str() = '0')
+        temp_klicensee = 0;
+    else
+        temp_klicensee = get_temp_klicensee(zkey);
     
     fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
     if (!f){
