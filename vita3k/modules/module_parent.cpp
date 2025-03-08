@@ -237,11 +237,10 @@ SceUID load_module(EmuEnvState &emuenv, const std::string &module_path) {
         }
     }
 
-    if (device == VitaIoDevice::app0){
+    if (device == VitaIoDevice::app0)
         res = vfs::read_app_file(module_buffer, emuenv.pref_path, emuenv.io.app_path, translated_module_path);
-    }else{
+    else
         res = vfs::read_file(device, module_buffer, emuenv.pref_path, translated_module_path);
-    }
     if (!res) {
         LOG_ERROR("Failed to read module file {}", module_path);
         return SCE_ERROR_ERRNO_ENOENT;
