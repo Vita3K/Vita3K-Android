@@ -87,7 +87,7 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
         LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
     else{
         LOG_TRACE("\nDencrypting...");
-        file_dec = decrypt_fself(std::move(file_dec), key);
+        file_dec = decrypt_fself(std::move(file_dec), temp_klic);
         if (file_dec.empty()) {
             LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
         }else{
