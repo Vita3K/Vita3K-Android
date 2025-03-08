@@ -133,8 +133,8 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
                     auto np = file.path();
                     LOG_TRACE("np = {}", np.c_str());
                     dencrypt_elf_files(emuenv.pref_path, file.path(), np, zRIF);
-                    np.replace_extension(np.extension().string() + ".fself");
-                    fs::rename(np, title_id_src);
+                    // np.replace_extension(np.extension().string() + ".fself");
+                    // fs::rename(np, title_id_src);
                 }
             }
     }
