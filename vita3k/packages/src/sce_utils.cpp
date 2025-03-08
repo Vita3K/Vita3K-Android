@@ -846,11 +846,6 @@ bool is_self(const fs::path &file_path) {
 void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_module_path, std::string &zkey){
     vfs::FileBuffer file_dec;
     
-    std::vector<uint8_t> temp_klicensee;
-    if(zkey.c_str() = '0')
-        temp_klicensee = 0;
-    else
-        temp_klicensee = get_temp_klicensee(zkey);
     
     fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
     if (!f){
@@ -863,23 +858,29 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
     file_dec.insert(file_dec.begin(), std::istream_iterator<uint8_t>(f), std::istream_iterator<uint8_t>());
     f.close();
     
-    if (file_dec.empty()) 
+    if (file_dec.empty()) {
         LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
+        return;
+    }else if(zkey = "pup")
+        file_dec = decrypt_fself(std::move(file_dec), 0);
     else{
+        std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zkey);
         file_dec = decrypt_fself(std::move(file_dec), temp_klicensee.data());
-        if (file_dec.empty()) {
-            LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
-        }else{
-            LOG_INFO("Decrypted {}", translated_module_path.c_str());
-            fs::ofstream d{ translated_module_path, fs::ofstream::binary };
-            if (!d){
-                LOG_ERROR("Failed to open output {}", translated_module_path);
-            }else{
-                std::string tmp(file_dec.begin(), file_dec.end());
-                d.write(tmp.c_str(), tmp.size());
-                d.close();
-            }
-        }
+    }
+    
+    if (file_dec.empty()) {
+        LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
+        return;
+    }
+    
+    LOG_INFO("Decrypted {}", translated_module_path.c_str());
+    fs::ofstream d{ translated_module_path, fs::ofstream::binary };
+    if (!d){
+        LOG_ERROR("Failed to open output {}", translated_module_path);
+    }else{
+        std::string tmp(file_dec.begin(), file_dec.end());
+        d.write(tmp.c_str(), tmp.size());
+        d.close();
     }
 }
 
