@@ -59,43 +59,6 @@ int execute(std::string &zrif, fs::path &title_src, fs::path &title_dst, F00DEnc
     return execute(zrif, title_src_str, title_dst_str, type, f00d_arg);
 }
 
-void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_module_path, std::string &zkey){
-    vfs::FileBuffer file_dec;
-    std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zkey);
-    
-    fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
-    if (!f){
-        LOG_ERROR("Failed to open {}", translated_module_path);
-        return;
-    }
-    
-    f.unsetf(fs::ifstream::skipws);
-    file_dec.reserve(fs::file_size(translated_module_path));
-    file_dec.insert(file_dec.begin(), std::istream_iterator<uint8_t>(f), std::istream_iterator<uint8_t>());
-    f.close();
-    
-    if (file_dec.empty()) 
-        LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
-    else{
-        LOG_TRACE("\nDencrypting...");
-        file_dec = decrypt_fself(std::move(file_dec), temp_klicensee.data());
-        if (file_dec.empty()) {
-            LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
-        }else{
-            LOG_INFO("Decrypted {}", translated_module_path.c_str());
-            fs::ofstream d{ translated_module_path, fs::ofstream::binary };
-            if (!d){
-                LOG_ERROR("Failed to open output {}", translated_module_path);
-            }else{
-                std::string tmp(file_dec.begin(), file_dec.end());
-                d.write(tmp.c_str(), tmp.size());
-                d.close();
-                LOG_TRACE("WRITE OK!\n");
-            }
-        }
-    }
-}
-
 bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, const fs::path &title_path) {
     fs::path title_id_src = title_path;
     fs::path title_id_dst = fs_utils::path_concat(title_path, "_dec");
