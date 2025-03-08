@@ -21,6 +21,9 @@
  */
 
 #include <fat16/fat16.h>
+#include <io/device.h>
+#include <io/state.h>
+#include <io/vfs.h>
 #include <miniz.h>
 #include <openssl/evp.h>
 #include <packages/sce_types.h>
