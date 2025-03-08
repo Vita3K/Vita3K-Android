@@ -59,14 +59,17 @@ int execute(std::string &zrif, fs::path &title_src, fs::path &title_dst, F00DEnc
     return execute(zrif, title_src_str, title_dst_str, type, f00d_arg);
 }
 
-void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_module_path, const fs::path &out_file, const uint8_t *key){
+void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_module_path, const fs::path &out_file, std::string &zkey){
     vfs::FileBuffer file_dec;
-
+    std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zkey);
+    std::string temp_klic(temp_klicensee.begin(), temp_klicensee.end());
+    
     fs::ifstream f{ translated_module_path.c_str(), fs::ifstream::binary };
     if (!f){
         LOG_ERROR("Failed to open {}", translated_module_path);
         return;
     }
+    LOG_TRACE("zRif key = {}", temp_klic.c_str());
 
     f.unsetf(fs::ifstream::skipws);
     file_dec.reserve(fs::file_size(translated_module_path));
@@ -120,8 +123,7 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
     fs::rename(title_id_dst, title_id_src);
     
     if(emuenv.cfg.dencrypt_installs){
-        std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zRIF);
-            
+        
             for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
                 if (is_self(file.path())) {
                     LOG_TRACE("Begin dencrypt");
@@ -130,7 +132,7 @@ bool decrypt_install_nonpdrm(EmuEnvState &emuenv, const fs::path &drmlicpath, co
                   //  LOG_TRACE("title_id_src = {}", title_id_src.c_str());
                     auto np = file.path();
                     LOG_TRACE("np = {}", np.c_str());
-                    dencrypt_elf_files(emuenv.pref_path, file.path(), np, temp_klicensee);
+                    dencrypt_elf_files(emuenv.pref_path, file.path(), np, zRIF);
                     np.replace_extension(np.extension().string() + ".fself");
                     fs::rename(np, title_id_src);
                 }
@@ -381,8 +383,6 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
         fs::rename(title_id_dst, title_id_src);
 
         if(emuenv.cfg.dencrypt_installs){
-        std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zRIF);
-            
             for (const auto &file : fs::recursive_directory_iterator(title_id_src)) {
                 if (is_self(file.path())) {
                     LOG_TRACE("Begin dencrypt");
@@ -391,7 +391,7 @@ bool install_pkg(const fs::path &pkg_path, EmuEnvState &emuenv, std::string &p_z
                   //  LOG_TRACE("title_id_src = {}", title_id_src.c_str());
                     auto np = file.path();
                     LOG_TRACE("np = {}", np.c_str());
-                    dencrypt_elf_files(emuenv.pref_path, file.path(), np, temp_klicensee);
+                    dencrypt_elf_files(emuenv.pref_path, file.path(), np, zRIF);
                     np.replace_extension(np.extension().string() + ".fself");
                     fs::rename(np, title_id_src);
                 }
