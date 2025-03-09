@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 // Copyright (c) 2002-2011 The ANGLE Project Authors.
 //
 // This program is free software; you can redistribute it and/or modify
@@ -365,7 +365,7 @@ static spv::Id create_builtin_sampler_for_raw(spv::Builder &b, const FeatureStat
 
 static void create_fragment_inputs(spv::Builder &b, SpirvShaderParameters &parameters, utils::SpirvUtilFunctions &utils, const FeatureState &features, TranslationState &translation_state, NonDependentTextureQueryCallInfos &tex_query_infos, SamplerMap &samplers,
     const SceGxmProgram &program) {
-    static const std::unordered_map<std::uint32_t, std::pair<std::string, std::uint32_t>> name_map = {
+    static const boost::unordered_map<std::uint32_t, std::pair<std::string, std::uint32_t>> name_map = {
         { 0xD000, { "v_Position", 0 } },
         { 0xC000, { "v_Fog", 3 } },
         { 0xA000, { "v_Color0", 1 } },
