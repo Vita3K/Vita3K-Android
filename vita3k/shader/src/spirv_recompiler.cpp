@@ -15,6 +15,8 @@
 // You should have received a copy of the GNU General Public License along
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#include <boost/unordered_map.hpp>
+
 #include <shader/spirv_recompiler.h>
 #include <shader/uniform_block.h>
 #include <shader/usse_disasm.h>
@@ -121,7 +123,7 @@ struct VertexProgramOutputProperties {
     std::uint32_t component_count{};
     std::uint32_t location{};
 };
-using VertexProgramOutputPropertiesMap = std::map<SceGxmVertexProgramOutputs, VertexProgramOutputProperties>;
+using VertexProgramOutputPropertiesMap = boost::unordered_map<SceGxmVertexProgramOutputs, VertexProgramOutputProperties>;
 
 // ******************************
 // * Functions (implementation) *
