@@ -1133,7 +1133,10 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::Checkbox(lang.emulator["check_for_updates"].c_str(), &emuenv.cfg.check_for_updates);
         SetTooltipEx(lang.emulator["check_for_updates_description"].c_str());
 #endif
-        ImGui::Separator();
+        // Dencrypt all executable and libs when install
+        ImGui::Checkbox(lang.emulator["dencrypt_installs"].c_str(), &emuenv.cfg.dencrypt_installs);
+        SetTooltipEx(lang.emulator["dencrypt_installs_description"].c_str());
+
         const auto performance_overlay_size = ImGui::CalcTextSize(lang.emulator["performance_overlay"].c_str()).x;
         ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (performance_overlay_size / 2.f));
         ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", lang.emulator["performance_overlay"].c_str());
@@ -1208,13 +1211,6 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::RadioButton(lang.emulator["screenmode_up"].c_str(), &emuenv.cfg.screenmode_pos, 3);
         SetTooltipEx(lang.emulator["screenmode_up_description"].c_str());
         
-        ImGui::Spacing();
-        ImGui::Separator();
-        
-        // Dencrypt all executable and libs when install
-        ImGui::Checkbox(lang.emulator["dencrypt_installs"].c_str(), &emuenv.cfg.dencrypt_installs);
-        SetTooltipEx(lang.emulator["dencrypt_installs_description"].c_str());
-
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (ImGui::CalcTextSize(lang.emulator["custom_config_settings"].c_str()).x / 2.f));
