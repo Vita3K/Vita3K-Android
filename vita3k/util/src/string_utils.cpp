@@ -23,6 +23,7 @@
 #include <codecvt>
 #include <locale>
 #include <sstream>
+#include <string>
 
 namespace string_utils {
 
