@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include <boost/container/string.hpp>
-
+#include <util/char_traits.h>
 #include <cstdint>
 #include <string>
 #include <vector>
