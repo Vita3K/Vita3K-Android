@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
 	namespace "org.vita3k.emulator"
 	compileSdk 35
-	ndkVersion "27.2.12479018"
+	ndkVersion "28.0.13004108"
 	buildFeatures {
 		buildConfig true
 	}
@@ -81,7 +81,7 @@ android {
 	externalNativeBuild {
 		cmake {
 			path '../CMakeLists.txt'
-			version '3.30.6+'
+			version '3.31.6+'
 		} 
 	}
 
@@ -101,10 +101,10 @@ android {
 
 dependencies {
 	implementation 'androidx.appcompat:appcompat:1.7.0'
-	implementation "androidx.core:core:1.15.0"
+	implementation "androidx.core:core:1.16.0-alpha02"
 	implementation 'androidx.core:core-google-shortcuts:1.2.0-alpha01'
-	implementation 'com.google.android.material:material:1.13.0-alpha08'
-	implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+	implementation 'com.google.android.material:material:1.13.0-alpha11'
+	implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 	implementation 'com.getkeepsafe.relinker:relinker:1.4.5'
 	implementation 'com.jakewharton:process-phoenix:3.0.0'
 	implementation 'androidx.documentfile:documentfile:1.1.0-alpha01'
