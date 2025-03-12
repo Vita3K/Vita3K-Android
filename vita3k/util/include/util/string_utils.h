@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <boost/container/string.hpp>
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -31,7 +33,7 @@ std::string utf16_to_utf8(const std::u16string &str);
 std::u16string utf8_to_utf16(const std::string &str);
 std::string remove_special_chars(std::string str);
 void replace(std::string &str, const std::string &in, const std::string &out);
-std::basic_string<uint8_t> string_to_byte_array(const std::string &string);
+boost::basic_string<uint8_t> string_to_byte_array(const std::string &string);
 std::string toupper(const std::string &s);
 std::string tolower(const std::string &s);
 int stoi_def(const std::string &str, int default_value = 0, const char *name = "value");
