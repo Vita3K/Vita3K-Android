@@ -15,8 +15,6 @@
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include <boost/container/string.hpp>
-
 #include <util/string_utils.h>
 
 #include <util/log.h>
@@ -86,7 +84,7 @@ void replace(std::string &str, const std::string &in, const std::string &out) {
     }
 }
 
-boost::basic_string<uint8_t> string_to_byte_array(const std::string &string) {
+boost::container::basic_string<uint8_t> string_to_byte_array(const std::string &string) {
     boost::basic_string<uint8_t> hex_bytes;
 
     for (size_t i = 0; i < string.length(); i += 2) {
