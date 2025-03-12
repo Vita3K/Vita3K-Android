@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License along
 // with this program; if not, write to the Free Software Foundation, Inc.,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+#include <boost/static_string/static_string.hpp>
 
 #include <util/string_utils.h>
 
@@ -84,8 +86,8 @@ void replace(std::string &str, const std::string &in, const std::string &out) {
     }
 }
 
-std::basic_string<uint8_t> string_to_byte_array(const std::string &string) {
-    std::basic_string<uint8_t> hex_bytes;
+boost::basic_string<uint8_t> string_to_byte_array(const std::string &string) {
+    boost::basic_string<uint8_t> hex_bytes;
 
     for (size_t i = 0; i < string.length(); i += 2) {
         uint16_t byte;
