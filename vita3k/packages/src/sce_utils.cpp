@@ -862,22 +862,15 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
         LOG_ERROR("Failed to decrypt {}", translated_module_path);
         return;
     }else if (zkey == "pup"){
-        LOG_TRACE("zkey is = 0");
         file_dec = decrypt_fself(std::move(file_dec), 0);
     }else if (zkey == "pupfw"){
-        LOG_TRACE("zkey is = nullptr");
         file_dec = decrypt_fself(std::move(file_dec), nullptr);
     }else{
         std::vector<uint8_t> temp_klicensee = get_temp_klicensee(zkey);
         file_dec = decrypt_fself(std::move(file_dec), temp_klicensee.data());
     }
     
-    if (file_dec.empty()) {
-        LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
-        return;
-    }
-    
-    LOG_INFO("Decrypted {}", translated_module_path.c_str());
+    LOG_INFO("Decrypted {}", translated_module_path);
     fs::ofstream d{ translated_module_path, fs::ofstream::binary };
     if (!d){
         LOG_ERROR("Failed to open output {}", translated_module_path);
