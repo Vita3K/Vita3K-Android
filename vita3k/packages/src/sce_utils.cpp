@@ -859,7 +859,7 @@ void dencrypt_elf_files(const fs::path &pref_path, const fs::path &translated_mo
     f.close();
     
     if (file_dec.empty()) {
-        LOG_ERROR("Failed to decrypt {}", translated_module_path.c_str());
+        LOG_ERROR("Failed to decrypt {}", translated_module_path);
         return;
     }else if (zkey == "pup"){
         LOG_TRACE("zkey is = 0");
