@@ -366,7 +366,7 @@ CPUContext UnicornCPU::save_context() {
 
     // Unicorn doesn't like tweaking cpsr
     // ctx.cpsr = get_cpsr();
-    ctx.fpscr = get_fpscr();
+    // ctx.fpscr = get_fpscr();
 
     return ctx;
 }
@@ -378,7 +378,7 @@ void UnicornCPU::load_context(const CPUContext &ctx) {
 
     // Unicorn doesn't like tweaking cpsr
     // set_cpsr(ctx.cpsr);
-    set_fpscr(ctx.fpscr);
+    // set_fpscr(ctx.fpscr);
 
     for (size_t i = 0; i < 16; i++) {
         set_reg(i, ctx.cpu_registers[i]);

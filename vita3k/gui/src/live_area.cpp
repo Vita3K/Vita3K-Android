@@ -35,6 +35,10 @@
 #include <chrono>
 #include <stb_image.h>
 
+#ifdef ANDROID
+#include <SDL_system.h>
+#endif
+
 namespace gui {
 
 bool get_sys_apps_state(GuiState &gui) {
@@ -1083,9 +1087,9 @@ void draw_live_area_screen(GuiState &gui, EmuEnvState &emuenv) {
 
     ImVec2 BUTTON_SIZE;
     if(emuenv.cfg.screenmode_pos == 3){
-	BUTTON_SIZE = ImVec2(80.f * SCALE.x, 120.f * SCALE.y);
+        BUTTON_SIZE = ImVec2(120.f * SCALE.x, 120.f * SCALE.y);
     }else{
-	BUTTON_SIZE = ImVec2(75.f * SCALE.x, 50.f * SCALE.y);
+        BUTTON_SIZE = ImVec2(100.f * SCALE.x, 50.f * SCALE.y);
     }
 
     if (gui.live_area_contents[app_path].contains("gate")) {
@@ -1170,23 +1174,34 @@ void draw_live_area_screen(GuiState &gui, EmuEnvState &emuenv) {
 
     if (!gui.vita_area.content_manager && !gui.vita_area.manual) {
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.f * SCALE.x);
-      if(emuenv.cfg.screenmode_pos == 3){
+      if(emuenv.cfg.screenmode_pos == 3)
         ImGui::SetCursorPos(ImVec2(WINDOW_SIZE.x - (60.0f * SCALE.x) - BUTTON_SIZE.x, center.y));
-      }else{
-	ImGui::SetCursorPos(ImVec2(WINDOW_SIZE.x - (60.0f * SCALE.x) - BUTTON_SIZE.x, 55.0f * SCALE.y));
+      else
+        ImGui::SetCursorPos(ImVec2(WINDOW_SIZE.x - (60.0f * SCALE.x) - BUTTON_SIZE.x, 55.0f * SCALE.y));
+
+      if (ImGui::Button("Exit", BUTTON_SIZE))
+          close_live_area_app(gui, emuenv, app_path);
+
+      if(emuenv.cfg.screenmode_pos == 3)
+        ImGui::SetCursorPos(ImVec2(180.f * SCALE.x, center.y));
+      else
+        ImGui::SetCursorPos(ImVec2(180.f * SCALE.x, 55.0f * SCALE.y));
+
+      if (ImGui::Button("Screenshot", BUTTON_SIZE)){
+          if(BUTTON_STR.find("continue")){
+            gui.is_screenshot = true;
+            pre_run_app(gui, emuenv, app_path);
+          }else{
+            SDL_AndroidShowToast("Game not yet running!", 1, -1, 0, 0);
+          }
       }
-        if (ImGui::Button("Esc", BUTTON_SIZE)){
-	   if(emuenv.cfg.screenmode_pos == 3){
-	      gui.vita_area.app_information = false;
-	   }
-            close_live_area_app(gui, emuenv, app_path);
-	}
-      if(emuenv.cfg.screenmode_pos == 3){
+
+      if(emuenv.cfg.screenmode_pos == 3)
         ImGui::SetCursorPos(ImVec2(60.f * SCALE.x, center.y));
-      }else{
+      else
         ImGui::SetCursorPos(ImVec2(60.f * SCALE.x, 55.0f * SCALE.y));
-      }
-        if (ImGui::Button("Help", BUTTON_SIZE))
+
+      if (ImGui::Button("Help", BUTTON_SIZE))
             ImGui::OpenPopup("Live Area Help");
         ImGui::SetNextWindowPos(ImVec2(WINDOW_SIZE.x / 2.f, WINDOW_SIZE.y / 2.f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
         if (ImGui::BeginPopupModal("Live Area Help", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoSavedSettings)) {

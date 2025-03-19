@@ -299,6 +299,7 @@ struct GuiState {
 
     bool is_capturing_keys = false;
     bool is_key_capture_dropped = false;
+    bool is_screenshot = false;
     int old_captured_key = 0;
     int captured_key = 0;
 
