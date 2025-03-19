@@ -541,6 +541,7 @@ static void toggle_texture_replacement(EmuEnvState &emuenv) {
 }
 
 static void take_screenshot(EmuEnvState &emuenv) {
+    gui.is_screenshot = false;
     if (emuenv.cfg.screenshot_format == None)
         return;
 
@@ -579,7 +580,7 @@ static void take_screenshot(EmuEnvState &emuenv) {
         const auto tmp = fmt::format("Successfully saved screenshot to {:s}", save_file);
         LOG_INFO("{}", tmp);
 #ifdef ANDROID
-        SDL_AndroidShowToast(tmp.data(), 1, -1, 0, 0);
+        SDL_AndroidShowToast("Screenshot saved at pref-path/shared/screenshots", 1, -1, 0, 0);
 #endif
     }else{
         const auto tmp = "Failed to save screenshot";

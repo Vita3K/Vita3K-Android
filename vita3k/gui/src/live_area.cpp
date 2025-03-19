@@ -1087,9 +1087,9 @@ void draw_live_area_screen(GuiState &gui, EmuEnvState &emuenv) {
 
     ImVec2 BUTTON_SIZE;
     if(emuenv.cfg.screenmode_pos == 3){
-        BUTTON_SIZE = ImVec2(120.f * SCALE.x, 120.f * SCALE.y);
+        BUTTON_SIZE = ImVec2(120.f * SCALE.x, 70.f * SCALE.y);
     }else{
-        BUTTON_SIZE = ImVec2(100.f * SCALE.x, 50.f * SCALE.y);
+        BUTTON_SIZE = ImVec2(120.f * SCALE.x, 50.f * SCALE.y);
     }
 
     if (gui.live_area_contents[app_path].contains("gate")) {
@@ -1187,12 +1187,10 @@ void draw_live_area_screen(GuiState &gui, EmuEnvState &emuenv) {
       else
         ImGui::SetCursorPos(ImVec2(180.f * SCALE.x, 55.0f * SCALE.y));
 
-      if (ImGui::Button("Screenshot", BUTTON_SIZE)){
-          if(BUTTON_STR.find("continue")){
+      if (!emuenv.io.title_id.empty()) {
+          if (ImGui::Button("Screenshot", BUTTON_SIZE)){
             gui.is_screenshot = true;
             pre_run_app(gui, emuenv, app_path);
-          }else{
-            SDL_AndroidShowToast("Game not yet running!", 1, -1, 0, 0);
           }
       }
 
