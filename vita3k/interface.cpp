@@ -541,7 +541,6 @@ static void toggle_texture_replacement(EmuEnvState &emuenv) {
 }
 
 static void take_screenshot(EmuEnvState &emuenv) {
-    gui.is_screenshot = false;
     if (emuenv.cfg.screenshot_format == None)
         return;
 
@@ -740,8 +739,10 @@ bool handle_events(EmuEnvState &emuenv, GuiState &gui) {
 #ifdef ANDROID
             if(event.key.keysym.sym == SDLK_AC_BACK)
                 sce_ctrl_btn = SCE_CTRL_PSBUTTON;
-            if(gui.is_screenshot)
+            if(gui.is_screenshot){
                 take_screenshot(emuenv);
+                gui.is_screenshot = false;
+            }
 #else
             // toggle gui state
             if (event.key.keysym.scancode == emuenv.cfg.keyboard_gui_toggle_touch && !gui.is_key_capture_dropped)
