@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -603,11 +603,6 @@ bool VKState::create(SDL_Window *window, std::unique_ptr<renderer::State> &state
 #ifdef __APPLE__
         // we need to make a copy of the vertex buffer for moltenvk, so disable memory mapping
         support_memory_mapping = false;
-#endif
-
-#ifdef ANDROID
-        support_android_buffer_import &= SDL_GetAndroidSDKVersion() >= 26;
-        support_unix_fd_import &= SDL_GetAndroidSDKVersion() >= 26;
 #endif
 
         // Find which memory mapping methods are supported by the GPU
