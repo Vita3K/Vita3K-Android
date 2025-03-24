@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -151,7 +151,7 @@ VKContext::VKContext(VKState &state, MemState &mem)
 
 VKRenderTarget::VKRenderTarget(VKState &state, const SceGxmRenderTargetParams &params)
     : color(static_cast<uint32_t>(params.width * state.res_multiplier), static_cast<uint32_t>(params.height * state.res_multiplier), vk::Format::eR8G8B8A8Unorm)
-    , depthstencil(static_cast<uint32_t>(params.width * state.res_multiplier), static_cast<uint32_t>(params.height * state.res_multiplier), vk::Format::eD32SfloatS8Uint) {
+    , depthstencil(static_cast<uint32_t>(params.width * state.res_multiplier), static_cast<uint32_t>(params.height * state.res_multiplier), vk::Format::eD24UnormS8Uint) {
     width = static_cast<uint32_t>(params.width * state.res_multiplier);
     height = static_cast<uint32_t>(params.height * state.res_multiplier);
 
