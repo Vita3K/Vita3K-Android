@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -154,7 +154,7 @@ SurfaceRetrieveResult VKSurfaceCache::retrieve_color_surface_for_framebuffer(Mem
         if (vk_format == vk::Format::eR8G8B8A8Unorm) {
             vk_format = vk::Format::eR8G8B8A8Srgb;
         } else {
-            LOG_WARN_ONCE("Trying to use gamma correction with non-compatible format {}", vk::to_string(vk_format));
+            LOG_WARN("Trying to use gamma correction with non-compatible format {}", vk::to_string(vk_format));
         }
     }
 
@@ -336,7 +336,7 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_color_surface_as_tex
         if (vk_format == vk::Format::eR8G8B8A8Unorm) {
             vk_format = vk::Format::eR8G8B8A8Srgb;
         } else {
-            LOG_WARN_ONCE("Trying to use gamma correction with non-compatible format {}", vk::to_string(vk_format));
+            LOG_WARN("Trying to use gamma correction with non-compatible format {}", vk::to_string(vk_format));
         }
     }
 
@@ -688,7 +688,7 @@ SurfaceRetrieveResult VKSurfaceCache::retrieve_depth_stencil_for_framebuffer(Sce
 
     image.width = width;
     image.height = height;
-    image.format = vk::Format::eD32SfloatS8Uint;
+    image.format = vk::Format::eD24UnormS8Uint;
     image.layout = vkutil::ImageLayout::Undefined;
     image.init_image(vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled);
 
@@ -838,7 +838,7 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_depth_stencil_as_tex
             vk::ImageViewCreateInfo view_info{
                 .image = cached_info.texture.image,
                 .viewType = vk::ImageViewType::e2D,
-                .format = vk::Format::eD32SfloatS8Uint,
+                .format = vk::Format::eD24UnormS8Uint,
                 .components = {},
                 .subresourceRange = range
             };
@@ -907,7 +907,7 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_depth_stencil_as_tex
         vk::ImageViewCreateInfo view_info{
             .image = read_only.depth_view.image,
             .viewType = vk::ImageViewType::e2D,
-            .format = vk::Format::eD32SfloatS8Uint,
+            .format = vk::Format::eD24UnormS8Uint,
             .components = {},
             .subresourceRange = range
         };
