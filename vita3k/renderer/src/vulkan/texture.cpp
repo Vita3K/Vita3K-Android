@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -254,7 +254,7 @@ bool VKTextureCache::init(const bool hashless_texture_cache, const fs::path &tex
     samplers.resize(max_sampler_used);
 
     // check for linear filtering on depth support
-    const vk::FormatProperties depth_linear = state.physical_device.getFormatProperties(vk::Format::eD32SfloatS8Uint);
+    const vk::FormatProperties depth_linear = state.physical_device.getFormatProperties(vk::Format::eD24UnormS8Uint);
     support_depth_linear_filtering = static_cast<bool>(depth_linear.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear);
 
     // check for dxt support
@@ -266,6 +266,11 @@ bool VKTextureCache::init(const bool hashless_texture_cache, const fs::path &tex
     const vk::FormatProperties astc_support = state.physical_device.getFormatProperties(vk::Format::eAstc4x4SrgbBlock);
     support_astc = static_cast<bool>(astc_support.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImage);
 
+    LOG_TRACE("max_sampler_used : {}", max_sampler_used);
+    LOG_TRACE("support_depth_linear_filtering : {}",support_depth_linear_filtering);
+    LOG_TRACE("support_dxt : {}", support_dxt);
+    LOG_TRACE("support_astc : {}", support_astc);
+    
     return true;
 }
 
