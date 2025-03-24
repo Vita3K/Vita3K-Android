@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ void Image::init_image(vk::ImageUsageFlags usage, vk::ComponentMapping mapping, 
     if (!(usage & view_usages))
         return;
 
-    vk::ImageSubresourceRange range = (format == vk::Format::eD32SfloatS8Uint) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
+    vk::ImageSubresourceRange range = (format == vk::Format::eD24UnormS8Uint) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
     vk::ImageViewCreateInfo view_info{
         .image = image,
         .viewType = vk::ImageViewType::e2D,
