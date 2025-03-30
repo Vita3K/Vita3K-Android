@@ -18,5 +18,7 @@
 #include <module/module.h>
 
 EXPORT(int, mono_security_enable_core_clr) {
-    return UNIMPLEMENTED();
+    // return UNIMPLEMENTED();
+    STUBBED("return 0");
+    return 0;
 }
