@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -447,7 +447,7 @@ EXPORT(int, sceRtcSetWin32FileTime) {
     return UNIMPLEMENTED();
 }
 
-EXPORT(int, sceRtcTickAddDays, SceRtcTick *pTick0, const SceRtcTick *pTick1, SceLong64 lAdd) {
+EXPORT(int, sceRtcTickAddDays, SceRtcTick *pTick0, const SceRtcTick *pTick1, SceInt lAdd) {
     TRACY_FUNC(sceRtcTickAddDays, pTick0, pTick1, lAdd);
     if (pTick0 == nullptr || pTick1 == nullptr) {
         return RET_ERROR(SCE_RTC_ERROR_INVALID_POINTER);
@@ -457,7 +457,7 @@ EXPORT(int, sceRtcTickAddDays, SceRtcTick *pTick0, const SceRtcTick *pTick1, Sce
     return 0;
 }
 
-EXPORT(int, sceRtcTickAddHours, SceRtcTick *pTick0, const SceRtcTick *pTick1, SceLong64 lAdd) {
+EXPORT(int, sceRtcTickAddHours, SceRtcTick *pTick0, const SceRtcTick *pTick1, SceInt lAdd) {
     TRACY_FUNC(sceRtcTickAddHours, pTick0, pTick1, lAdd);
     if (pTick0 == nullptr || pTick1 == nullptr) {
         return RET_ERROR(SCE_RTC_ERROR_INVALID_POINTER);
@@ -529,7 +529,7 @@ EXPORT(int, sceRtcTickAddTicks, SceRtcTick *pTick0, const SceRtcTick *pTick1, Sc
     return 0;
 }
 
-EXPORT(int, sceRtcTickAddWeeks, SceRtcTick *pTick0, const SceRtcTick *pTick1, SceLong64 lAdd) {
+EXPORT(int, sceRtcTickAddWeeks, SceRtcTick *pTick0, const SceRtcTick *pTick1, SceInt lAdd) {
     TRACY_FUNC(sceRtcTickAddWeeks, pTick0, pTick1, lAdd);
     if (pTick0 == nullptr || pTick1 == nullptr) {
         return RET_ERROR(SCE_RTC_ERROR_INVALID_POINTER);
