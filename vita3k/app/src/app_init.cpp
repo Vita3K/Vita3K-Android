@@ -444,8 +444,11 @@ bool init(EmuEnvState &state, const Root &root_paths) {
 #endif
         return false;
     };
-
-    if (!isSteamDeck()) {
+#ifdef ANDROID
+    if(SDL_GetAndroidSDKVersion() > 30) {
+#else
+    if (!isSteamDeck() ) {
+#endif
         float ddpi, hdpi, vdpi, max = 160.f;
         SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
         window_type |= SDL_WINDOW_ALLOW_HIGHDPI;
@@ -462,6 +465,7 @@ bool init(EmuEnvState &state, const Root &root_paths) {
 #endif
     state.res_width_dpi_scale = static_cast<uint32_t>(DEFAULT_RES_WIDTH * state.dpi_scale);
     state.res_height_dpi_scale = static_cast<uint32_t>(DEFAULT_RES_HEIGHT * state.dpi_scale);
+    
     LOG_INFO("state.res_width_dpi_scale = {}", state.res_width_dpi_scale);
     LOG_INFO("state.res_height_dpi_scale = {}", state.res_height_dpi_scale);
     
