@@ -451,8 +451,10 @@ bool init(EmuEnvState &state, const Root &root_paths) {
         window_type |= SDL_WINDOW_ALLOW_HIGHDPI;
         LOG_INFO("Display DPI:\nddpi = {}\nhdpi = {}\nvdpi = {}", ddpi, hdpi, vdpi);
 #ifdef ANDROID
-        if(ddpi > max)
-           state.dpi_scale = ddpi / max;
+       if(vdpi > 1.f)
+          state.dpi_scale = vdpi / max;
+       else
+          state.dpi_scale = ddpi / max;
 #else
         state.dpi_scale = ddpi / 96;
 #endif
