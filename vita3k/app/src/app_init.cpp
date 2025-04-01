@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -421,7 +421,8 @@ bool init(EmuEnvState &state, const Root &root_paths) {
         break;
     }
     state.display.fullscreen = true;
-    window_type |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+//    window_type |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+    window_type |= SDL_WINDOW_BORDERLESS;
 #else
     if (state.cfg.fullscreen) {
         state.display.fullscreen = true;
@@ -445,11 +446,13 @@ bool init(EmuEnvState &state, const Root &root_paths) {
     };
 
     if (!isSteamDeck()) {
-        float ddpi, hdpi, vdpi;
+        float ddpi, hdpi, vdpi, max = 160.f;
         SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
         window_type |= SDL_WINDOW_ALLOW_HIGHDPI;
+        LOG_INFO("Display DPI:\nddpi = {}\nhdpi = {}\nvdpi = {}", ddpi, hdpi, vdpi);
 #ifdef ANDROID
-        state.dpi_scale = ddpi / 160;
+        if(ddpi > max)
+           state.dpi_scale = ddpi / max;
 #else
         state.dpi_scale = ddpi / 96;
 #endif
@@ -457,7 +460,9 @@ bool init(EmuEnvState &state, const Root &root_paths) {
 #endif
     state.res_width_dpi_scale = static_cast<uint32_t>(DEFAULT_RES_WIDTH * state.dpi_scale);
     state.res_height_dpi_scale = static_cast<uint32_t>(DEFAULT_RES_HEIGHT * state.dpi_scale);
-
+    LOG_INFO("state.res_width_dpi_scale = {}", state.res_width_dpi_scale);
+    LOG_INFO("state.res_height_dpi_scale = {}", state.res_height_dpi_scale);
+    
 #ifdef ANDROID
     if(state.cfg.boot_fail && state.cfg.gpu_idx != 0){
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Custom driver failed!", fmt::format("GPU driver {}\nnot supported or broken\nApp will use default driver now", state.cfg.custom_driver_name).c_str(), nullptr);
