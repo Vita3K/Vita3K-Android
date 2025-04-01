@@ -422,7 +422,7 @@ bool init(EmuEnvState &state, const Root &root_paths) {
     }
     state.display.fullscreen = true;
 //    window_type |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-    window_type |= SDL_WINDOW_BORDERLESS;
+    window_type |= SDL_WINDOW_FULLSCREEN;
 #else
     if (state.cfg.fullscreen) {
         state.display.fullscreen = true;
