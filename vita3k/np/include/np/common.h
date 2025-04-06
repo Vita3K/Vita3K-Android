@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,12 +33,21 @@ struct SceNpOnlineId {
     char term;
     char dummy[3];
 };
+static_assert(sizeof(SceNpOnlineId) == 0x14, "SceNpOnlineId is an invalid size");
+
+struct SceNpIdOptParam {
+    SceUChar8 unknown[4];
+    char platformType[4];
+};
+static_assert(sizeof(SceNpIdOptParam) == 0x8, "SceNpIdOptParam is an invalid size");
 
 struct SceNpId {
     SceNpOnlineId handle;
-    SceUChar8 opt[8];
-    SceUChar8 reserved[8];
+    SceNpIdOptParam opt;
+    SceInt8 isIdValid;
+    SceUChar8 reserved[7];
 };
+static_assert(sizeof(SceNpId) == 0x24, "SceNpId is an invalid size");
 
 struct CommunicationID {
     char data[9];
