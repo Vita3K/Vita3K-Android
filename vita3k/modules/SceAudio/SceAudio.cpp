@@ -299,7 +299,7 @@ EXPORT(int, sceAudioOutSetEffectType) {
     return UNIMPLEMENTED();
 }
 
-EXPORT(int, sceAudioOutSetPortVolume_forUser, int port, SceAudioOutChannelFlag ch, int *vol) {
+EXPORT(int, sceAudioOutSetPortVolume_forUser) {
     TRACY_FUNC(sceAudioOutSetPortVolume_forUser);
     return UNIMPLEMENTED();
 }
