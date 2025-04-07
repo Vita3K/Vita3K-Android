@@ -16,124 +16,9 @@ If you still want to use presets but none of them works for your setup, you can 
 
 For convenience, the following building instructions are given as examples:
 
-## Windows
+## Windows, Linux and MacOS
 
-### Visual Studio 2022
-- Install Visual Studio 2022 and choose to install `Desktop development with C++`. You will get compiler and `cmake` required for building.
-
-  Example for Visual Studio 2019:
-
-  ![Required tools for VS 2022](https://i.imgur.com/bkY15Oh.png)
-
-- Install `git` to `clone` the project. Download and install `git` from [here](https://git-scm.com).
-
-- Clone this repo.
-
-  ```cmd
-  git clone --recursive https://github.com/Vita3K/Vita3K
-  cd Vita3K
-  ```
-
-- Run Visual Studio 2022. On the project selection window open the local clone of the repository as a folder. Thanks to the integration between Visual Studio and CMake, Visual Studio will automatically detect the repository as a CMake project.
-- Wait for all components for Visual Studio to be loaded. At the top of the window, there should be three new menus that allow you to select the target (specific to Visual Studio), a CMake configure preset and a CMake build preset (if available). Recommended preset for Visual Studio 2022 is *Windows with Visual Studio 2022*.
-
-From there, the project will be ready to build right from the Visual Studio UI.
-
-If you aren't satisfied with the way the Visual Studio integrates CMake projects and you would like to just use regular Visual Studio solution files (`.sln`), you can close Visual Studio and then open the solution file found in `build/<preset_name>/`.
-
-
-### Build using terminal
--  Install:
-   -  [Git](https://git-scm.com)
-   -  [CMake](https://cmake.org/download/)
-   -  Either the [Build Tools for Visual Studio 2022](https://aka.ms/vs/17/release/vs_BuildTools.exe) or Visual Studio 2022 with the ` Desktop development with C++` workload.
-- On the Start Menu, open the `x64 Native Tools Command Prompt for Visual Studio 2022`.
-  <p align="center">
-    <img src="./_building/vs-cmd-prompt.png">
-  </p>
-
-- Clone the repository:
-  ```cmd
-  git clone --recursive https://github.com/Vita3K/Vita3K
-  cd Vita3K
-  ```
-
-- Generate the project:
-  ```cmd
-  cmake --preset windows-vs2022
-  ```
-  The line above will generate a Visual Studio 2022 project inside a folder called `build/windows-vs2022`.
-
-- Build the project:
-  ```cmd
-  cmake --build build/windows-vs2022
-  ```
-
-## macOS (Xcode)
-
-- Install Xcode at App Store.
-
-- Install [`brew`](https://brew.sh).
-
-- Install dependencies with `brew`.
-
-  ```sh
-  brew install git cmake molten-vk openssl
-  ```
-
-- Clone this repo.
-
-  ```sh
-  git clone --recursive https://github.com/Vita3K/Vita3K
-  cd Vita3K
-  ```
-
-- Generate Xcode project.
-
-  ```
-  cmake --preset macos-xcode
-  ```
-  This example will generate a Xcode project inside a folder called `build/macos-xcode`.
-
-- Open Xcode project `vita3k.xcodeproj` generated in `build/macos-xcode` directory.
-
-- When prompted to create schemes, create one for the `vita3k` target only. The project builds many targets, so it will make your life easier if you create schemes as needed.
-
-- Build the project using the Xcode UI. If needed, the build process can be invoked as well the same way as with the other platforms using a terminal:
-  ```sh
-  cmake --build build/macos-xcode
-  ```
-
-## Linux
-
-### Ubuntu/Debian
-
-Note: The CMake preset `linux-ninja-clang` makes use of the LLD linker, which will need to be installed in your system along with Clang.
-
-- Install dependencies.
-
-  ```sh
-  sudo apt install git cmake ninja-build libsdl2-dev pkg-config libgtk-3-dev clang lld xdg-desktop-portal openssl libssl-dev
-  ```
-
-- Clone this repo.
-
-  ```sh
-  git clone --recursive https://github.com/Vita3K/Vita3K
-  cd Vita3K
-  ```
-
-- Generate the project.
-
-  ```sh
-  cmake --preset linux-ninja-clang
-  ```
-  This example will generate a Ninja Multi-Config (`ninja-build`) project instead of a Make (`make`, the default project generator for Linux) one inside the folder `build/linux-ninja-clang`.
-
-- Build the project:
-  ```sh
-  cmake --build build/linux-ninja-clang
-  ```
+see [building.md]([https://developer.android.com/ndk/downloads](https://github.com/Vita3K/Vita3K/blob/master/building.md)) for pc version, this fork only for android
 
 ## Android
 
@@ -155,13 +40,29 @@ Note: The CMake preset `linux-ninja-clang` makes use of the LLD linker, which wi
   ./gradlew --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleReldebug
   ```
 
+   or if you want build using github action and you don't have "keystore.kjs", you need replace some command at android.yml in ".github/workflows/" then find this command:
+  ```sh
+  ./gradlew --stacktrace --info --configuration-cache --build-cache --parallel --configure-on-demand assembleRelease
+  ```
+  and then replace to this command:
+  ```sh
+  ./gradlew --info --configuration-cache --build-cache --parallel --configure-on-demand assembleReldebug
+  ```
+
+  if you have keystore.kjs, you need put "secret code" in your github fork settings > secret and variable > actions > new repository secret
+
+  and add following name:
+  - KEYSTORE (fill secret with converted text using base64 tool that contain file your keystore.kjs)
+  - SIGNING_KEY_ALIAS (fill secret with your alias name that used in keystore.kjs)
+  - SIGNING_KEY_PASSWORD (fill secret with your password that used in keystore.kjs)
+
 ### Building SDL
 
 You can use prebuild libsdl from Macdu build or build from libsdl.org without any patch since this version of Vita3K already support libadrenotools but you just need merge "android/src/main/java/org/libsdl/app" from libsdl.org source code if you build from libsdl.org
 
 ## Note
 
-- After cloning or checking out a branch, you should always update submodules.
+- After cloning or checking out a branch, you can check update submodules (if update not break your config).
   ```sh
   git submodule update --init --recursive
   ```
