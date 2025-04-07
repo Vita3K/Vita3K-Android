@@ -158,10 +158,9 @@ public:
     RendererPtr renderer{};
     FVector2 viewport_pos = { 0, 0 };
     FVector2 viewport_size = { 0, 0 };
-
     IVector2 drawable_size = { 0, 0 };
     IVector2 window_size = { 0, 0 }; // Logical size of the window
-
+    bool drop_inputs{};
     MemState &mem;
     CtrlState &ctrl;
     TouchState &touch;
