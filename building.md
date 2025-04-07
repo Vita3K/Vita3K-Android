@@ -18,7 +18,7 @@ For convenience, the following building instructions are given as examples:
 
 ## Windows, Linux and MacOS
 
-see [building.md]([https://developer.android.com/ndk/downloads](https://github.com/Vita3K/Vita3K/blob/master/building.md)) for pc version, this fork only for android
+see [building.md](https://github.com/Vita3K/Vita3K/blob/master/building.md) for pc version, this fork only for android
 
 ## Android
 
