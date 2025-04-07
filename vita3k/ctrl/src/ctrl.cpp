@@ -380,7 +380,7 @@ static void retrieve_ctrl_data(EmuEnvState &emuenv, int port, bool is_v2, bool n
 
         if (negative)
             buttons ^= ~0;
-    }
+    };
     
     if ((emuenv.common_dialog.status == SCE_COMMON_DIALOG_STATUS_RUNNING) || emuenv.drop_inputs) {
         reset_axes();
