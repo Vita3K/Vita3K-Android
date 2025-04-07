@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -201,7 +201,7 @@ EXPORT(int, sceAudioOutOutput, int port, const void *buf) {
 
     emuenv.audio.audio_output(*thread, *prt, buf);
 
-    return 0;
+    return prt->len;
 }
 
 EXPORT(int, sceAudioOutGetRestSample, int port) {
@@ -299,7 +299,7 @@ EXPORT(int, sceAudioOutSetEffectType) {
     return UNIMPLEMENTED();
 }
 
-EXPORT(int, sceAudioOutSetPortVolume_forUser) {
+EXPORT(int, sceAudioOutSetPortVolume_forUser, int port, SceAudioOutChannelFlag ch, int *vol) {
     TRACY_FUNC(sceAudioOutSetPortVolume_forUser);
     return UNIMPLEMENTED();
 }
