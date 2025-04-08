@@ -517,7 +517,7 @@ void draw_app_context_menu(GuiState &gui, EmuEnvState &emuenv, const std::string
                 ImGui::EndMenu();
             }
 #else
-            if(ImGui::MenuItem("Create Shortcut")){
+            if(ImGui::MenuItem(lang.main["create_shortcut"].c_str())){
                 create_shortcut(title_id, APP_INDEX->title);
             }
 #endif

@@ -81,7 +81,7 @@ void draw_about_dialog(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::Text("%s", lang["vita3k"].c_str());
 #ifdef ANDROID
     ImGui::Spacing();
-    ImGui::TextWrapped("%s", "If you did not download this emulator from Vita3K's official discord, paid for it or it contains ads, uninstall it immediatly.");
+    ImGui::TextWrapped("%s", lang["for_android"].c_str());
 #endif
     ImGui::Spacing();
     ImGui::TextWrapped("%s", lang["about_vita3k"].c_str());

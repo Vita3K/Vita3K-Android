@@ -278,6 +278,7 @@ void init_config(GuiState &gui, EmuEnvState &emuenv, const std::string &app_path
     // files are not in a folder
     list_user_lang.push_back("id");
     list_user_lang.push_back("ms");
+    list_user_lang.push_back("ua");
 #endif
 
     current_user_lang = emuenv.cfg.user_lang.empty() ? 0 : (vector_utils::find_index(list_user_lang, emuenv.cfg.user_lang) + 1);
@@ -576,6 +577,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                         else
                             config.lle_modules.push_back(m.first);
                     }
+                    ImGui::ScrollWhenDragging();
                 }
                 ImGui::EndListBox();
             }
@@ -670,7 +672,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 if (emuenv.cfg.gpu_idx == 0)
                     config.custom_driver_name = "";
 
-                if (ImGui::Button("Add custom driver")) {
+                if (ImGui::Button(lang.gpu["add_custom_driver"].c_str())) {
                     app::add_custom_driver(emuenv);
                     // also set it to stock after
                     emuenv.cfg.gpu_idx = 0;
@@ -681,7 +683,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                     config.custom_driver_name = gpu_list_str[emuenv.cfg.gpu_idx];
 
                     ImGui::SameLine();
-                    if (ImGui::Button("Remove custom driver")) {
+                    if (ImGui::Button(lang.gpu["remove_custom_driver"].c_str())) {
                         app::remove_custom_driver(emuenv, config.custom_driver_name);
                         // set back to stock
                         emuenv.cfg.gpu_idx = 0;
@@ -878,11 +880,11 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
                 ImGui::BeginDisabled();
 
             std::vector<const char *> mapping_methods_strings = {
-                "Disabled",
-                "Double buffer",
-                "External host",
-                "Page table",
-                "Native buffer"
+                lang.gpu["disabled"].c_str(),
+                lang.gpu["double_buffer"].c_str(),
+                lang.gpu["external_host"].c_str(),
+                lang.gpu["page_table"].c_str(),
+                lang.gpu["native_buffer"].c_str()
             };
             std::vector<std::string_view> mapping_methods_indexes = {
                 "disabled",
@@ -917,10 +919,10 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
 
         if (emuenv.renderer->support_custom_drivers()) {
             ImGui::Spacing();
-            ImGui::Checkbox("Enable Turbo Mode", &emuenv.cfg.turbo_mode);
+            ImGui::Checkbox(lang.gpu["turbo_mode"].c_str(), &emuenv.cfg.turbo_mode);
 
             if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip("Provides a way to force the GPU to run at the maximum possible clocks (thermal constraints will still be applied)");
+                ImGui::SetTooltip("%s", lang.gpu["turbo_mode_description"].c_str());
             }
         }
 
@@ -1053,9 +1055,11 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("%s", lang.emulator["log_compat_warn_description"].c_str());
         ImGui::Spacing();
+#ifndef ANDROID
         ImGui::Checkbox(lang.emulator["check_for_updates"].c_str(), &emuenv.cfg.check_for_updates);
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("%s", lang.emulator["check_for_updates_description"].c_str());
+#endif
         ImGui::Separator();
         const auto perfomance_overley_size = ImGui::CalcTextSize(lang.emulator["performance_overlay"].c_str()).x;
         ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (perfomance_overley_size / 2.f));
@@ -1110,7 +1114,7 @@ void draw_settings_dialog(GuiState &gui, EmuEnvState &emuenv) {
 
         ImGui::Spacing();
 #ifdef ANDROID
-        ImGui::TextColored(GUI_COLOR_TEXT, "%s", "Using a different path requires additional permissions");
+        ImGui::TextColored(GUI_COLOR_TEXT, "%s", lang.emulator["storage_folder_permissions"].c_str());
         ImGui::Spacing();
 #endif
         ImGui::Separator();

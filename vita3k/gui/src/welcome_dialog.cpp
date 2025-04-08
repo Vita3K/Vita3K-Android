@@ -44,7 +44,7 @@ void draw_welcome_dialog(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::PopStyleColor();
 #ifdef ANDROID
     ImGui::Spacing();
-    ImGui::TextWrapped("%s", "This emulator is free and was distributed on Vita3K's official discord. If you did not download this application from Vita3K's discord, paid for it or it has ads, consider uninstalling it immediately for your own safety.");
+    ImGui::TextWrapped("%s", lang["for_android"].c_str());
 #endif
     ImGui::Spacing();
     ImGui::Separator();

@@ -39,6 +39,7 @@ add_library(
 	src/threads_dialog.cpp
 	src/trophy_collection.cpp
 	src/user_management.cpp
+	src/overlay_dialog.cpp
 	src/controls_dialog.cpp
 	src/controllers_dialog.cpp
 	src/allocations_dialog.cpp

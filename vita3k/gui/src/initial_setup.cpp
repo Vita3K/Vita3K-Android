@@ -105,7 +105,7 @@ void draw_initial_setup(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::SetCursorPosY(94.f * SCALE.y);
     ImGui::Separator();
 #ifdef ANDROID
-        const char* path_warning = "Using a different path requires additional permissions";
+        const char* path_warning = gui.lang.settings_dialog.emulator["storage_folder_permissions"].c_str();
 #endif
     switch (setup) {
     case SELECT_LANGUAGE:
