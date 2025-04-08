@@ -38,6 +38,7 @@
 
 	<about name="Tentang">
 		<vita3k>Vita3K: Emulator TV PS Vita/PS. Emulator TV PS Vita/PS berfungsi pertama di dunia.</vita3k>
+		<for_android>Jika awak tidak memuat turun emulator ini daripada Vita3K's official discord, dibayar untuknya atau ia mengandungi iklan, nyahpasangnya dengan serta-merta.</for_android>
 		<about_vita3k>Vita3K ialah emulator PlayStation Vita/PlayStation TV sumber terbuka eksperimen yang ditulis dalam C++ untuk sistem pengendalian Windows, Linux, macOS dan Android.</about_vita3k>
 		<special_credit>Kredit istimewa: Ikon Vita3K direka oleh:</special_credit>
 		<github_website>Jika awak berminat untuk menyumbang, lihat kami:</github_website>
@@ -65,6 +66,7 @@
 		<license>Lesen</license>
 		<shaders_cache>Cache Shaders</shaders_cache>
 		<shaders_log>Log Shaders</shaders_log>
+		<create_shortcut>Buat Shortcut</create_shortcut>
 		<update>Kemas kini</update>
 		<update_history>Kemas kini Sejarah</update_history>
 		<history_version>Versi {}</history_version>
@@ -292,6 +294,7 @@ Sila sambungkan Kontroler yang serasi dengan SDL2.</not_connected>
 		<red>Merah</red>
 		<green>Hijau</green>
 		<blue>Biru</blue>
+		<motion_sensors>Gunakan builtin device motion sensor</motion_sensors>
 		<reset_controller_binding>Tetapkan Semula Pengikat Kontroler</reset_controller_binding>
 	</controllers>
 
@@ -474,6 +477,18 @@ Sila semak fail work.bin/rif atau zRIF key.</failed_install_license>
 		</help>
 	</live_area>
 
+	<overlay name="Tindanan">
+		<gamepad_overlay>Tindanan Gamepad</gamepad_overlay>
+		<enable_gamepad_overlay>Tampilkan Tindanan gamepad digim</enable_gamepad_overlay>
+		<hide_gamepad_overlay>HideSembunyikan Tindanan Gamepad</hide_gamepad_overlay>
+		<modify_gamepad_overlay>Ubah suai Tindanan Gamepad</modify_gamepad_overlay>
+		<overlay_scale>Skala Tindanan</overlay_scale>
+		<overlay_opacity>Tingkatan Kegelapan</overlay_opacity>
+		<reset_gamepad>Tetapkan semula Gamepad</reset_gamepad>
+		<overlay_show_touch_switch>ShowTampilkan front/back suis skrin sentuh hadapan/belakang.</overlay_show_touch_switch>
+		<l2_r2_triggers>Pencetus L2/R2 akan dipaparkan hanya jika mode PSTV didayakan,</l2_r2_triggers>
+	</overlay>
+
 	<settings name="Tetapan">
 		<theme_background name="Tema & Background">
 			<default>Lalai</default>
@@ -559,6 +574,8 @@ Sila muat turun dan pasang PS Vita yang terakhir firmware.</no_modules>
 			<select_backend_renderer>Backend renderer pilih pemapar backend pilihan awak.</select_backend_renderer>
 			<gpu>GPU (Reboot untuk memohon)</gpu>
 			<select_gpu>Pilih GPU Vita3K yang sepatutnya dijalankan.</select_gpu>
+			<add_custom_driver>Tambah custom driver</add_custom_driver>
+			<remove_custom_driver>Alih keluar custom driver</remove_custom_driver>
 			<renderer_accuracy>Ketepatan Penyampai</renderer_accuracy>
 			<v_sync_description>Melumpuhkan V-Sync boleh membetulkan isu kelajuan dalam sesetengah permainan.
 Adalah disyorkan untuk memastikan ia didayakan untuk mengelakkan koyakan visual.</v_sync_description>
@@ -583,14 +600,20 @@ Ia tidak mempunyai kelemahan tetapi boleh menjejaskan prestasi.</anisotropic_fil
 			<shader_cache>Gunakan Shader Cache</shader_cache>
 			<shader_cache_description>Tandai kotak untuk mendayakan cache shader untuk menyusunnya terlebih dahulu pada permulaan permainan.
 Nyahtanda untuk melumpuhkan ciri ini.</shader_cache_description>
+			<disabled>Dilumpuhkan</disabled>
+			<double_buffer>Penampan berganda</double_buffer>
+			<external_host>Hos luaran</external_host>
+			<page_table>Tabel halaman</page_table>
+			<mapping_method>Pemetaan memory</mapping_method>
+			<mapping_method_description>Pemetaan memori boleh meningkatkan prestasi. 
+mengurangkan penggunaan memori dan kebanyakannya membetulkan pepijat grafik.
+Selain itu, banyak peranti tidak begitu stabil pada CPU.</mapping_method_description>
+			<turbo_mode>Dayakan Mode Turbo</turbo_mode>
+			<turbo_mode_description>Menyediakan cara untuk memaksa GPU berjalan pada jam maksimum yang mungkin (kekangan terma masih akan digunakan).</turbo_mode_description>
 			<spirv_shader>Gunakan Shader Spir-V (ditamatkan)</spirv_shader>
 			<spirv_shader_description>Hantarkan shader Spir-V yang dijana terus kepada pemandu.
 Ambil perhatian bahawa beberapa sambungan berfaedah akan dilumpuhkan,
 dan tidak semua GPU serasi dengan ini.</spirv_shader_description>
-      <mapping_method>Pemetaan memory</mapping_method>
-      <mapping_method_description>Pemetaan memori boleh meningkatkan prestasi. 
-mengurangkan penggunaan memori dan kebanyakannya membetulkan pepijat grafik.
-Selain itu, banyak peranti tidak begitu stabil pada CPU.</mapping_method_description>
 			<clean_shaders>Bersihkan Cache dan Log Shader</clean_shaders>
 		</gpu>
 		<audio name="Audio">
@@ -645,6 +668,7 @@ Anda perlu mengalihkan folder lama anda ke lokasi baharu secara manual.</change_
 			<reset_emu_path>Tetapkan Semula Laluan Emulator</reset_emu_path>
 			<reset_emu_path_description>Tetapkan semula laluan emulator Vita3K kepada lalai.
 Awak perlu mengalihkan folder lama awak ke lokasi baharu secara manual.</reset_emu_path_description>
+			<storage_folder_permissions>Menggunakan laluan yang berbeza memerlukan kebenaran tambahan</storage_folder_permissions>
 			<custom_config_settings>Tetapan Konfigurasi Tersuai</custom_config_settings>
 			<clear_custom_config>Bersihkan Konfigurasi Tersuai</clear_custom_config>
 		</emulator>
@@ -795,6 +819,7 @@ Selepas muat turun selesai, Vita3K akan dimulakan semula secara automatik dan ke
 	</vita3k_update>
 
 	<welcome name="SelamatDatang Di Vita3K">
+		<for_android>Emulator ini adalah percuma dan telah diedarkan pada Vita3K's official discord. Jika awak tidak memuat turun aplikasi ini daripada Vita3K's official discord, membayarnya atau ia mempunyai iklan, pertimbangkan untuk menyahpasangnya serta-merta untuk keselamatan awak sendiri.</for_android>
 		<vita3k>Emulator Vita3K PlayStation Vita</vita3k>
 		<about_vita3k>Vita3K ialah emulator PlayStation Vita sumber terbuka yang ditulis dalam C++ untuk Windows, Linux, macOS dan Android.</about_vita3k>
 		<development_stage>Emulator masih dalam peringkat pembangunannya jadi sebarang maklum balas dan ujian amat dihargai.</development_stage>
