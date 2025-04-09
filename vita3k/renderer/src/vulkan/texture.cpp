@@ -254,7 +254,7 @@ bool VKTextureCache::init(const bool hashless_texture_cache, const fs::path &tex
     samplers.resize(max_sampler_used);
 
     // check for linear filtering on depth support
-    const vk::FormatProperties depth_linear = state.physical_device.getFormatProperties(vk::Format::eD32SfloatS8Uint);
+    const vk::FormatProperties depth_linear = state.physical_device.getFormatProperties(vk::Format::eD24UnormS8Uint);
     support_depth_linear_filtering = static_cast<bool>(depth_linear.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear);
 
     // check for dxt support

@@ -103,7 +103,7 @@ void Image::init_image(vk::ImageUsageFlags usage, vk::ComponentMapping mapping, 
     if (!(usage & view_usages))
         return;
 
-    vk::ImageSubresourceRange range = (format == vk::Format::eD32SfloatS8Uint) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
+    vk::ImageSubresourceRange range = (format == vk::Format::eD24UnormS8Uint) ? vkutil::ds_subresource_range : vkutil::color_subresource_range;
     vk::ImageViewCreateInfo view_info{
         .image = image,
         .viewType = vk::ImageViewType::e2D,
