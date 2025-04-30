@@ -5451,7 +5451,7 @@ EXPORT(int, sceGxmUnmapMemory, Ptr<void> base) {
         return RET_ERROR(SCE_GXM_ERROR_INVALID_POINTER);
     }
 
-    if (emuenv.renderer->features.support_memory_mapping && ite->second.size > 0)
+    if (emuenv.renderer->features.enable_memory_mapping && ite->second.size > 0)
         renderer::send_single_command(*emuenv.renderer, nullptr, renderer::CommandOpcode::MemoryUnmap, true, base);
 
     emuenv.gxm.memory_mapped_regions.erase(ite);
