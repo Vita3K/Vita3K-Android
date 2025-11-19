@@ -58,7 +58,8 @@ jobs:
         shell: bash
         run: echo "git_short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: vita3k-${{ env.git_short_sha }}-release.apk
-          path: android/build/outputs/apk/release/android-release.apk
+          patterns: |
+            android/build/outputs/apk/release/android-release.apk
