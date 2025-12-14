@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -688,7 +688,7 @@ SurfaceRetrieveResult VKSurfaceCache::retrieve_depth_stencil_for_framebuffer(Sce
 
     image.width = width;
     image.height = height;
-    image.format = vk::Format::eD32SfloatS8Uint;
+    image.format = deep_stencil_use;
     image.layout = vkutil::ImageLayout::Undefined;
     image.init_image(vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eSampled);
 
@@ -838,7 +838,7 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_depth_stencil_as_tex
             vk::ImageViewCreateInfo view_info{
                 .image = cached_info.texture.image,
                 .viewType = vk::ImageViewType::e2D,
-                .format = vk::Format::eD32SfloatS8Uint,
+                .format = deep_stencil_use,
                 .components = {},
                 .subresourceRange = range
             };
@@ -861,7 +861,7 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_depth_stencil_as_tex
         return TextureLookupResult{
             img_view,
             vkutil::ImageLayout::DepthStencilReadOnly,
-            vk::Format::eD32SfloatS8Uint
+            deep_stencil_use
         };
     }
 
@@ -883,7 +883,7 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_depth_stencil_as_tex
         // no compatible read surface found
 
         DepthSurfaceView read_only{
-            .depth_view = vkutil::Image(width, height, vk::Format::eD32SfloatS8Uint),
+            .depth_view = vkutil::Image(width, height, deep_stencil_use),
             .scene_timestamp = 0,
             .delta_col = delta_col_samples,
             .delta_row = delta_row_samples,
@@ -907,7 +907,7 @@ std::optional<TextureLookupResult> VKSurfaceCache::retrieve_depth_stencil_as_tex
         vk::ImageViewCreateInfo view_info{
             .image = read_only.depth_view.image,
             .viewType = vk::ImageViewType::e2D,
-            .format = vk::Format::eD32SfloatS8Uint,
+            .format = deep_stencil_use,
             .components = {},
             .subresourceRange = range
         };
