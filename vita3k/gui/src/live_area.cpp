@@ -1062,7 +1062,7 @@ void draw_live_area_screen(GuiState &gui, EmuEnvState &emuenv) {
     const auto SELECT_SIZE = ImVec2(GATE_SIZE.x - (10.f * SCALE.x), GATE_SIZE.y - (5.f * SCALE.y));
     const auto SELECT_POS = ImVec2(GATE_POS.x + (5.f * SCALE.y), GATE_POS.y + (2.f * SCALE.y));
 
-    const auto BUTTON_SIZE = ImVec2(72.f * SCALE.x, 30.f * SCALE.y);
+    const auto BUTTON_SIZE = ImVec2(80.f * SCALE.x, 55.f * SCALE.y);
 
     if (gui.live_area_contents[app_path].contains("gate")) {
         ImGui::SetCursorPos(GATE_POS);

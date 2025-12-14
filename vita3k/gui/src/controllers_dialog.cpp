@@ -20,6 +20,7 @@
 #include <config/functions.h>
 #include <config/state.h>
 #include <ctrl/state.h>
+#include <dialog/state.h>
 #include <emuenv/state.h>
 #include <gui/functions.h>
 #include <motion/state.h>
@@ -170,6 +171,39 @@ static void add_bind_to_table(GuiState &gui, EmuEnvState &emuenv, const SDL_Game
     ImGui::PopID();
 }
 
+void swap_controller_ports(CtrlState &state, int source_port, int dest_port) {
+    // Check if the ports are valid
+    if (source_port < 1 || source_port > SCE_CTRL_MAX_WIRELESS_NUM || dest_port < 1 || dest_port > SCE_CTRL_MAX_WIRELESS_NUM) {
+        LOG_ERROR("Ports are not valid.");
+        return;
+    }
+
+    // Find the controllers corresponding to the source and destination ports
+    auto source_controller_it = std::find_if(state.controllers.begin(), state.controllers.end(),
+        [source_port](const auto &pair) { return pair.second.port == source_port; });
+    auto dest_controller_it = std::find_if(state.controllers.begin(), state.controllers.end(),
+        [dest_port](const auto &pair) { return pair.second.port == dest_port; });
+
+    // Check that both controllers exist
+    if (source_controller_it == state.controllers.end() || dest_controller_it == state.controllers.end()) {
+        LOG_ERROR("Unable to find one or more controllers on the specified ports.");
+        return;
+    }
+
+    LOG_INFO("Controller on source port {} {} swapped with controller on destination port {} {}", source_port, state.controllers_name[source_port - 1], dest_port, state.controllers_name[dest_port - 1]);
+
+    // Swap controllers info and player index
+    SDL_GameControllerSetPlayerIndex(source_controller_it->second.controller.get(), dest_port - 1);
+    std::swap(source_controller_it->second.port, dest_controller_it->second.port);
+    std::swap(source_controller_it->second.has_accel, dest_controller_it->second.has_accel);
+    std::swap(source_controller_it->second.has_gyro, dest_controller_it->second.has_gyro);
+    std::swap(source_controller_it->second.has_led, dest_controller_it->second.has_led);
+
+    // Swap controller names
+    std::swap(state.controllers_name[source_port - 1], state.controllers_name[dest_port - 1]);
+    std::swap(state.controllers_has_motion_support[source_port - 1], state.controllers_has_motion_support[dest_port - 1]);
+}
+
 void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
     const ImVec2 VIEWPORT_POS(emuenv.viewport_pos.x, emuenv.viewport_pos.y);
     const ImVec2 VIEWPORT_SIZE(emuenv.viewport_size.x, emuenv.viewport_size.y);
@@ -182,8 +216,6 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
 
     const auto has_controllers = ctrl.controllers_num > 0;
 
-    if (has_controllers)
-        ImGui::SetNextWindowSize(ImVec2(VIEWPORT_SIZE.x / 2.5f, 0), ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(VIEWPORT_POS.x + (VIEWPORT_SIZE.x / 2.f), VIEWPORT_POS.y + (VIEWPORT_SIZE.y / 2.f)), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
     ImGui::Begin("##controllers", &gui.controls_menu.controllers_dialog, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
     ImGui::SetWindowFontScale(RES_SCALE.x);
@@ -194,24 +226,35 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
     ImGui::Separator();
 
     if (has_controllers) {
-        const auto connected_str = fmt::format(fmt::runtime(lang["connected"].c_str()), ctrl.controllers_num);
+        const auto connected_str = fmt::format(fmt::runtime(lang["connected"]), ctrl.controllers_num);
         ImGui::TextColored(GUI_COLOR_TEXT_MENUBAR, "%s", connected_str.c_str());
         ImGui::Spacing();
         ImGui::Separator();
         ImGui::Spacing();
-        if (ImGui::BeginTable("main", 2, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
+        if (ImGui::BeginTable("main", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
             ImGui::TableSetupColumn("num");
             ImGui::TableSetupColumn("name");
+            ImGui::TableSetupColumn("motion");
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
             ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", lang["num"].c_str());
             ImGui::TableSetColumnIndex(1);
             ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", lang["name"].c_str());
             ImGui::Spacing();
+            ImGui::TableSetColumnIndex(2);
+            ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", lang["support_motion"].c_str());
+            const char *port_names[] = { "1", "2", "3", "4" };
+            static int selected_port = -1;
             for (auto i = 0; i < ctrl.controllers_num; i++) {
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%-8d", i);
+                selected_port = i;
+                ImGui::PushID(i);
+                ImGui::SetNextItemWidth(50.f * emuenv.dpi_scale);
+                if (ImGui::Combo("##swap_port", &selected_port, port_names, ctrl.controllers_num))
+                    swap_controller_ports(ctrl, i + 1, selected_port + 1);
+                ImGui::PopID();
+                ImGui::TableSetColumnIndex(1);
                 ImGui::TableSetColumnIndex(1);
                 if (ImGui::Button(ctrl.controllers_name[i]))
                     rebinds_is_open = true;
@@ -329,8 +372,7 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                                 color.clear();
                             set_led_color(default_color);
                         }
-                        if (ImGui::IsItemHovered())
-                            ImGui::SetTooltip("%s", lang["use_custom_color_description"].c_str());
+                        SetTooltipEx(lang["use_custom_color_description"].c_str());
                         if (has_custom_color) {
                             ImGui::Spacing();
                             if (ImGui::BeginTable("setColor", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_BordersInnerV)) {
@@ -366,8 +408,11 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
                     if (ImGui::Button(common["close"].c_str(), BUTTON_SIZE))
                         rebinds_is_open = false;
 
+                    ImGui::ScrollWhenDragging();
                     ImGui::End();
                 }
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%s", ctrl.controllers_has_motion_support[i] ? common["yes"].c_str() : common["no"].c_str());
             }
             ImGui::EndTable();
         }
@@ -375,9 +420,16 @@ void draw_controllers_dialog(GuiState &gui, EmuEnvState &emuenv) {
         ImGui::TextColored(GUI_COLOR_TEXT_MENUBAR, "%s", lang["not_connected"].c_str());
 
     if (emuenv.ctrl.has_motion_support) {
+        auto &emulator = gui.lang.settings_dialog.emulator;
         ImGui::Spacing();
+        if (ImGui::Checkbox(lang["motion"].c_str(), &emuenv.cfg.disable_motion))
+        config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+        if(emuenv.cfg.disable_motion){
+           if(ImGui::Checkbox(emulator["invert_gyro"].c_str(), &emuenv.cfg.invert_gyro))
+               config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+           SetTooltipEx(emulator["invert_gyro_description"].c_str());
+        }
         ImGui::PushTextWrapPos(ImGui::GetWindowWidth() - (ImGui::GetStyle().WindowPadding.x * 2.f));
-        ImGui::TextColored(GUI_COLOR_TEXT_TITLE, "%s", lang["motion_support"].c_str());
         ImGui::PopTextWrapPos();
     } else if (emuenv.motion.has_device_motion_support){
         ImGui::Spacing();

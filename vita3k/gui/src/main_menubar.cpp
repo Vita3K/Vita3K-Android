@@ -172,7 +172,9 @@ void draw_main_menu_bar(GuiState &gui, EmuEnvState &emuenv) {
 
         draw_file_menu(gui, emuenv);
         draw_emulation_menu(gui, emuenv);
-        draw_debug_menu(gui, gui.debug_menu);
+        if(emuenv.cfg.debug_menu)
+            draw_debug_menu(gui, gui.debug_menu);
+        
         draw_config_menu(gui, emuenv);
         draw_controls_menu(gui);
         draw_help_menu(gui);

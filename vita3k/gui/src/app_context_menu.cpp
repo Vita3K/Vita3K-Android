@@ -39,7 +39,7 @@
 #ifdef ANDROID
 #include <jni.h>
 
-static void create_shortcut(const std::string_view game_id, const std::string_view game_name){
+static void create_shortcut(const std::string_view game_path, const std::string_view game_id, const std::string_view game_name){
     // retrieve the JNI environment.
     JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
 
@@ -50,11 +50,12 @@ static void create_shortcut(const std::string_view game_id, const std::string_vi
     jclass clazz(env->GetObjectClass(activity));
 
     // find the identifier of the method to call
-    jmethodID method_id = env->GetMethodID(clazz, "createShortcut", "(Ljava/lang/String;Ljava/lang/String;)Z");
+    jmethodID method_id = env->GetMethodID(clazz, "createShortcut", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Z");
+    jstring j_game_path = env->NewStringUTF(game_path.data());
     jstring j_game_id = env->NewStringUTF(game_id.data());
     jstring j_game_name = env->NewStringUTF(game_name.data());
 
-    jboolean result = env->CallBooleanMethod(activity, method_id, j_game_id, j_game_name);
+    jboolean result = env->CallBooleanMethod(activity, method_id, j_game_path, j_game_id, j_game_name);
 
     // clean up the local references.
     env->DeleteLocalRef(j_game_name);
@@ -518,7 +519,7 @@ void draw_app_context_menu(GuiState &gui, EmuEnvState &emuenv, const std::string
             }
 #else
             if(ImGui::MenuItem("Create Shortcut")){
-                create_shortcut(title_id, APP_INDEX->title);
+                create_shortcut(emuenv.pref_path.string(), title_id, APP_INDEX->title);
             }
 #endif
 

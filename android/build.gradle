@@ -2,18 +2,18 @@ apply plugin: 'com.android.application'
 
 android {
 	namespace "org.vita3k.emulator"
-	compileSdk 34
-	ndkVersion "26.3.11579264"
+	compileSdk 35
+	ndkVersion "29.0.14206865"
 	buildFeatures {
 		buildConfig true
 	}
 
 	defaultConfig {
-		applicationId "org.vita3k.emulator"
-		minSdk 24
-		targetSdk 34
+		applicationId "org.vita3k.emulator.ikhoeyZX"
+		minSdk 28
+		targetSdk 35
 		versionCode 12
-		versionName "0.2.0-12"
+		versionName "0.2.0-12.5-ikhoeyZX"
 
 		externalNativeBuild {
 			cmake {
@@ -44,6 +44,7 @@ android {
 			externalNativeBuild {
 				cmake {
 					arguments "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+					arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
 				}
 			}
 			minifyEnabled false
@@ -58,12 +59,13 @@ android {
 			externalNativeBuild {
 				cmake {
 					arguments "-DCMAKE_BUILD_TYPE=Release"
+					arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
 				}
 			}
 			minifyEnabled true
 			shrinkResources true
-			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 			signingConfig = signingConfigs.ci
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
 		}
 	}
 
@@ -79,7 +81,7 @@ android {
 	externalNativeBuild {
 		cmake {
 			path '../CMakeLists.txt'
-			version '3.22.1+'
+			version '3.31.6+'
 		} 
 	}
 
@@ -98,11 +100,12 @@ android {
 }
 
 dependencies {
-	implementation 'androidx.appcompat:appcompat:1.6.1'
-	implementation "androidx.core:core:1.12.0"
-	implementation 'androidx.core:core-google-shortcuts:1.1.0'
-	implementation 'com.google.android.material:material:1.11.0'
-	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+	implementation 'androidx.appcompat:appcompat:1.7.0'
+	implementation "androidx.core:core:1.16.0-alpha02"
+	implementation 'androidx.core:core-google-shortcuts:1.2.0-alpha01'
+	implementation 'com.google.android.material:material:1.13.0-alpha11'
+	implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 	implementation 'com.getkeepsafe.relinker:relinker:1.4.5'
-	implementation 'com.jakewharton:process-phoenix:2.1.2'
+	implementation 'com.jakewharton:process-phoenix:3.0.0'
+	implementation 'androidx.documentfile:documentfile:1.1.0-alpha01'
 }

@@ -73,7 +73,7 @@ void set_controller_overlay_state(int overlay_mask, bool edit, bool reset) {
     env->DeleteLocalRef(clazz);
 }
 
-void set_controller_overlay_scale(float scale) {
+void set_controller_overlay_scale(float scale, float joystick) {
     // retrieve the JNI environment.
     JNIEnv *env = reinterpret_cast<JNIEnv *>(SDL_AndroidGetJNIEnv());
 
@@ -84,10 +84,10 @@ void set_controller_overlay_scale(float scale) {
     jclass clazz(env->GetObjectClass(activity));
 
     // find the identifier of the method to call
-    jmethodID method_id = env->GetMethodID(clazz, "setControllerOverlayScale", "(F)V");
+    jmethodID method_id = env->GetMethodID(clazz, "setControllerOverlayScale", "(FF)V");
 
     // effectively call the Java method
-    env->CallVoidMethod(activity, method_id, scale);
+    env->CallVoidMethod(activity, method_id, scale, joystick);
 
     // clean up the local references.
     env->DeleteLocalRef(activity);
@@ -119,8 +119,10 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
     static bool overlay_editing = false;
 
     const ImVec2 display_size(emuenv.viewport_size.x, emuenv.viewport_size.y);
+    const ImVec2 center_pos = ImGui::GetMainViewport()->GetCenter(); // Always center this window when appearing
+    const auto BUTTON_SIZE = ImVec2(120.f * emuenv.dpi_scale, 0.f);
     const auto RES_SCALE = ImVec2(display_size.x / emuenv.res_width_dpi_scale, display_size.y / emuenv.res_height_dpi_scale);
-    ImGui::SetNextWindowPos(ImVec2(display_size.x / 2.f, display_size.y / 2.f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowPos(center_pos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
     ImGui::Begin("Overlay", &gui.controls_menu.controls_dialog, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::SetWindowFontScale(RES_SCALE.x);
 
@@ -139,28 +141,52 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
 
     const char *overlay_edit_text = overlay_editing ? "Hide Gamepad Overlay" : "Modify Gamepad Overlay";
+    ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (gmpd / 2.f)); // recenter button
     if (ImGui::Button(overlay_edit_text)) {
         overlay_editing = !overlay_editing;
         set_controller_overlay_state(overlay_editing ? get_overlay_display_mask(emuenv.cfg) : 0, overlay_editing);
     }
     ImGui::Spacing();
-    if (overlay_editing && ImGui::SliderFloat("Overlay scale", &emuenv.cfg.overlay_scale, 0.25f, 4.0f, "%.3f", ImGuiSliderFlags_NoInput | ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_Logarithmic)) {
-        set_controller_overlay_scale(emuenv.cfg.overlay_scale);
-        config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+    if(overlay_editing){
+       if (ImGui::SliderFloat("Overlay scale", &emuenv.cfg.overlay_scale, 0.25f, 4.0f, "%.3f", ImGuiSliderFlags_NoInput | ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_Logarithmic)) {
+           set_controller_overlay_scale(emuenv.cfg.overlay_scale, emuenv.cfg.overlay_scale_joystick);
+           config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+       }
+       ImGui::Spacing();
+       if (ImGui::SliderFloat("Overlay scale joystick", &emuenv.cfg.overlay_scale_joystick, 0.25f, 4.0f, "%.3f", ImGuiSliderFlags_NoInput | ImGuiSliderFlags_NoRoundToFormat | ImGuiSliderFlags_Logarithmic)) {
+           set_controller_overlay_scale(emuenv.cfg.overlay_scale, emuenv.cfg.overlay_scale_joystick);
+           config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+       }
+       ImGui::Spacing();
+       if (ImGui::SliderInt("Overlay opacity", &emuenv.cfg.overlay_opacity, 0, 100, "%d%%")) {
+           set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
+           config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
+       }
+       ImGui::Spacing();
     }
-    ImGui::Spacing();
-    if (overlay_editing && ImGui::SliderInt("Overlay opacity", &emuenv.cfg.overlay_opacity, 0, 100, "%d%%")) {
-        set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
-        config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
-    }
+    ImGui::SetCursorPosX((ImGui::GetWindowWidth() / 2.f) - (gmpd / 2.f));
     if (overlay_editing && ImGui::Button("Reset Gamepad")) {
         set_controller_overlay_state(get_overlay_display_mask(emuenv.cfg), true, true);
         emuenv.cfg.overlay_scale = 1.0f;
-        emuenv.cfg.overlay_opacity = 100;
-        set_controller_overlay_scale(emuenv.cfg.overlay_scale);
+        emuenv.cfg.overlay_scale_joystick = 1.0f;
+        emuenv.cfg.overlay_opacity = 80;
+        set_controller_overlay_scale(emuenv.cfg.overlay_scale, emuenv.cfg.overlay_scale_joystick);
         set_controller_overlay_opacity(emuenv.cfg.overlay_opacity);
         config::serialize_config(emuenv.cfg, emuenv.cfg.config_path);
     }
+    ImGui::Spacing();
+    ImGui::Separator();
+
+    auto &emulator = gui.lang.settings_dialog.emulator;
+    if(emuenv.cfg.enable_gamepad_overlay){
+          ImGui::Checkbox(emulator["sensor_disable"].c_str(), &emuenv.cfg.disable_motion);
+        if (!emuenv.cfg.disable_motion){
+            ImGui::Checkbox(emulator["invert_gyro"].c_str(), &emuenv.cfg.invert_gyro);
+            SetTooltipEx(emulator["invert_gyro_description"].c_str());
+        }
+    }
+    SetTooltipEx(emulator["sensors_description"].c_str());
+    
     ImGui::Spacing();
     ImGui::Separator();
     if(emuenv.cfg.enable_gamepad_overlay && ImGui::Checkbox("Show front/back touchscreen switch button.", &emuenv.cfg.overlay_show_touch_switch)){
@@ -169,6 +195,14 @@ void draw_controls_dialog(GuiState &gui, EmuEnvState &emuenv) {
     }
     ImGui::Text("L2/R2 triggers will be displayed only if PSTV mode is enabled.");
 
+    auto &common = emuenv.common_dialog.lang.common;
+    ImGui::SetCursorPosX((ImGui::GetWindowSize().x / 2.f) - (BUTTON_SIZE.x / 2.f));
+    if (ImGui::Button(common["close"].c_str(), BUTTON_SIZE)){
+        overlay_editing = false;
+        set_controller_overlay_state(0);
+        gui.controls_menu.controls_dialog = false;
+    }
+    ImGui::ScrollWhenDragging();
     ImGui::End();
 }
 

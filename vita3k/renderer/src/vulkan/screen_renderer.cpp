@@ -1,5 +1,5 @@
 // Vita3K emulator project
-// Copyright (C) 2024 Vita3K team
+// Copyright (C) 2025 Vita3K team
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -64,7 +64,11 @@ bool ScreenRenderer::create(SDL_Window *window) {
 
 bool ScreenRenderer::setup() {
     const auto surface_formats = state.physical_device.getSurfaceFormatsKHR(surface);
+    const vk::FormatProperties d32u8_support = state.physical_device.getFormatProperties(vk::Format::eD32SfloatS8Uint);
+
     bool surface_format_found = false;
+    bool support_d32u8 = static_cast<bool>(d32u8_support.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear);
+
     for (const auto &format : surface_formats) {
         // actually we don't care that much because we will just be copying what the game rendered
         // rgba8 or bgra8 should be the best as it matches the format output from the vita (we don't care about the swizzle)
@@ -78,6 +82,13 @@ bool ScreenRenderer::setup() {
     if (!surface_format_found)
         surface_format = surface_formats[0];
 
+    if(support_d32u8){
+        LOG_INFO_ONCE("Your device support high deep stencil quality");
+        deep_stencil_use = vk::Format::eD32SfloatS8Uint;
+    }else{
+        deep_stencil_use = vk::Format::eD24UnormS8Uint;
+    }
+        
     // preferred order : mailbox > fifo_relaxed > fifo > whatever
     // the only drawback for mailbox is that it draws more power, so maybe on a portable device use something else
     const auto present_modes = state.physical_device.getSurfacePresentModesKHR(surface);

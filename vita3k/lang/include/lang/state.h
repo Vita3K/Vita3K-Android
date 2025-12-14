@@ -645,7 +645,11 @@ struct LangState {
             { "reset_emu_path", "Reset Emulator Path" },
             { "reset_emu_path_description", "Reset Vita3K emulator path to the default.\nYou will need to move your old folder to the new location manually." },
             { "custom_config_settings", "Custom Config Settings" },
-            { "clear_custom_config", "Clear Custom Config" }
+            { "clear_custom_config", "Clear Custom Config" },
+            { "sensor_disable", "Disable HW acceleration and gyroscope" },
+            { "sensors_description", "Disable or enable built-in sensor" },
+            { "invert_gyro", "Invert gyroscope sensor motion" },
+            { "invert_gyro_description", "Change gyroscope sensor to inverse mode" }
         };
         std::map<std::string, std::string> gui = {
             { "title", "GUI" },
@@ -715,6 +719,7 @@ struct LangState {
             { "dump_elfs_description", "Dump loaded code as ELFs." },
             { "validation_layer", "Validation Layer (Reboot required)" },
             { "validation_layer_description", "Enable Vulkan validation layer." },
+            { "debug_menu", "Enable debug menu in menubar" },
             { "unwatch_code", "Unwatch Code" },
             { "watch_code", "Watch Code" },
             { "unwatch_memory", "Unwatch Memory" },

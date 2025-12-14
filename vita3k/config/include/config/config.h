@@ -53,6 +53,7 @@ enum PerfomanceOverleyPosition {
     code(bool, "log-uniforms", false, log_uniforms)                                                     \
     code(bool, "log-compat-warn", false, log_compat_warn)                                               \
     code(bool, "validation-layer", true, validation_layer)                                              \
+    code(bool, "debug-menu", false, debug_menu)                                                         \
     code(bool, "pstv-mode", false, pstv_mode)                                                           \
     code(bool, "show-mode", false, show_mode)                                                           \
     code(bool, "demo-mode", false, demo_mode)                                                           \
@@ -110,6 +111,9 @@ enum PerfomanceOverleyPosition {
     code(bool, "overlay-show-touch-switch", false, overlay_show_touch_switch)                           \
     code(float, "overlay-scale", 1.0f, overlay_scale)                                                   \
     code(int, "overlay-opacity", 100, overlay_opacity)                                                  \
+    code(float, "overlay-scale-joystick", 1.0f, overlay_scale_joystick)                                 \
+    code(bool, "disable-motion", false, disable_motion)                                                 \
+    code(bool, "invert-gyro", false, invert_gyro)                                                       \
     code(int, "keyboard-button-select", 229, keyboard_button_select)                                    \
     code(int, "keyboard-button-start", 40, keyboard_button_start)                                       \
     code(int, "keyboard-button-up", 82, keyboard_button_up)                                             \

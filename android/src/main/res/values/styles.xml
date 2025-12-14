@@ -1,6 +1,12 @@
 <resources>
 
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-    </style>
+<style name="AppTheme" parent="android:Theme.NoTitleBar.Fullscreen">
+  <item name="windowActionBar">false</item>
+  <item name="windowNoTitle">true</item>
+  <item name="android:windowFullscreen">true</item>
+  <item name="android:windowLayoutInDisplayCutoutMode">
+    shortEdges <!-- default, shortEdges, or never -->
+  </item>
+</style>
 
 </resources>

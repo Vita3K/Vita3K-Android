@@ -260,8 +260,8 @@ public class Emulator extends SDLActivity
     }
 
     @Keep
-    public void setControllerOverlayScale(float scale){
-        getmOverlay().setScale(scale);
+    public void setControllerOverlayScale(float scale, float scale_joystick){
+        getmOverlay().setScale(scale, scale_joystick);
     }
 
     @Keep
@@ -270,12 +270,12 @@ public class Emulator extends SDLActivity
     }
 
     @Keep
-    public boolean createShortcut(String game_id, String game_name){
+    public boolean createShortcut(String game_path, String game_id, String game_name){
         if(!ShortcutManagerCompat.isRequestPinShortcutSupported(getContext()))
             return false;
 
         // first look at the icon, its location should always be the same
-        File src_icon = new File(getExternalFilesDir(null), "vita/ux0/app/" + game_id + "/sce_sys/icon0.png");
+        File src_icon = new File(game_path + "/ux0/app/" + game_id + "/sce_sys/icon0.png");
         Bitmap icon;
         if(src_icon.exists())
             icon = BitmapFactory.decodeFile(src_icon.getPath());
