@@ -74,6 +74,7 @@ The project is in an early stage, so please be mindful when opening new issues. 
 ## Thanks
 Thanks go out to the developer team and [everyone who has contributed](https://github.com/Vita3K/Vita3K/graphs/contributors). 
 * These are people like **petmac, frangarcj, VelocityRa, 1whatleytay, EXtremeExploit, HolyMcDiver, HorrorTroll, IllusionMan1212, KorewaWatchful, scribam, sunho, wfscans, Macdu, bookmist, pent0 and Zangetsu38**.
+* Thanks to **UnearthlyGoose** for designing the Android overlay.
 
 ## Supporters
 Thank you to the supporters and to all those who support us on our [ko-fi](https://ko-fi.com/vita3K).
