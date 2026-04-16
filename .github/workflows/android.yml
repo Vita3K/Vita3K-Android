@@ -1,64 +1,34 @@
 name: Android build
-
-# this is greatly inspired by skyline ci build file
-on: [push]
-
+on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       JVM_OPTS: -Xmx6G
       VCPKG_ROOT: /usr/local/share/vcpkg
-
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
           submodules: recursive
- 
+      - name: Patch SDL Gamepad DB
+        run: |
+          sed -i '/NULL/i \    "03000000780000000600000010010000,Microntek USB Joystick,a:b2,b:b1,back:b8,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b4,leftstick:b10,lefttrigger:b6,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b11,righttrigger:b7,rightx:a2,righty:a3,start:b9,x:b3,y:b0,platform:Android,"' external/sdl/src/joystick/SDL_gamepad_db.h
       - uses: hendrikmuhs/ccache-action@v1.2
-
-      - name: Restore Gradle Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/
-            ${{ env.VCPKG_ROOT }}/installed
-            ${{ env.VCPKG_ROOT }}/packages
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-${{ hashFiles('android/**/*.xml') }}-${{ hashFiles('android/**.java') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-${{ hashFiles('android/**/*.xml') }}-
-            ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}-
-            ${{ runner.os }}-gradle-
-
       - name: Set up build environment
         run: |
+          sudo apt-get update
           sudo apt-get install -y ninja-build
           vcpkg install boost-system:arm64-android boost-filesystem:arm64-android boost-program-options:arm64-android boost-icl:arm64-android boost-variant:arm64-android openssl:arm64-android zlib:arm64-android
-
-      - name: Decode Keystore
-        env:
-          KEYSTORE_ENCODED: ${{ secrets.KEYSTORE }}
-        run: echo $KEYSTORE_ENCODED | base64 --decode > "/home/runner/keystore.jks"
-
       - name: Gradle build
-        env:
-          SIGNING_STORE_PATH: "/home/runner/keystore.jks"
-          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
           cp -r data android/assets
           cp -r lang android/assets
           cp -r vita3k/shaders-builtin android/assets
           export JAVA_HOME=$(echo $JAVA_HOME_17_X64)
-          ./gradlew --stacktrace --configuration-cache --build-cache --parallel --configure-on-demand assembleRelease
-
+          ./gradlew --stacktrace assembleDebug
       - name: Compute git short sha
-        shell: bash
         run: echo "git_short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
-
       - uses: actions/upload-artifact@v3
         with:
-          name: vita3k-${{ env.git_short_sha }}-release.apk
-          path: android/build/outputs/apk/release/android-release.apk
+          name: Vita3K-Redmi12C
+          path: android/build/outputs/apk/debug/android-debug.apk
